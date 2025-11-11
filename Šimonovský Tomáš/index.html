@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wild Jump - Skákačka</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Wild Jump</h1>
+        <nav>
+            <ul>
+                <li><a href="#home" class="active">Domů</a></li>
+                <li><a href="#game">Hrát</a></li>
+                <li><a href="#controls">Ovládání</a></li>
+                <li><a href="#leaderboard">Žebříček</a></li>
+                <li><a href="#about">O projektu</a></li>
+                <li><a href="#flowchart">Rozložení Stránky a Tok Dat</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+
+        <section id="home" class="content-section">
+            <h2>Vítej v Wild Jump!</h2>
+            <p>Jednoduchá skákačka, inspirovaná hrou z Google Chrome.</p>
+        </section>
+
+
+        <section id="game" class="content-section">
+            <h2>Hra</h2>
+            <p>Zde hra ke stažení</p>
+            <button class="primary-btn" onclick="window.location.href='hra.zip'">Stáhnout hru</button>
+
+        </section>
+
+
+        <section id="controls" class="content-section">
+            <h2>Ovládání</h2>
+            <ul class="controls-list">
+                <li><strong>Šipka nahoru</strong> – skok</li>
+                <li><strong>Šipka dolů</strong> – přikrčení</li>
+                <li><strong>Mezerník</strong> – skok</li>
+                <li>Cíl: Přeskakuj překážky a získej co nejvyšší skóre!</li>
+            </ul>
+        </section>
+
+
+        <section id="leaderboard" class="content-section">
+    <h2>Žebříček</h2>
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>ID hráče</th>
+                <th>Jméno</th>
+                <th>Skóre</th>
+                <th>Datum</th>
+                <th>Čas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>Pepa</td><td>1530</td><td>03.11.2025</td><td>14:23</td></tr>
+            <tr><td>2</td><td>Lenka</td><td>1420</td><td>02.11.2025</td><td>18:02</td></tr>
+            <tr><td>3</td><td>David</td><td>1355</td><td>02.11.2025</td><td>12:45</td></tr>
+            <tr><td>4</td><td>Tereza</td><td>1290</td><td>01.11.2025</td><td>21:30</td></tr>
+            <tr><td>5</td><td>Kuba</td><td>1225</td><td>01.11.2025</td><td>15:18</td></tr>
+            <tr><td>6</td><td>Martin</td><td>1180</td><td>31.10.2025</td><td>20:41</td></tr>
+            <tr><td>7</td><td>Veronika</td><td>1110</td><td>30.10.2025</td><td>10:56</td></tr>
+            <tr><td>8</td><td>Adam</td><td>1085</td><td>29.10.2025</td><td>17:15</td></tr>
+            <tr><td>9</td><td>Lucie</td><td>1010</td><td>28.10.2025</td><td>09:12</td></tr>
+            <tr><td>10</td><td>Honza</td><td>950</td><td>27.10.2025</td><td>16:40</td></tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+        <section id="about" class="content-section">
+            <h2>O projektu</h2>
+            <p><strong>Wild Jump</strong> je maturitní projekt vytvořený ve Visual Studiu pomocí:</p>
+            <ul class="tech-list">
+                <li>SQLite – Databáze pro ukládání výsledků</li>
+                <li>HTML, CSS, Lehký JavaScript, Python(Flask), Pygame </li>
+            </ul>
+            <p>Cílem projektu je vytvořit webovou stránku a hru, která propojuje herní logiku a databázové zpracování.</p>
+        </section>
+
+
+        <section id="flowchart" class="content-section">
+            <h2>Rozložení Stránky a Tok Dat</h2>
+            <div class="image-container">
+                <img src="ER.png" alt="Vývojový diagram Wild Jump" />
+             </div>
+        </section>
+
+
+    </main>
+
+    <footer>
+        <p>Wild Jump | Maturitní projekt</p>
+    </footer>
+
+    <script>
+
+document.querySelectorAll("nav a").forEach(link => {
+    link.addEventListener("click", e => {
+        e.preventDefault();
+
+        document.querySelectorAll("nav a").forEach(a => a.classList.remove("active"));
+        link.classList.add("active");
+
+        const targetId = link.getAttribute("href");
+        const targetElem = document.querySelector(targetId);
+
+        const headerHeight = document.querySelector("header").offsetHeight;
+
+        const elementPosition = targetElem.getBoundingClientRect().top + window.pageYOffset;
+
+        window.scrollTo({
+            top: elementPosition - headerHeight,
+            behavior: "smooth"
+        });
+    });
+});
+
+    </script>
+</body>
+</html>
