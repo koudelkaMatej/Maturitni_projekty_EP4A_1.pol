@@ -5,31 +5,31 @@ import struct
 import sys
 from pygame.locals import *
 
-# --------- Nastavení ---------
+
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 400
 GROUND_Y = 300
 FPS = 60
 
-# Hráč
+
 PLAYER_W = 70
 PLAYER_H = 80
 DUCK_H = 30
 
-# Překážky
+
 OBSTACLE_MIN_W = 60
 OBSTACLE_MAX_W = 60
 OBSTACLE_MIN_H = 70
 OBSTACLE_MAX_H = 70
 SPAWN_INTERVAL = 2000  # ms
 
-# Barvy
+
 WHITE = (255, 255, 255)
 BLACK = (25, 25, 25)
 BLUE1 = (0, 120, 215)
 BG = (240, 249, 255)
 
-# --------- Inicializace pygame ---------
+
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("JumpRex - Skákačka")
@@ -37,7 +37,7 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont("arial", 20)
 big_font = pygame.font.SysFont("arial", 36)
 
-# --------- Zvuky ---------
+
 pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.mixer.init()
 
@@ -58,7 +58,7 @@ master_volume = 0.05
 jump_sound.set_volume(master_volume)
 hit_sound.set_volume(master_volume)
 
-# --------- Třídy ---------
+
 class Player:
     def __init__(self):
         self.w = PLAYER_W
@@ -71,7 +71,7 @@ class Player:
         self.gravity = 1400
         self.jump_speed = -520
 
-        # 🖼️ Vlastní obrázek hráče (player.png)
+
         try:
             self.image = pygame.image.load("kovboj.png").convert_alpha()
         except:
@@ -106,12 +106,12 @@ class Player:
     def duck(self, enable):
         if enable and self.on_ground:
             if not self.ducking:
-                # posun dolů o rozdíl výšek
+
                 self.y += (self.h - DUCK_H)
             self.ducking = True
         else:
             if self.ducking:
-                # vrátit y zpět nahoru, když přestaneme skrčovat
+
                 self.y -= (self.h - DUCK_H)
             self.ducking = False
             if self.on_ground:
@@ -134,7 +134,7 @@ class Obstacle:
         self.y = GROUND_Y - h
         self.speed = speed
 
-        # 🖼️ Načti překážku (obstacle1.png, obstacle2.png)
+
         possible_images = ["bedna.png", "benda.png"]
         self.image = None
         for path in possible_images:
@@ -166,7 +166,7 @@ class Obstacle:
         else:
             pygame.draw.rect(surf, self.color, self.rect())
 
-# --------- Pomocné funkce ---------
+
 def spawn_obstacle(speed):
     w = random.randint(OBSTACLE_MIN_W, OBSTACLE_MAX_W)
     h = random.randint(OBSTACLE_MIN_H, OBSTACLE_MAX_H)
@@ -180,7 +180,7 @@ def reset_game():
     next_spawn = pygame.time.get_ticks() + SPAWN_INTERVAL
     return player, obstacles, score, speed, next_spawn
 
-# --------- UI prvky ---------
+
 class Button:
     def __init__(self, rect, text):
         self.rect = pygame.Rect(rect)
@@ -234,15 +234,15 @@ class Slider:
             return True
         return False
 
-# --------- Hlavní smyčka ---------
+
 def main():
     global master_volume
     running = True
-    game_state = "menu"  # menu / playing / paused
+    game_state = "menu" 
     high_score = 0
-    pygame.mixer.music.load("music.mp3")  # nebo cesta k souboru
-    pygame.mixer.music.set_volume(master_volume)  # nastavit hlasitost podle slideru
-    pygame.mixer.music.play(-1)  # -1 znamená nekonečný loop
+    pygame.mixer.music.load("music.mp3") 
+    pygame.mixer.music.set_volume(master_volume) 
+    pygame.mixer.music.play(-1) 
 
 
     start_btn = Button((SCREEN_WIDTH//2 - 100, 120, 200, 56), "Spustit hru")
@@ -259,7 +259,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-            # ---- MENU ----
+ 
             if game_state == "menu":
                 if event.type == MOUSEBUTTONDOWN:
                     if start_btn.clicked(event.pos):
@@ -267,7 +267,7 @@ def main():
                         player, obstacles, score, speed, next_spawn = reset_game()
                     volume_slider.handle_event(event)
                 elif event.type == MOUSEMOTION:
-                    # změna hlasitosti pouze pokud právě táhneš slider (dragging)
+                    
                     if volume_slider.dragging:
                         volume_slider.handle_event(event)
                 elif event.type == MOUSEBUTTONUP:
@@ -279,7 +279,7 @@ def main():
                 pygame.mixer.music.set_volume(master_volume)
 
 
-            # ---- HRANÍ ----
+            
             elif game_state == "playing":
                 if event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
@@ -292,7 +292,7 @@ def main():
                     if event.key == K_DOWN:
                         player.duck(False)
 
-            # ---- PAUZA ----
+            
             elif game_state == "paused":
                 if event.type == KEYDOWN and event.key == K_ESCAPE:
                     game_state = "playing"
@@ -302,7 +302,7 @@ def main():
                     elif menu_btn.clicked(event.pos):
                         game_state = "menu"
 
-        # --- UPDATE ---
+        
         if game_state == "playing":
             player.update(dt)
             now = pygame.time.get_ticks()
@@ -316,7 +316,7 @@ def main():
                     obstacles.remove(obs)
                     score += 10
 
-            # kolize pomocí masek
+            
             p_rect = player.rect()
             p_mask = player.get_mask()
             for obs in obstacles:
@@ -331,13 +331,13 @@ def main():
                         game_state = "menu"
                         break
 
-            # zvýšení rychlosti
+            
             speed = 300 + (score // 50) * 20
             for obs in obstacles:
                 obs.speed = speed
             score += int(40 * dt)
 
-        # --- KRESLENÍ ---
+       
         screen.fill(BG)
         pygame.draw.rect(screen, (230, 245, 255), (0, GROUND_Y, SCREEN_WIDTH, SCREEN_HEIGHT - GROUND_Y))
 
@@ -380,3 +380,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
