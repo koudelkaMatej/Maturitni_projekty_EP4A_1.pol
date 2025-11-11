@@ -1,0 +1,271 @@
+1) Výběr tématu a cíle projektu
+
+Téma: 2D Ship Shooter — arkádová střílečka vytvořená v Pythonu (Pygame) s doprovodnou webovou prezentací pro popis hry a ukládání výsledků.
+
+Cíl projektu:
+
+Implementovat hru v Pygame (ovládání, nepřátelé, střelba, skóre, základní UI/menu).
+
+Navrhnout a vytvořit web (HTML/CSS/JS) jako dokumentaci + tabulku nejlepších skóre a správy uživatelů.
+
+Navrhnout jednoduchou relační databázi pro ukládání hráčů, skóre a herních statistik.
+
+Dodat analytickou dokumentaci (datové toky, ER-diagram, SQL příkazy).
+
+2) Funkční menu (herní menu) — návrh
+
+Cílem menu je umožnit hráči spustit hru, upravit nastavení, zobrazit výsledky a opustit aplikaci.
+
+Rozložení a položky menu
+
+Hlavní menu
+
+Nadpis: "2D Ship Shooter"
+
+Hrát — spustí hru (nová session)
+
+Nejlepší skóre — zobrazí seznam highscore (data z DB)
+
+Nastavení — ovládání hlasitosti, zapnout/vypnout zvuky, difficulty (Easy/Normal/Hard)
+
+O hře — krátký popis a ovládání
+
+Konec — ukončí program
+
+Menu během hry (pauza)
+
+Pokračovat
+
+Restartovat
+
+Uložit skóre (pokud hráč dosáhl thresholdu)
+
+Návrat do hlavního menu
+
+Dialog uložení skóre
+
+Vstup: jméno hráče
+
+Tlačítko: Uložit
+
+Validace: jméno 3–20 znaků
+
+3) Návrh rozložení projektu (moduly / složky)
+
+Navržená struktura projektu (složky a co v nich bude):
+
+├─ game/                    # zdrojový kód hry (pygame)
+│  ├─ main.py               # spuštění menu/hry
+│  ├─ player.py             # třída Hráč
+│  ├─ enemy.py              # třída Nepřítel
+│  ├─ projectile.py        # třída Projektil
+│  ├─ ui.py                 # funkce pro menu a HUD
+│  └─ assets/               # obrázky, zvuky
+│     ├─ images/
+│     └─ sounds/
+│
+├─ web/                     # statická web prezentace (html/css/js)
+│  ├─ index.html
+│  ├─ styles.css2d_ship_shooter/
+
+
+│  └─ scripts.js
+│
+├─ server/                  # jednoduché API (volitelné)
+│  ├─ app.py                # Flask / FastAPI server pro highscores
+│  └─ requirements.txt
+│
+├─ db/                      # databázové migrace / skripty
+│  └─ init_db.sql
+│
+└─ docs/                    # dokumentace, ER-diagram, prezentace
+   └─ analýza.md
+Komponenty a zodpovědnosti
+
+Herní klient (game/) — běží lokálně, zpracovává vstup, herní logiku, vykreslování.
+
+Web (web/) — slouží jako vizuální prezentace, může volat API pro načítání nejlepších skóre.
+
+Server/API (server/) — jednoduché REST API pro CRUD operace skóre a uživatelů.
+
+DB (sqlite nebo PostgreSQL) — perzistentní uložení hráčů, skóre a nastavení.
+
+4) Datové toky (co → kde → odkud)
+
+Popis hlavních datových toků mezi komponentami:
+
+Hra → Lokální UI
+
+Skóre z běhu hry je drženo v paměti (proměnná skore).
+
+Po skončení hry otevřít dialog pro uložení skóre.
+
+Hra → Server (API)
+
+Po potvrzení uložení: hra pošle POST /scores s payloadem {name, score, timestamp, difficulty}.
+
+Server validuje a uloží záznam do DB.
+
+Web → Server
+
+Webová stránka načítá top N skóre GET /scores?limit=10 pro zobrazení tabulky hráčů.
+
+Server ↔ DB
+
+Server provádí dotazy (INSERT/SELECT) do relační DB.
+
+Admin / Lokální klient → DB
+
+Může být jednoduché rozhraní pro smazání/úpravu záznamů.
+
+5) Návrh databáze (relační)
+
+Volba DB: SQLite pro lokální demo (snadné nasazení), nebo PostgreSQL pro produkční/školní server.
+
+Požadavky
+
+Ukládat nejlepší skóre (jméno hráče, skóre, datum, obtížnost)
+
+Ukládat metadata o session (doba trvání, počet zabití)
+
+Případně ukládat uživatelské účty (volitelné)
+
+Tabulky (návrh)
+
+users (volitelné)
+
+id INTEGER PRIMARY KEY AUTOINCREMENT
+
+username TEXT UNIQUE NOT NULL
+
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+
+scores
+
+id INTEGER PRIMARY KEY AUTOINCREMENT
+
+user_id INTEGER NULL -- fk na users.id (může být NULL, pokud guest)
+
+name TEXT NOT NULL -- jméno hráče pro zobrazení
+
+score INTEGER NOT NULL
+
+kills INTEGER DEFAULT 0 -- počet zničených nepřátel
+
+duration_seconds INTEGER NULL -- délka session
+
+difficulty TEXT DEFAULT 'Normal'
+
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+
+settings (volitelné per-user nebo globální)
+
+id INTEGER PRIMARY KEY AUTOINCREMENT
+
+user_id INTEGER NULL
+
+key TEXT NOT NULL
+
+value TEXT
+
+assets (volitelné — pokud spravujete screenshoty/obrázky)
+
+id INTEGER PRIMARY KEY AUTOINCREMENT
+
+file_name TEXT
+
+path TEXT
+
+uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+
+Indexy a FK
+
+scores.user_id -> FK users.id (ON DELETE SET NULL)
+
+Index na scores(score DESC) pro rychlé vyhledání top skóre
+
+6) Příklady SQL (SQLite)
+-- Tabulka users (volitelná)
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Tabulka scores
+CREATE TABLE IF NOT EXISTS scores (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  kills INTEGER DEFAULT 0,
+  duration_seconds INTEGER,
+  difficulty TEXT DEFAULT 'Normal',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE INDEX IF NOT EXISTS idx_scores_score ON scores(score DESC);
+7) ER-diagram (Mermaid)
+
+Použijte následující Mermaid kód pro rychlé zobrazení ER-diagramu v podporovaném rendereru (v Markdown / nástroji, které Mermaid umí). Pokud Mermaid není k dispozici, diagram lze rychle překreslit v jakémkoli ER nástroji.
+
+erDiagram
+    USERS ||--o{ SCORES : has
+
+
+    USERS {
+      INTEGER id PK
+      TEXT username
+      DATETIME created_at
+    }
+
+
+    SCORES {
+      INTEGER id PK
+      INTEGER user_id FK
+      TEXT name
+      INTEGER score
+      INTEGER kills
+      INTEGER duration_seconds
+      TEXT difficulty
+      DATETIME created_at
+    }
+
+
+    SETTINGS {
+      INTEGER id PK
+      INTEGER user_id FK
+      TEXT key
+      TEXT value
+    }
+
+
+    ASSETS {
+      INTEGER id PK
+      TEXT file_name
+      TEXT path
+      DATETIME uploaded_at
+    }
+8) Doporučené API endpointy (jednoduché REST)
+
+GET /scores?limit=10&difficulty=Normal — vrátí top skóre
+
+POST /scores — uloží nové skóre {name, score, kills, duration_seconds, difficulty}
+
+GET /users — (volitelné) seznam uživatelů
+
+POST /users — vytvořit uživatele
+
+9) Doporučení pro implementaci a další rozšíření
+
+Nejprve implementujte lokální ukládání (SQLite) a propojte web s GET /scores.
+
+Přidejte validaci jména před uložením (neprázdné, max délka).
+
+Přidejte levely obtížnosti (např. zrychlení nepřátel, častější spawn) a uložte difficulty do skóre.
+
+Přidejte zvuky/animace pro lepší UX.
+
+Zálohování: pro pokročilejší projekt použijte PostgreSQL a deployment na Heroku/VPS.

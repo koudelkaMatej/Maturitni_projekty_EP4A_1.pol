@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2D Ship Shooter — Web</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#0f1724; --accent:#16a34a; --muted:#94a3b8; --glass:rgba(255,255,255,0.04);
+      --nav-height:64px; font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#04060a 0%, #0b1020 100%);color:#e6eef8;line-height:1.5}
+
+    header{position:fixed;inset:0 0 auto 0;height:var(--nav-height);backdrop-filter:blur(6px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:50;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo-img{width:40px;height:40px;object-fit:contain;border-radius:8px}
+    nav{display:flex;gap:12px}
+    nav a{color:var(--muted);text-decoration:none;padding:10px 14px;border-radius:8px;font-weight:500}
+    nav a:hover{color:#fff;background:var(--glass)}
+    nav a.active{color:#fff;background:rgba(22,163,74,0.12);box-shadow:0 4px 18px rgba(0,0,0,0.6)}
+
+    main{padding:100px 20px 40px;max-width:1100px;margin:0 auto}
+    section.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);padding:22px;border-radius:12px;margin-bottom:18px}
+    h1,h2{margin:0 0 12px}
+    .muted{color:var(--muted);font-size:0.95rem}
+
+    table{width:100%;border-collapse:collapse;background:transparent}
+    th,td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03)}
+    th{font-size:0.9rem;color:var(--muted)}
+    td{font-weight:600}
+
+    @media (max-width:720px){nav{display:none}header{padding:0 12px}main{padding-top:110px}}
+
+    footer{opacity:0.6;text-align:center;font-size:0.9rem;color:var(--muted);margin-top:10px}
+
+    .alg-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .alg-item{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="volde.jpg" alt="Logo hry" class="logo-img">
+      <div>
+        <div style="font-size:14px;">2D Ship Shooter</div>
+        <div class="muted" style="font-size:12px;margin-top:2px">Mini web s popisem a tabulkou</div>
+      </div>
+    </div>
+
+    <nav id="topnav">
+      <a href="#home" class="active">Home</a>
+      <a href="#algoritmy">Algoritmy</a>
+      <a href="#hraci">Tabulka hráčů</a>
+      <a href="#popis">Popis hry</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="card">
+      <h1>Vítej v 2D Ship Shooter</h1>
+      <p class="muted">Jednoduchá ukázka hry v Pygame — dole najdeš popis mechanik, seznam použitých algoritmů a ukázkovou tabulku hráčů.</p>
+    </section>
+
+    <section id="algoritmy" class="card">
+      <h2>Algoritmy</h2>
+      <div class="alg-list">
+        <div class="alg-item">
+          <strong>Spawn nepřátel</strong>
+          <p class="muted">Timer + kontrola počtu nepřátel (max 6). Po uplynutí intervalu se vytvoří nový nepřítel.</p>
+        </div>
+        <div class="alg-item">
+          <strong>Pohyby nepřátel</strong>
+          <p class="muted">Nepřátelé se pohybují vodorovně a mění směr při dosažení okraje obrazovky.</p>
+        </div>
+        <div class="alg-item">
+          <strong>Střílení</strong>
+          <p class="muted">Nepřátelům běží cooldown; po jeho vypršení vystřelí projektil směrem dolů.</p>
+        </div>
+        <div class="alg-item">
+          <strong>Kolize</strong>
+          <p class="muted">Detekce kolizí pomocí skupin spritů (hitboxy) - zásah nepřítele střelou = likvidace a +1 skóre.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="hraci" class="card">
+      <h2>Tabulka hráčů</h2>
+      <p class="muted">Ukázková tabulka — nahraď reálnými daty podle potřeby.</p>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Jméno</th><th>Role</th><th>Nejvyšší skóre</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Adam</td><td>Pilot</td><td>48</td></tr>
+          <tr><td>2</td><td>Eva</td><td>Střelec</td><td>37</td></tr>
+          <tr><td>3</td><td>Tomáš</td><td>Support</td><td>29</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="popis" class="card">
+      <h2>Popis hry</h2>
+      <p class="muted">Níže je přepis a popis mechanik vycházející z vámi poskytnutého kódu (Pygame).</p>
+
+      <h3 style="margin-top:8px">Shrnutí</h3>
+      <p>2D Ship Shooter je arkádová střílečka z pohledu z boku (top-down). Hráč ovládá malou loď/kvádr, kterou lze pohybovat vodorovně i svisle po herním plátně. Cílem je ničit nepřátele a sbírat skóre, dokud hráč není zasažen nepřátelskou střelou.</p>
+
+      <h3>Ovládání</h3>
+      <ul>
+        <li><strong>Šipky</strong> — pohyb (vlevo, vpravo, nahoru, dolů)</li>
+        <li><strong>Mezerník</strong> — vystřelit projektil</li>
+      </ul>
+
+      <h3>Mechaniky</h3>
+      <ul>
+        <li><strong>Hráč</strong> — reprezentován zeleným čtvercem (40×40), má konstantní rychlost a může střílet vlastní projektily.</li>
+        <li><strong>Nepřátelé</strong> — červené čtverce, spawnují se náhodně v horní části obrazovky, pohybují se vodorovně a občas střílejí žluté projektily směrem dolů.</li>
+        <li><strong>Projektily</strong> — malé obdélníky, které se pohybují vertikálně; hráčovy střely jdou nahoru, nepřátelské dolů. Po opuštění obrazovky jsou odstraněny.</li>
+        <li><strong>Skóre</strong> — zvýší se o 1 pokaždé, když hráč zasáhne nepřítele.</li>
+        <li><strong>Konec hry</strong> — nastane pokud hráč narazí do nepřátelské střely (detekce kolize), následně se vrátí do hlavního menu.</li>
+      </ul>
+
+      <h3>Další poznámky & návrhy</h3>
+      <ul>
+        <li>Můžete přidat zvuky, efekty výbuchu a animace pro lepší pocit z hry.</li>
+        <li>Implementovat více typů nepřátel (rychlejší, odolnější) nebo power-upy (životy, rychlejší střelba).</li>
+        <li>Uložit tabulku nejlepších skóre a umožnit export/import.</li>
+      </ul>
+    </section>
+
+    <footer>© 2025 — 2D Ship Shooter — jednoduchý demo web</footer>
+  </main>
+
+  <script>
+    const links = document.querySelectorAll('nav a');
+    function setActive(id){
+      links.forEach(a=>a.classList.toggle('active', a.getAttribute('href') === '#'+id));
+    }
+    links.forEach(a=>a.addEventListener('click', e=>{
+      links.forEach(x=>x.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+    }));
+    const sections = document.querySelectorAll('main section');
+    window.addEventListener('scroll', ()=>{
+      let current = 'home';
+      sections.forEach(sec=>{
+        const rect = sec.getBoundingClientRect();
+        if(rect.top <= 120 && rect.bottom > 120) current = sec.id;
+      });
+      setActive(current);
+    });
+  </script>
+</body>
+</html>
