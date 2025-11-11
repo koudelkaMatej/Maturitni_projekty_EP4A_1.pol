@@ -1,0 +1,161 @@
+:root{
+    --bg-1: #071027;
+    --bg-2: #0b2e4a;
+    --accent: #1ea7ff;
+    --muted: #9fb8d9;
+    --card-bg: rgba(255,255,255,0.02);
+    --text: #eaf6ff;
+    --header-height: 64px;
+    --footer-height: 56px;
+    --max-width: 520px;
+}
+
+/* Reset a základ */
+*{ box-sizing:border-box; }
+html,body{
+    height:100%;
+    margin:0;
+    padding:0;
+    font-family:"Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    color:var(--text);
+}
+body{
+    background: linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 60%, #043239 100%);
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+}
+
+/* Header / navbar stejné jako TOP10 */
+header{
+    height:var(--header-height);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    background: rgba(0,0,0,0.12);
+    border-bottom:1px solid rgba(255,255,255,0.03);
+}
+header h1{ margin:0; font-size:1.15rem; letter-spacing: 0.6px }
+header h1 a{ color:#fff; text-decoration:none; font-weight:700; }
+nav ul{
+    display:flex;
+    gap:10px;
+    list-style:none;
+    margin:0;
+    padding:0;
+    align-items:center;
+    height:100%;
+}
+nav a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    color:var(--muted);
+    text-decoration:none;
+    padding:0 10px;
+    border-radius:6px;
+}
+nav a.active,
+nav a:hover{
+    background: rgba(255,255,255,0.03);
+    color:#fff;
+    transform:translateY(-1px);
+    transition:all .12s ease;
+}
+
+/* Main - login card */
+main{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+}
+.login-center{
+    width:100%;
+    display:flex;
+    justify-content:center;
+}
+.login-card{
+    width:100%;
+    max-width:var(--max-width);
+    padding:22px;
+    border-radius:12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.04);
+    box-shadow:0 12px 30px rgba(0,0,0,0.5);
+    color:var(--text);
+    box-sizing:border-box;
+}
+.login-card h2{ margin:0 0 8px; color:#fff; font-size:1.4rem; }
+.muted{ color:var(--muted); margin-bottom:10px; font-size:0.95rem; }
+.login-card label{ display:block; margin-top:10px; color:#cfe7ff; font-size:0.95rem; }
+.login-card input[type="text"],
+.login-card input[type="password"]{
+    width:100%;
+    padding:10px 12px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.16);
+    color:var(--text);
+    outline:none;
+}
+.login-card input:focus{
+    border-color: rgba(30,167,255,0.9);
+    box-shadow: 0 6px 18px rgba(25,98,255,0.08);
+}
+
+/* Password toggle */
+.pw-wrap{ position:relative; }
+.pw-toggle{
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+    background:transparent;
+    border:none;
+    color:#cfe7ff;
+    cursor:pointer;
+    font-size:1rem;
+    padding:6px;
+    border-radius:6px;
+}
+
+/* Řádky a akce */
+.row{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:8px; }
+.checkbox input{ margin-right:8px; }
+.actions{ display:flex; gap:10px; margin-top:16px; align-items:center; }
+.primary{
+    flex:1;
+    background: linear-gradient(90deg,var(--accent),#1962ff);
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+}
+.ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.06);
+    color:#d7eafc;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* Stavové zprávy */
+.msg{ margin-top:10px; min-height:20px; font-weight:600; color:var(--text); }
+
+
+
+/* Responsivita */
+@media (max-width:520px){
+    main{ padding:18px; }
+    .login-card{ padding:16px; border-radius:10px; }
+    .actions{ flex-direction:column; }
+}

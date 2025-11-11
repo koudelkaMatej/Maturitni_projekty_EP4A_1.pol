@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake</title>
+    <link rel="stylesheet" type="text/css" href="Přihlášení.css">
+</head>
+<body>
+    <header>
+        <h1>Snake</h1> 
+        <nav>
+            <ul>
+                <li><a href="O hře.html">O hře</a></li>
+                <li><a href="Herní módy.html">Herní módy</a></li>
+                <li><a href="TOP10.html">TOP10</a></li>
+                <li><a class="active" href="Přihlášení.html">Přihlášení</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="login-center">
+            <form id="loginForm" class="login-card" novalidate>
+                <h2>Přihlášení</h2>
+                
+
+                <label for="user">Uživatelské jméno nebo e-mail</label>
+                <input id="user" name="user" type="text" autocomplete="username" required>
+
+                <label for="password">Heslo</label>
+                <div class="pw-wrap">
+                    <input id="password" name="password" type="password" autocomplete="current-password" required>
+                    <button type="button" id="togglePw" class="pw-toggle" aria-label="Zobrazit heslo">👁️</button>
+                </div>
+
+                <div class="row">
+                    <label class="checkbox"><input type="checkbox" id="remember"> Zapamatovat</label>
+                    
+                </div>
+
+                <div class="actions">
+                    <button id="submitBtn" type="submit" class="primary">Přihlášení</button>
+                </div>
+
+            
+            </form>
+        </div>
+    </main>
+
+    <script>
+    (function(){
+      const form = document.getElementById('loginForm');
+      const user = document.getElementById('user');
+      const pw = document.getElementById('password');
+      const msg = document.getElementById('msg');
+      const toggle = document.getElementById('togglePw');
+
+      toggle.addEventListener('click', ()=> {
+        pw.type = pw.type === 'password' ? 'text' : 'password';
+        toggle.textContent = pw.type === 'password' ? '👁️' : '🙈';
+      });
+
+      form.addEventListener('submit', (e)=> {
+        e.preventDefault();
+        msg.textContent = '';
+        if (!user.value.trim() || !pw.value.trim()) {
+          msg.textContent = 'Vyplň uživatelské jméno i heslo.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+        if (user.value.trim().length < 3 || pw.value.trim().length < 3) {
+          msg.textContent = 'Uživatelské jméno nebo heslo je příliš krátké.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+        msg.style.color = '#bff7c6';
+        msg.textContent = 'Přihlášení proběhlo (simulace). Přesměrování...';
+        localStorage.setItem('snake_user', user.value.trim());
+        setTimeout(()=> location.href = 'Projekt.html', 900);
+      });
+    })();
+    </script>
+</body>
+</html>

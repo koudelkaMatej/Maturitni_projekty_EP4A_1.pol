@@ -1,0 +1,211 @@
+/* 🎮 SNAKE — jednotný styl webu */ 
+/* ========================= */ 
+
+/* 🔹 ZÁKLADNÍ NASTAVENÍ */ 
+/* ========================= */ 
+:root{ 
+  --bg-1:#071027; 
+  --bg-2:#0b2e4a; 
+  --accent:#1ea7ff; 
+  --muted:#9fb8d9; 
+  --card-bg: rgba(255,255,255,0.02); 
+  --text:#eaf6ff; 
+  --max-width:990px; 
+  --header-height:64px; 
+  --radius:12px; 
+  --gap:12px; 
+  --base-size:16px; 
+} 
+
+/* Reset + typografie */ 
+*{ 
+  box-sizing:border-box; 
+  margin:0; 
+  padding:0; 
+} 
+html,body{ 
+  height:100%; 
+  font-family:"Segoe UI", Roboto, Arial, sans-serif; 
+  -webkit-font-smoothing:antialiased; 
+  color:var(--text); 
+  font-size:var(--base-size); 
+} 
+
+/* ========================= */ 
+/* 🔹 STRUKTURA STRÁNKY */ 
+/* ========================= */ 
+body{ 
+  background: linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 60%, #043239 100%); 
+  min-height:100vh; 
+  display:flex; 
+  flex-direction:column; 
+  overflow-x:hidden; 
+} 
+
+/* ========================= */ 
+/* 🔹 HLAVIČKA / NAVBAR */ 
+/* ========================= */ 
+header{ 
+  height:var(--header-height); 
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  padding:0 20px; 
+  background: rgba(0,0,0,0.12); 
+  border-bottom:1px solid rgba(255,255,255,0.03); 
+  z-index:10; 
+} 
+header h1{ 
+  margin:0; 
+  font-size:1.15rem; 
+  color:var(--text); 
+  font-weight:700; 
+  letter-spacing:0.6px; 
+} 
+header h1 a{ 
+  color:inherit; 
+  text-decoration:none; 
+} 
+nav ul{ 
+  display:flex; 
+  gap:10px; 
+  list-style:none; 
+  margin:0; 
+  padding:0; 
+  align-items:center; 
+  height:100%; 
+} 
+nav a{ 
+  color:var(--muted); 
+  text-decoration:none; 
+  padding:6px 10px; 
+  border-radius:6px; 
+  display:inline-block; 
+  transition:all .15s ease; 
+  cursor:pointer; 
+} 
+nav a.active, nav a:hover{ 
+  background: rgba(255,255,255,0.03); 
+  color:#fff; 
+  transform:translateY(-1px); 
+} 
+
+/* ========================= */ 
+/* 🔹 HLAVNÍ OBSAH */ 
+/* ========================= */ 
+main{ 
+  flex:1; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  padding:24px 16px; 
+} 
+/* sjednocení pro všechny hlavní sekce */ 
+.modes-main, .o-hre-main, .login-main, .top10-main{ 
+  min-height: calc(100vh - var(--header-height)); 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  padding:24px 16px; 
+} 
+
+/* ========================= */ 
+/* 🔹 KARTY (OBSAHOVÉ BLOKY) */ 
+/* ========================= */ 
+.card, .modes-card, .o-card, .login-card, .top10-card{ 
+  width:100%; 
+  max-width:var(--max-width); 
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); 
+  border:1px solid rgba(255,255,255,0.04); 
+  border-radius:var(--radius); 
+  padding:22px; 
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5); 
+  color:var(--text); 
+} 
+.card h2, .modes-card h2, .o-card h2, .login-card h2, .top10-card h2{ 
+  margin:0 0 8px; 
+  font-size:1.4rem; 
+  color:#fff; 
+} 
+.card .muted, .modes-card .muted, .o-card .muted, .login-card .muted, .top10-card .muted{ 
+  color:var(--muted); 
+  margin-bottom:14px; 
+} 
+
+/* ========================= */ 
+/* 🔹 SEZNAMY / GRIDY */ 
+/* ========================= */ 
+.mode-list, .grid, .top10-list{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:var(--gap); 
+  margin-top:8px; 
+} 
+.mode, .grid article, .top10-item{ 
+  background: var(--card-bg); 
+  border:1px solid rgba(255,255,255,0.03); 
+  padding:14px 16px; 
+  border-radius:8px; 
+} 
+.mode h3, .grid h3{ 
+  margin:0 0 6px; 
+  color:#fff; 
+  font-size:1.05rem; 
+} 
+.mode p, .grid p{ 
+  margin:6px 0; 
+  color:var(--text); 
+  line-height:1.45; 
+} 
+
+/* ========================= */ 
+/* 🔹 LOGIN FORM / TOP10 */ 
+/* ========================= */ 
+form{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:10px; 
+} 
+input, button{ 
+  padding:10px; 
+  border-radius:8px; 
+  border:none; 
+  font-size:1rem; 
+} 
+input{ 
+  background:rgba(255,255,255,0.08); 
+  color:#fff; 
+} 
+input:focus{ 
+  outline:1px solid var(--accent); 
+} 
+button{ 
+  background:var(--accent); 
+  color:#fff; 
+  font-weight:600; 
+  cursor:pointer; 
+  transition:background .15s ease; 
+} 
+button:hover{ 
+  background:#0d8de5; 
+} 
+
+/* ========================= */ 
+/* 🔹 RESPONSIVNÍ DESIGN */ 
+/* ========================= */ 
+@media (max-width:900px){ 
+  :root{ --max-width:760px; } 
+} 
+@media (max-width:700px){ 
+  :root{ --header-height:56px; --base-size:15px; } 
+  header{ padding:0 14px; } 
+  .card, .modes-card, .o-card, .login-card, .top10-card{ padding:16px; border-radius:10px; } 
+  .mode, .grid article{ padding:12px; } 
+} 
+
+/* ========================= */ 
+/* 🔹 REDUCED MOTION */ 
+/* ========================= */ 
+@media (prefers-reduced-motion: reduce){ 
+  *{ transition:none !important; animation:none !important; transform:none !important; } 
+}

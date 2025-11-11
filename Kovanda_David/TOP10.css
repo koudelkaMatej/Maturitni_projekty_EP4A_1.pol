@@ -1,0 +1,126 @@
+:root{
+  --bg-1:#071027;
+  --bg-2:#0b2e4a;
+  --accent:#1ea7ff;
+  --muted:#9fb8d9;
+  --card-bg: rgba(255,255,255,0.02);
+  --text:#eaf6ff;
+  --max-width:1100px;
+  --header-height:64px;
+  --footer-height:56px;
+}
+
+/* Reset */
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; font-family:"Segoe UI", Roboto, Arial, sans-serif; -webkit-font-smoothing:antialiased; color:var(--text); }
+
+/* Page background & layout */
+body{
+  background: linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 60%, #043239 100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+
+/* Header - sladěné se stylem O hře / Herní módy */
+header{
+  height: var(--header-height);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:0 20px;
+  background: rgba(0,0,0,0.12);
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  z-index:10;
+}
+header h1{
+  margin:0;
+  font-size:1.15rem; /* stejná velikost jako u Herní módy */
+  letter-spacing:0.6px; /* stejné rozestupy písmen */
+}
+header h1 a{
+  color:#ffffff;
+  text-decoration:none;
+  font-weight:700;
+}
+nav ul{
+  display:flex;
+  gap:10px;
+  list-style:none;
+  margin:0;
+  padding:0;
+  align-items:center;
+  height:100%;
+}
+nav a{
+  color:var(--muted);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:6px;
+  display:inline-block;
+}
+nav a.active, nav a:hover{
+  background: rgba(255,255,255,0.03);
+  color:#fff;
+  transform:translateY(-1px);
+  transition:all .12s ease;
+}
+
+/* Main - center card between header and footer */
+main.top10-main{
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+/* Card wrapper */
+.top10-card{
+  width:100%;
+  max-width:var(--max-width);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.04);
+  border-radius:12px;
+  padding:22px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  box-sizing:border-box;
+  color:var(--text);
+}
+
+/* Headings */
+.top10-card h2{ margin:0 0 8px; font-size:1.4rem; color:#fff; }
+.top10-card .muted{ color:var(--muted); margin-bottom:14px; }
+
+/* Table */
+.top10-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:14px;
+}
+.top10-table thead th{
+  text-align:left;
+  padding:10px 12px;
+  color:#cfe7ff;
+  font-weight:700;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.top10-table td{
+  padding:10px 12px;
+  color:var(--text);
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+.top10-table tbody tr:nth-child(odd){ background: rgba(255,255,255,0.01); }
+.top10-table td:first-child{ width:48px; font-weight:700; color:var(--accent); }
+
+/* Responsive */
+@media (max-width:880px){
+  .top10-card{ padding:18px; }
+}
+@media (max-width:520px){
+  header{ padding:0 14px; }
+  .top10-card{ padding:14px; border-radius:10px; }
+  main.top10-main{ padding:16px; }
+}
