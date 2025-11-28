@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objednávka přijata | DRIVE.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff; /* Ensure background is white or matches theme */
+        }
+        .thank-you-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            /* Optional: if you want it slightly offset from the very top visually, 
+               but center is usually best. */
+        }
+        .success-icon {
+            font-size: 5rem;
+            color: #28a745;
+            margin-bottom: 1.5rem;
+        }
+        .thank-you-page h1 {
+            font-size: 3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .thank-you-page p {
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            font-size: 1.1rem;
+        }
+        .order-id {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar removed as requested -->
+
+    <main class="container thank-you-page">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h1>Děkujeme za objednávku!</h1>
+        <p>Vaše objednávka byla úspěšně přijata a zpracováváme ji. Potvrzení a shrnutí objednávky jsme vám zaslali na email.</p>
+        
+        <div id="orderIdContainer" style="display: none;">
+            Číslo objednávky: <span id="orderIdDisplay" class="order-id"></span>
+        </div>
+
+        <a href="/index.html" class="btn">Zpět na úvod</a>
+    </main>
+
+    <!-- Footer removed as requested -->
+
+    <script>
+        // Get order ID from URL query param
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        
+        if (orderId) {
+            document.getElementById('orderIdDisplay').textContent = '#' + orderId;
+            document.getElementById('orderIdContainer').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

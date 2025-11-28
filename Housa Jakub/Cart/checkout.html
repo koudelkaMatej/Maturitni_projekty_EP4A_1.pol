@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokladna | DRIVE.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/cart.css">
+</head>
+<body>
+    <div class="container">
+        <div class="cart-top-nav">
+            <a href="/Cart/cart.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Zpět do košíku
+            </a>
+            <a href="/index.html" class="simple-logo">
+                <i class="fas fa-bolt"></i>
+                <span>DRIVE.</span>
+            </a>
+        </div>
+    </div>
+
+    <main class="checkout-container">
+        <h1>Dokončení objednávky</h1>
+        
+        <form id="checkoutForm" class="checkout-grid">
+            <div class="checkout-left">
+                <div class="form-section">
+                    <h2>Kontaktní údaje</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="email">E-mail</label>
+                            <input type="email" id="email" class="form-input" required placeholder="vas@email.cz">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Telefon</label>
+                            <input type="tel" id="phone" class="form-input" required placeholder="+420 123 456 789">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Doručovací adresa</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="firstName">Jméno</label>
+                            <input type="text" id="firstName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="lastName">Příjmení</label>
+                            <input type="text" id="lastName" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="address">Ulice a číslo popisné</label>
+                        <input type="text" id="address" class="form-input" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="city">Město</label>
+                            <input type="text" id="city" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="zipCode">PSČ</label>
+                            <input type="text" id="zipCode" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Způsob platby</h2>
+                    <div class="payment-methods">
+                        <label class="payment-method-card">
+                            <input type="radio" name="payment" value="card" checked>
+                            <div class="payment-content">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Platba kartou</span>
+                            </div>
+                        </label>
+                        <label class="payment-method-card">
+                            <input type="radio" name="payment" value="applepay">
+                            <div class="payment-content">
+                                <i class="fab fa-apple"></i>
+                                <span>Apple Pay</span>
+                            </div>
+                        </label>
+                        <label class="payment-method-card">
+                            <input type="radio" name="payment" value="googlepay">
+                            <div class="payment-content">
+                                <i class="fab fa-google"></i>
+                                <span>Google Pay</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-right">
+                <div class="order-summary">
+                    <h2>Shrnutí objednávky</h2>
+                    <div id="orderItemsList">
+                        <!-- Items will be injected here -->
+                    </div>
+                    <div class="summary-total">
+                        <span>Celkem k úhradě</span>
+                        <span id="checkoutTotal">0 Kč</span>
+                    </div>
+                    <button type="submit" class="btn-place-order">
+                        Odeslat objednávku
+                    </button>
+                    <div class="secure-checkout-badge" style="margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                        <i class="fas fa-lock"></i>
+                        <span>Bezpečná platba SSL</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section footer-info">
+                <a href="/index.html" class="logo">
+                    <i class="fas fa-bolt logo-icon"></i>
+                    <span>Drive.</span>
+                </a>
+                <p>Osvěžující energie s nulovými kaloriemi. Vaše denní dávka hydratace a koncentrace.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Odkazy</h4>
+                <ul>
+                    <li><a href="/index.html">Domů</a></li>
+                    <li><a href="/Products/index.html">Produkty</a></li>
+                    <li><a href="/AboutUs/index.html">O nás</a></li>
+                    <li><a href="/index.html#section-newsletter">Kontakt</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Informace</h4>
+                <ul>
+                    <li><a href="/Info/terms.html">Obchodní podmínky</a></li>
+                    <li><a href="/Info/privacy.html">Ochrana soukromí</a></li>
+                    <li><a href="/Info/shipping.html">Doprava a platba</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Kontakt</h4>
+                <p>
+                    <i class="fas fa-map-marker-alt"></i> 123 Ulice Vody, Praha<br>
+                    <i class="fas fa-phone"></i> +420 123 456 789<br>
+                    <i class="fas fa-envelope"></i> info@kofeinovavoda.cz
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="year">2025</span> Drive. Všechna práva vyhrazena.</p>
+            <div class="payment-icons">
+                <i class="fab fa-cc-visa" title="Visa"></i>
+                <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                <i class="fab fa-apple-pay" title="Apple Pay"></i>
+                <i class="fab fa-google-pay" title="Google Pay"></i>
+            </div>
+        </div>
+    </footer>
+
+    <script src="cart.js?v=2"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Load cart data
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const orderItemsList = document.getElementById('orderItemsList');
+        const checkoutTotal = document.getElementById('checkoutTotal');
+
+        if (cart.length === 0) {
+            window.location.href = '/Cart/cart.html';
+        }
+
+        let total = 0;
+        // Placeholder for missing images
+        const placeholderPath = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiNmOGY5ZmEiLz4KICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzI3NDQ1QyI+RFJJVkUuPC90ZXh0Pgo8L3N2Zz4=';
+
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            
+            // Resolve image path using CartManager if available, or manual fallback
+            let imgUrl = item.image;
+            if (window.cartManager && typeof window.cartManager.resolvePath === 'function') {
+                imgUrl = window.cartManager.resolvePath(item.image);
+            } else if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/') && !imgUrl.startsWith('../')) {
+                imgUrl = '../' + imgUrl;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'summary-item';
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <img src="${imgUrl || placeholderPath}" alt="${item.name}" 
+                         style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: #f8f9fa;" 
+                         onerror="this.onerror=null; this.src='${placeholderPath}';">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small>${item.quantity} ks</small>
+                    </div>
+                </div>
+                <span>${itemTotal} Kč</span>
+            `;
+            orderItemsList.appendChild(div);
+        });
+
+        checkoutTotal.textContent = `${total} Kč`;
+
+        // Handle form submit
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            
+            // Validation
+            const zipCode = document.getElementById('zipCode').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            
+            const zipRegex = /^\d{3}\s?\d{2}$/;
+            if (!zipRegex.test(zipCode)) {
+                alert('Zadejte prosím platné PSČ (např. 123 45 nebo 12345).');
+                return;
+            }
+
+            const phoneRegex = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('Zadejte prosím platné telefonní číslo (např. 777 123 456).');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Odesílám...';
+
+            // Filter out invalid items
+            const validItems = cart.filter(item => item.id).map(item => ({ id: item.id, quantity: item.quantity }));
+            
+            if (validItems.length === 0) {
+                alert('Váš košík neobsahuje platné produkty. Budete přesměrováni zpět.');
+                localStorage.removeItem('cart');
+                window.location.href = '/Cart/cart.html';
+                return;
+            }
+
+            const formData = {
+                email: document.getElementById('email').value,
+                phone: phone,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                zipCode: zipCode,
+                paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'card',
+                items: validItems
+            };
+
+            try {
+                const response = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    localStorage.removeItem('cart');
+                    window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
+                } else {
+                    if (result.error === 'Cart is empty') {
+                        console.error('Server reported empty cart. Sent items:', formData.items);
+                        alert('Váš košík obsahuje produkty, které již nejsou v nabídce nebo došlo k chybě synchronizace. Košík bude vyprázdněn.');
+                        localStorage.removeItem('cart');
+                        window.location.href = '/Cart/cart.html';
+                    } else {
+                        alert('Chyba: ' + (result.error || 'Neznámá chyba'));
+                        btn.disabled = false;
+                        btn.textContent = 'Odeslat objednávku';
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Chyba připojení k serveru');
+                btn.disabled = false;
+                btn.textContent = 'Odeslat objednávku';
+            }
+        });
+    </script>
+    <script src="/assets/js/cookie-consent.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
