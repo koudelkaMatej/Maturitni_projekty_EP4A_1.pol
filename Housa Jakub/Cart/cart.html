@@ -23,6 +23,24 @@
     </div>
 
     <main class="container main-content">
+        <!-- Progress Steps -->
+        <div class="checkout-steps">
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <div class="step-label">Košík</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">2</div>
+                <div class="step-label">Doprava a platba</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Shrnutí</div>
+            </div>
+        </div>
+
         <div class="cart-header">
             <h1>Váš košík</h1>
             <p class="cart-instructions">Zkontrolujte si položky před dokončením objednávky</p>
@@ -35,26 +53,161 @@
                 </div>
             </div>
 
-            <div class="cart-summary">
-                <h3>Souhrn objednávky</h3>
-                <div class="summary-row">
-                    <span>Mezisoučet</span>
-                    <span id="cartSubtotal">0 Kč</span>
+            <div class="cart-sidebar-wrapper">
+                <div class="cart-summary">
+                    <h3>Souhrn objednávky</h3>
+                    <div class="summary-row">
+                        <span>Mezisoučet</span>
+                        <span id="cartSubtotal">0 Kč</span>
+                    </div>
+                    
+                    <div class="summary-row discount-row" id="discountRow" style="display: none; color: #28a745;">
+                        <span>Sleva</span>
+                        <span id="discountAmount">-0 Kč</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Doprava</span>
+                        <span id="cartSummaryShipping">Zdarma</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Celkem</span>
+                        <span id="cartTotal">0 Kč</span>
+                    </div>
+                    <button class="btn checkout-btn" onclick="proceedToCheckout()">
+                        Pokračovat k platbě
+                    </button>
                 </div>
-                <div class="summary-row">
-                    <span>Doprava</span>
-                    <span id="cartSummaryShipping">Zdarma</span>
+                
+                <!-- Discount Code Section (Moved outside) -->
+                <div class="cart-summary">
+                    <h3>Slevový kód</h3>
+                    <div class="discount-section" style="border: none; padding: 0; margin: 0;">
+                        <div class="discount-input-group">
+                            <input type="text" id="discountCode" placeholder="Vložte kód slevy">
+                            <button id="applyDiscountBtn" class="btn-small">Použít</button>
+                        </div>
+                        <div id="discountMessage" class="discount-message"></div>
+                    </div>
                 </div>
-                <div class="summary-total">
-                    <span>Celkem</span>
-                    <span id="cartTotal">0 Kč</span>
-                </div>
-                <button class="btn checkout-btn" onclick="proceedToCheckout()">
-                    Pokračovat k platbě
-                </button>
             </div>
         </div>
     </main>
+
+    <style>
+        /* Progress Steps Styles */
+        .checkout-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            width: 100%;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-circle {
+            background: #27445C;
+            color: white;
+            border-color: #27445C;
+        }
+        .step.completed .step-circle {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .step-label {
+            font-size: 0.9rem;
+            color: #999;
+            font-weight: 500;
+        }
+        .step.active .step-label {
+            color: #27445C;
+            font-weight: bold;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 10px;
+            max-width: 100px;
+            transform: translateY(-14px);
+        }
+        .step.completed + .step-line {
+            background: #28a745;
+        }
+
+        /* Discount Code Styles */
+        .discount-section {
+            margin: 15px 0;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .discount-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        .discount-input-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn-small {
+            padding: 8px 15px;
+            background: #27445C;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .discount-message {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        .discount-message.success { color: #28a745; }
+        .discount-message.error { color: #dc3545; }
+        
+        /* Layout adjustment for separate discount box */
+        .cart-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+        
+        /* Ensure the right column stacks correctly */
+        .cart-content > div:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .cart-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 
     <footer>
         <div class="footer-container">
@@ -105,6 +258,9 @@
     <script src="/assets/js/cart.js?v=2"></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Clear discount code on page load
+        localStorage.removeItem('discountCode');
 
         function proceedToCheckout() {
             if (window.cartManager && window.cartManager.cart.length === 0) {

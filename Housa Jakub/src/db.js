@@ -32,6 +32,12 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS subscribers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS sessions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -74,6 +80,8 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_zip TEXT NOT NULL,
   payment_method TEXT DEFAULT 'card',
   total_cents INTEGER NOT NULL,
+  discount_code TEXT,
+  discount_amount INTEGER DEFAULT 0,
   status TEXT DEFAULT 'pending',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES users(id)
@@ -85,9 +93,17 @@ CREATE TABLE IF NOT EXISTS order_items (
   product_id INTEGER NOT NULL,
   quantity INTEGER NOT NULL,
   price_cents INTEGER NOT NULL,
-  product_name TEXT NOT NULL,
+  product_name TEXT,
   FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE,
   FOREIGN KEY(product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS discounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT UNIQUE NOT NULL,
+  discount_percent INTEGER NOT NULL,
+  active BOOLEAN DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 `);
 
@@ -122,6 +138,18 @@ try {
   }
 } catch (e) {
   console.error('Migration failed (customer_phone):', e);
+}
+
+// Migration: Add discount columns to orders if they don't exist
+try {
+  const columns = db.pragma('table_info(orders)');
+  const hasDiscountCode = columns.some(col => col.name === 'discount_code');
+  if (!hasDiscountCode) {
+    db.exec('ALTER TABLE orders ADD COLUMN discount_code TEXT');
+    db.exec('ALTER TABLE orders ADD COLUMN discount_amount INTEGER DEFAULT 0');
+  }
+} catch (e) {
+  console.error('Migration failed (discounts):', e);
 }
 
 module.exports = { db };

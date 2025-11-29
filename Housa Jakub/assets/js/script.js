@@ -387,10 +387,44 @@
     // ------------------------
     const newsletterForms = document.querySelectorAll('.newsletter-form');
     newsletterForms.forEach(form => {
-        form.addEventListener('submit', e => {
+        form.addEventListener('submit', async e => {
             e.preventDefault();
-            alert('Děkujeme za přihlášení k odběru newsletteru!');
-            form.reset();
+            const input = form.querySelector('input[type="email"]');
+            const button = form.querySelector('button');
+            const originalText = button.textContent;
+            
+            button.disabled = true;
+            button.textContent = 'Odesílání...';
+
+            try {
+                const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: input.value })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    button.textContent = 'Odesláno!';
+                    button.style.backgroundColor = '#28a745';
+                    input.value = '';
+                    alert('Děkujeme za odběr! Zkontrolujte svůj email pro slevový kód.');
+                } else {
+                    throw new Error(data.error || 'Chyba při odesílání');
+                }
+            } catch (err) {
+                alert(err.message);
+                button.textContent = originalText;
+            } finally {
+                setTimeout(() => {
+                    button.disabled = false;
+                    if (button.textContent === 'Odesláno!') {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = '';
+                    }
+                }, 3000);
+            }
         });
     });
 

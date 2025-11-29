@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Můj účet | DRIVE.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        .account-container {
+            max-width: 1000px;
+            margin: 120px auto 60px;
+            padding: 0 20px;
+        }
+        
+        .auth-forms {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-forms {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .form-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .form-box h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-auth:hover {
+            background: #1a3c34;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none; /* Hidden by default */
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-info {
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .orders-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+
+        .order-items {
+            margin-bottom: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .subscription-status {
+            background: #E2FBDE;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/index.html" class="logo">
+                <i class="fas fa-bolt logo-icon"></i>
+                <span>DRIVE.</span>
+            </a>
+            <div class="nav-links">
+                <a href="/index.html">Domů</a>
+                <a href="/Products/index.html">Produkty</a>
+                <a href="/AboutUs/index.html">O nás</a>
+            </div>
+            <div class="nav-icons">
+                <a href="/Cart/cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="account-container">
+        <!-- Login/Register Forms -->
+        <div id="authSection" class="auth-forms">
+            <div class="form-box">
+                <h2>Přihlášení</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heslo</label>
+                        <input type="password" name="password" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn-auth">Přihlásit se</button>
+                    <p id="loginError" style="color: red; margin-top: 10px; display: none;"></p>
+                </form>
+            </div>
+
+            <div class="form-box">
+                <h2>Registrace</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heslo</label>
+                        <input type="password" name="password" class="form-input" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-auth">Vytvořit účet</button>
+                    <p id="registerError" style="color: red; margin-top: 10px; display: none;"></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Dashboard -->
+        <div id="dashboardSection" class="dashboard">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Můj účet</h1>
+                    <span id="userEmail" class="user-info"></span>
+                </div>
+                <button id="logoutBtn" class="btn-logout">Odhlásit se</button>
+            </div>
+
+            <div id="subscriptionBanner" class="subscription-status" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>Odebíráte novinky</strong>
+                    <div style="font-size: 0.9rem;">Máte nárok na exkluzivní slevy.</div>
+                </div>
+            </div>
+
+            <h2>Moje objednávky</h2>
+            <div id="ordersList" class="orders-list">
+                <!-- Orders injected here -->
+                <p style="color: #888;">Zatím nemáte žádné objednávky.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check auth status on load
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const user = await res.json();
+                    showDashboard(user);
+                } else {
+                    showAuth();
+                }
+            } catch (e) {
+                showAuth();
+            }
+        }
+
+        function showAuth() {
+            document.getElementById('authSection').style.display = 'grid';
+            document.getElementById('dashboardSection').style.display = 'none';
+        }
+
+        function showDashboard(user) {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('userEmail').textContent = user.email;
+            
+            if (user.isSubscribed) {
+                document.getElementById('subscriptionBanner').style.display = 'flex';
+            }
+
+            loadOrders();
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/user/orders');
+                if (res.ok) {
+                    const orders = await res.json();
+                    renderOrders(orders);
+                }
+            } catch (e) {
+                console.error('Failed to load orders', e);
+            }
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">Zatím nemáte žádné objednávky.</p>';
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <strong>Objednávka #${order.id}</strong>
+                            <div style="color: #888; font-size: 0.9rem;">${new Date(order.created_at).toLocaleDateString('cs-CZ')}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="order-status status-${order.status || 'pending'}">
+                                ${order.status === 'pending' ? 'Zpracovává se' : 'Dokončeno'}
+                            </div>
+                            <div style="margin-top: 5px; font-weight: bold;">
+                                ${(order.total_cents / 100).toFixed(0)} Kč
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span>${item.quantity}x ${item.product_name}</span>
+                                <span>${(item.price_cents * item.quantity / 100).toFixed(0)} Kč</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Login Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    const err = await res.json();
+                    const errEl = document.getElementById('loginError');
+                    errEl.textContent = err.error;
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        // Register Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    // Auto login after register
+                    const loginRes = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    if (loginRes.ok) window.location.reload();
+                } else {
+                    const err = await res.json();
+                    const errEl = document.getElementById('registerError');
+                    errEl.textContent = err.error;
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        // Logout Handler
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.reload();
+        });
+
+        // Init
+        checkAuth();
+    </script>
+</body>
+</html>

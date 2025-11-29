@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrola objednávky | DRIVE.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/cart.css">
+    <style>
+        /* Progress Steps Styles */
+        .checkout-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            width: 100%;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-circle {
+            background: #27445C;
+            color: white;
+            border-color: #27445C;
+        }
+        .step.completed .step-circle {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .step-label {
+            font-size: 0.9rem;
+            color: #999;
+            font-weight: 500;
+        }
+        .step.active .step-label {
+            color: #27445C;
+            font-weight: bold;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 10px;
+            max-width: 100px;
+            transform: translateY(-14px);
+        }
+        .step.completed + .step-line {
+            background: #28a745;
+        }
+
+        /* Summary Specific Styles */
+        .summary-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: start;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.04);
+            height: 100%; /* Ensure equal height */
+        }
+
+        .summary-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .summary-header h1 {
+            margin-bottom: 10px;
+            color: #27445C;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            color: #27445C;
+            font-size: 1.3rem;
+        }
+        
+        .section-title i {
+            color: #5A8DB9;
+        }
+
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #27445C;
+            flex-shrink: 0;
+        }
+
+        .info-content strong {
+            display: block;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-content span {
+            color: #27445C;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        /* Product List */
+        .review-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 700;
+            color: #27445C;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .item-meta {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .item-price {
+            font-weight: 700;
+            color: #27445C;
+            font-size: 1.1rem;
+        }
+
+        /* Totals */
+        .totals-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .total-row.final {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            color: #27445C;
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-bottom: 0;
+        }
+        
+        .discount-row {
+            color: #28a745;
+        }
+
+        .actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            gap: 20px;
+        }
+        
+        .actions .checkout-btn {
+            width: auto;
+            margin-top: 0;
+            flex: 1;
+            max-width: 350px;
+            padding: 16px;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 900px) {
+            .summary-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cart-top-nav">
+            <a href="/Cart/checkout.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Zpět na údaje
+            </a>
+            <a href="/index.html" class="simple-logo">
+                <i class="fas fa-bolt"></i>
+                <span>DRIVE.</span>
+            </a>
+        </div>
+    </div>
+
+    <main class="container main-content">
+        <!-- Progress Steps -->
+        <div class="checkout-steps">
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Košík</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Doprava a platba</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <div class="step-circle">3</div>
+                <div class="step-label">Kontrola</div>
+            </div>
+        </div>
+
+        <div class="summary-container">
+            <div class="summary-header">
+                <h1>Kontrola objednávky</h1>
+                <p>Prosím zkontrolujte si zadané údaje před odesláním.</p>
+            </div>
+
+            <div class="summary-card">
+                <h2 class="section-title"><i class="fas fa-user-circle"></i> Kontaktní a doručovací údaje</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-user"></i></div>
+                        <div class="info-content">
+                            <strong>Jméno a příjmení</strong>
+                            <span id="reviewName"></span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="info-content">
+                            <strong>Email</strong>
+                            <span id="reviewEmail"></span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div class="info-content">
+                            <strong>Telefon</strong>
+                            <span id="reviewPhone"></span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info-content">
+                            <strong>Adresa doručení</strong>
+                            <span id="reviewAddress"></span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-credit-card"></i></div>
+                        <div class="info-content">
+                            <strong>Způsob platby</strong>
+                            <span id="reviewPayment"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h2 class="section-title"><i class="fas fa-shopping-basket"></i> Položky objednávky</h2>
+                <div class="order-items-review" id="reviewItems">
+                    <!-- Items populated by JS -->
+                </div>
+                
+                <div class="totals-section">
+                    <div class="total-row">
+                        <span>Mezisoučet</span>
+                        <span id="reviewSubtotal">0 Kč</span>
+                    </div>
+                    <div class="total-row discount-row" id="reviewDiscount" style="display: none;">
+                        <span>Sleva</span>
+                        <span>-0 Kč</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Doprava</span>
+                        <span>Zdarma</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Celkem k úhradě</span>
+                        <span id="reviewTotal">0 Kč</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="/Cart/checkout.html" class="btn btn-secondary" style="white-space: nowrap;">
+                    <i class="fas fa-pen"></i> Upravit údaje
+                </a>
+                <button id="confirmOrderBtn" class="btn checkout-btn">
+                    Odeslat objednávku <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section footer-info">
+                <a href="/index.html" class="logo">
+                    <i class="fas fa-bolt logo-icon"></i>
+                    <span>Drive.</span>
+                </a>
+                <p>Osvěžující energie s nulovými kaloriemi. Vaše denní dávka hydratace a koncentrace.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="year">2025</span> Drive. Všechna práva vyhrazena.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Load data
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const customer = JSON.parse(localStorage.getItem('checkoutData')) || {};
+        const discountCode = localStorage.getItem('discountCode');
+
+        if (cart.length === 0 || !customer.email) {
+            window.location.href = '/Cart/cart.html';
+        }
+
+        // Populate Customer Info
+        document.getElementById('reviewName').textContent = `${customer.firstName} ${customer.lastName}`;
+        document.getElementById('reviewEmail').textContent = customer.email;
+        document.getElementById('reviewPhone').textContent = customer.phone;
+        document.getElementById('reviewAddress').textContent = `${customer.address}, ${customer.zipCode} ${customer.city}`;
+        
+        const paymentMap = {
+            'card': 'Platba kartou',
+            'applepay': 'Apple Pay',
+            'googlepay': 'Google Pay'
+        };
+        document.getElementById('reviewPayment').textContent = paymentMap[customer.paymentMethod] || customer.paymentMethod;
+
+        // Populate Items
+        const itemsContainer = document.getElementById('reviewItems');
+        let subtotal = 0;
+
+        // Placeholder for missing images
+        const placeholderPath = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiNmOGY5ZmEiLz4KICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzI3NDQ1QyI+RFJJVkUuPC90ZXh0Pgo8L3N2Zz4=';
+
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            subtotal += itemTotal;
+            
+            // Resolve image path
+            let imgUrl = item.image;
+            if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/') && !imgUrl.startsWith('../')) {
+                imgUrl = '../' + imgUrl;
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'review-item';
+            div.innerHTML = `
+                <img src="${imgUrl || placeholderPath}" alt="${item.name}" class="item-image"
+                     onerror="this.onerror=null; this.src='${placeholderPath}';">
+                <div class="item-details">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-meta">Množství: ${item.quantity} ks</span>
+                </div>
+                <span class="item-price">${itemTotal} Kč</span>
+            `;
+            itemsContainer.appendChild(div);
+        });
+
+        // Calculate Totals
+        let discount = 0;
+        const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
+        
+        if (discountPercent > 0) {
+            discount = Math.round(subtotal * (discountPercent / 100));
+            const discEl = document.getElementById('reviewDiscount');
+            discEl.style.display = 'flex'; // Changed from block to flex for total-row
+            discEl.querySelector('span:last-child').textContent = `-${discount} Kč`;
+        }
+
+        document.getElementById('reviewSubtotal').textContent = `${subtotal} Kč`;
+        document.getElementById('reviewTotal').textContent = `${subtotal - discount} Kč`;
+
+        // Handle Submission
+        document.getElementById('confirmOrderBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('confirmOrderBtn');
+            btn.disabled = true;
+            btn.textContent = 'Odesílám...';
+
+            const validItems = cart.filter(item => item.id).map(item => ({ id: item.id, quantity: item.quantity }));
+            
+            const formData = {
+                ...customer,
+                items: validItems,
+                discountCode: discountCode // Send discount code to server if needed
+            };
+
+            try {
+                const response = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('checkoutData');
+                    localStorage.removeItem('discountCode');
+                    window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
+                } else {
+                    alert('Chyba: ' + (result.error || 'Neznámá chyba'));
+                    btn.disabled = false;
+                    btn.textContent = 'Odeslat objednávku';
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Chyba připojení k serveru');
+                btn.disabled = false;
+                btn.textContent = 'Odeslat objednávku';
+            }
+        });
+    </script>
+</body>
+</html>

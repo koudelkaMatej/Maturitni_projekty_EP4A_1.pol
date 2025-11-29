@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vývojová dokumentace | DRIVE.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="/assets/js/dev-mode.js"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        body { background-color: #f8f9fa; color: #333; }
+        .doc-container { max-width: 1200px; margin: 100px auto 50px; padding: 0 20px; }
+        .doc-section { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .doc-title { color: #27445C; font-size: 2rem; margin-bottom: 20px; border-bottom: 2px solid #E2FBDE; padding-bottom: 10px; }
+        .diagram-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .diagram-card { border: 1px solid #eee; padding: 15px; border-radius: 8px; text-align: center; transition: transform 0.2s; }
+        .diagram-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .diagram-card img { max-width: 100%; height: auto; margin-bottom: 10px; cursor: pointer; }
+        .diagram-card h3 { color: #5A8DB9; margin-bottom: 10px; }
+        .tech-stack { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .tech-badge { background: #DBF6ED; color: #1a3c34; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
+        code { background: #f1f1f1; padding: 2px 5px; border-radius: 4px; font-family: monospace; color: #d63384; }
+
+        /* Modal styles */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            padding-top: 50px; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.9); 
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/index.html" class="logo"><span>DRIVE.</span></a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/index.html" class="nav-link">Domů</a></li>
+                <li><a href="/Products/index.html" class="nav-link">Produkty</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="doc-container">
+        <div class="doc-section">
+            <h1 class="doc-title">Technická dokumentace</h1>
+            <p>Vítejte v sekci pro vývojáře. Zde naleznete přehled architektury, datových toků a použitých technologií projektu DRIVE.</p>
+            
+            <h3>Použité technologie</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">Express</span>
+                <span class="tech-badge">SQLite (better-sqlite3)</span>
+                <span class="tech-badge">HTML / CSS</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">Nodemailer</span>
+                <span class="tech-badge">PDFKit</span>
+            </div>
+        </div>
+
+        <div class="doc-section" id="discount-manager">
+            <h2 class="doc-title">Správa slevových kódů</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Kód slevy</label>
+                    <input type="text" id="discountCode" placeholder="např. DRIVE10" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Sleva (%)</label>
+                    <input type="number" id="discountPercent" placeholder="10" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 80px;">
+                </div>
+                <button onclick="addDiscount()" class="btn" style="padding: 8px 20px;">Přidat</button>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; text-align: left;">
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Kód</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Sleva</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Akce</th>
+                    </tr>
+                </thead>
+                <tbody id="discountTableBody">
+                    <!-- Rows will be populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            async function loadDiscounts() {
+                try {
+                    const res = await fetch('/api/admin/discounts');
+                    if (!res.ok) return;
+                    const discounts = await res.json();
+                    const tbody = document.getElementById('discountTableBody');
+                    if (discounts.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #888;">Žádné aktivní slevové kódy</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = discounts.map(d => `
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee; color: #27445C;"><strong>${d.code}</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;">${d.discount_percent}%</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                                <button onclick="deleteDiscount(${d.id})" style="background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Smazat</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function addDiscount() {
+                const code = document.getElementById('discountCode').value;
+                const percent = document.getElementById('discountPercent').value;
+                if (!code || !percent) return alert('Vyplňte kód a slevu');
+
+                try {
+                    const res = await fetch('/api/admin/discounts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code, discount_percent: percent })
+                    });
+                    if (res.ok) {
+                        document.getElementById('discountCode').value = '';
+                        document.getElementById('discountPercent').value = '';
+                        loadDiscounts();
+                    } else {
+                        // Handle non-JSON responses (like 404 HTML from Express)
+                        const contentType = res.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const err = await res.json();
+                            alert(err.error || 'Chyba');
+                        } else {
+                            alert('Chyba serveru: ' + res.status + ' ' + res.statusText + '\n(Zkuste restartovat server)');
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Chyba komunikace se serverem.\nZkuste restartovat server.');
+                }
+            }
+
+            async function deleteDiscount(id) {
+                if (!confirm('Opravdu smazat tento kód?')) return;
+                try {
+                    await fetch(`/api/admin/discounts/${id}`, { method: 'DELETE' });
+                    loadDiscounts();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // Load on start
+            document.addEventListener('DOMContentLoaded', loadDiscounts);
+        </script>
+
+        <div class="doc-section">
+            <h2 class="doc-title">Správa Newsletteru</h2>
+            <p>Odeslat hromadný email všem odběratelům.</p>
+            <form id="admin-newsletter-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="text" id="nl-subject" placeholder="Předmět emailu" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>
+                
+                <!-- Editor Toolbar Area -->
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
+                    <button type="button" id="toggle-html-btn" style="background: #eee; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                        <i class="fas fa-code"></i> Upravit HTML
+                    </button>
+                </div>
+
+                <!-- Visual Editor -->
+                <div id="editor-container" style="height: 300px; background: white;"></div>
+                
+                <!-- Raw HTML Editor (Hidden by default) -->
+                <textarea id="html-editor" style="display: none; height: 300px; width: 100%; font-family: monospace; padding: 10px; border: 1px solid #ccc;" placeholder="Zde vložte HTML kód..."></textarea>
+
+                <input type="hidden" id="nl-content">
+                <button type="submit" class="btn" style="background: #27445C; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Odeslat všem</button>
+            </form>
+        </div>
+
+        <div class="doc-section">
+            <h2 class="doc-title">Architektura a Databáze</h2>
+            <div class="diagram-grid">
+                <div class="diagram-card">
+                    <h3>ER Diagram (Minimal)</h3>
+                    <img src="diagrams/svg/er-minimal.svg" alt="ER Diagram Minimal">
+                    <p>Základní struktura databáze.</p>
+                </div>
+                <div class="diagram-card">
+                    <h3>ER Diagram (Recommended)</h3>
+                    <img src="diagrams/svg/er-recommended.svg" alt="ER Diagram Recommended">
+                    <p>Rozšířený návrh databáze.</p>
+                </div>
+                <div class="diagram-card">
+                    <h3>Data Flow Diagram</h3>
+                    <img src="diagrams/svg/data-flow.svg" alt="Data Flow Diagram">
+                    <p>Tok dat v aplikaci.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <h2 class="doc-title">Sekvenční diagramy</h2>
+            <div class="diagram-grid">
+                <div class="diagram-card">
+                    <h3>Objednávkový proces</h3>
+                    <img src="diagrams/svg/seq-order.svg" alt="Sequence Order">
+                    <p>Průběh vytvoření objednávky.</p>
+                </div>
+                <div class="diagram-card">
+                    <h3>Přidání do košíku</h3>
+                    <img src="diagrams/svg/seq-add-to-cart.svg" alt="Sequence Add to Cart">
+                    <p>Interakce při nákupu.</p>
+                </div>
+                <div class="diagram-card">
+                    <h3>Načítání produktů</h3>
+                    <img src="diagrams/svg/seq-load-products.svg" alt="Sequence Load Products">
+                    <p>Zobrazení katalogu.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <h2 class="doc-title">Struktura projektu</h2>
+            <pre style="background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 8px; overflow-x: auto;">
+/
+├── server.js           # Hlavní backend (Express)
+├── src/
+│   ├── db.js           # Připojení k SQLite
+│   └── seed.js         # Seedování dat
+├── assets/             # Statické soubory (CSS, JS, IMG)
+├── docs/               # Dokumentace (tato sekce)
+├── Cart/               # Stránky košíku
+├── Products/           # Stránky produktů
+└── AboutUs/            # Stránka O nás
+            </pre>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/dev-disable" class="btn" style="background: #dc3545; color: white;">Vypnout vývojářský režim</a>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <div id="caption" class="modal-caption"></div>
+    </div>
+
+    <script>
+        // Simple active link handling
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if(link.href === window.location.href) link.classList.add('active');
+        });
+
+        // Modal logic
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const captionText = document.getElementById("caption");
+        const closeBtn = document.getElementsByClassName("modal-close")[0];
+
+        document.querySelectorAll('.diagram-card img').forEach(img => {
+            img.onclick = function(){
+                modal.style.display = "block";
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            }
+        });
+
+        closeBtn.onclick = function() { 
+            modal.style.display = "none";
+        }
+
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                modal.style.display = "none";
+            }
+        });
+
+        // Admin Newsletter Logic
+        const adminForm = document.getElementById('admin-newsletter-form');
+        if (adminForm) {
+            // Initialize Quill
+            var quill = new Quill('#editor-container', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['link', 'image'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Zde napište obsah emailu...'
+            });
+
+            // HTML Toggle Logic
+            const toggleBtn = document.getElementById('toggle-html-btn');
+            const htmlEditor = document.getElementById('html-editor');
+            const editorContainer = document.getElementById('editor-container').parentElement.querySelector('.ql-container'); // Quill wrapper
+            const toolbar = document.querySelector('.ql-toolbar');
+            let isHtmlMode = false;
+
+            toggleBtn.addEventListener('click', () => {
+                isHtmlMode = !isHtmlMode;
+                if (isHtmlMode) {
+                    // Switch to HTML mode
+                    htmlEditor.value = quill.root.innerHTML;
+                    editorContainer.style.display = 'none';
+                    toolbar.style.display = 'none';
+                    htmlEditor.style.display = 'block';
+                    toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Zobrazit náhled';
+                } else {
+                    // Switch back to Visual mode
+                    quill.root.innerHTML = htmlEditor.value;
+                    htmlEditor.style.display = 'none';
+                    editorContainer.style.display = 'block';
+                    toolbar.style.display = 'block';
+                    toggleBtn.innerHTML = '<i class="fas fa-code"></i> Upravit HTML';
+                }
+            });
+
+            adminForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const subject = document.getElementById('nl-subject').value;
+                
+                // Get content based on current mode
+                let content;
+                if (isHtmlMode) {
+                    content = htmlEditor.value;
+                } else {
+                    content = quill.root.innerHTML;
+                }
+                
+                // Basic validation
+                if (!content || (content.trim().length === 0 && !content.includes('<img'))) {
+                     alert('Prosím vyplňte obsah emailu.');
+                     return;
+                }
+
+                const btn = adminForm.querySelector('button');
+                
+                if (!confirm('Opravdu chcete odeslat tento email všem odběratelům?')) return;
+
+                btn.disabled = true;
+                btn.textContent = 'Odesílání...';
+
+                try {
+                    const res = await fetch('/api/admin/send-newsletter', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subject, content })
+                    });
+                    const data = await res.json();
+                    
+                    if (res.ok) {
+                        alert(`Úspěšně odesláno ${data.sent} z ${data.total} odběratelů.`);
+                        adminForm.reset();
+                        quill.setContents([]);
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (err) {
+                    alert('Chyba: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Odeslat všem';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

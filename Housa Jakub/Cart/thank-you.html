@@ -12,6 +12,68 @@
             padding: 0;
             background-color: #fff; /* Ensure background is white or matches theme */
         }
+        /* Progress Steps Styles */
+        .checkout-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            width: 100%;
+            max-width: 600px;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-circle {
+            background: #27445C;
+            color: white;
+            border-color: #27445C;
+        }
+        .step.completed .step-circle {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .step-label {
+            font-size: 0.9rem;
+            color: #999;
+            font-weight: 500;
+        }
+        .step.active .step-label {
+            color: #27445C;
+            font-weight: bold;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 10px;
+            max-width: 100px;
+            transform: translateY(-14px);
+        }
+        .step.completed + .step-line {
+            background: #28a745;
+        }
+
         .thank-you-page {
             min-height: 100vh;
             display: flex;
@@ -56,6 +118,24 @@
     <!-- Navbar removed as requested -->
 
     <main class="container thank-you-page">
+        <!-- Progress Steps -->
+        <div class="checkout-steps">
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Košík</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Doprava a platba</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Kontrola</div>
+            </div>
+        </div>
+
         <i class="fas fa-check-circle success-icon"></i>
         <h1>Děkujeme za objednávku!</h1>
         <p>Vaše objednávka byla úspěšně přijata a zpracováváme ji. Potvrzení a shrnutí objednávky jsme vám zaslali na email.</p>

@@ -294,6 +294,19 @@
             return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         }
 
+        getDiscount() {
+            const subtotal = this.getSubtotal();
+            const percent = Number(localStorage.getItem('discountPercent')) || 0;
+            if (percent > 0) {
+                return Math.round(subtotal * (percent / 100));
+            }
+            return 0;
+        }
+
+        getTotal() {
+            return this.getSubtotal() - this.getDiscount();
+        }
+
         persistAndRefresh() {
             this.saveCart();
             this.updateCartDisplay();
@@ -455,8 +468,73 @@
             });
 
             if (cartSubtotalEl) cartSubtotalEl.textContent = this.formatPrice(subtotal);
-            if (cartTotalEl) cartTotalEl.textContent = this.formatPrice(subtotal);
-            if (checkoutTotalEl) checkoutTotalEl.textContent = this.formatPrice(subtotal);
+            
+            // Discount Logic
+            const discount = this.getDiscount();
+            const discountRow = document.getElementById('discountRow');
+            const discountAmountEl = document.getElementById('discountAmount');
+            const discountInput = document.getElementById('discountCode');
+            const discountBtn = document.getElementById('applyDiscountBtn');
+            const discountMsg = document.getElementById('discountMessage');
+
+            if (discountRow && discountAmountEl) {
+                if (discount > 0) {
+                    discountRow.style.display = 'flex';
+                    discountAmountEl.textContent = '-' + this.formatPrice(discount);
+                } else {
+                    discountRow.style.display = 'none';
+                }
+            }
+
+            // Setup Discount Button Event
+            if (discountBtn && !discountBtn.hasAttribute('data-bound')) {
+                discountBtn.setAttribute('data-bound', 'true');
+                discountBtn.addEventListener('click', async () => {
+                    const code = discountInput.value.trim().toUpperCase();
+                    if (!code) return;
+
+                    try {
+                        const res = await fetch('/api/validate-discount', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ code })
+                        });
+                        const data = await res.json();
+
+                        if (data.valid) {
+                            localStorage.setItem('discountCode', data.code);
+                            localStorage.setItem('discountPercent', data.discount_percent);
+                            discountMsg.textContent = `Slevový kód uplatněn! (-${data.discount_percent}%)`;
+                            discountMsg.className = 'discount-message success';
+                            this.updateCartDisplay();
+                        } else {
+                            discountMsg.textContent = 'Neplatný slevový kód';
+                            discountMsg.className = 'discount-message error';
+                            localStorage.removeItem('discountCode');
+                            localStorage.removeItem('discountPercent');
+                            this.updateCartDisplay();
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        discountMsg.textContent = 'Chyba při ověřování kódu';
+                        discountMsg.className = 'discount-message error';
+                    }
+                });
+                
+                // Pre-fill if exists
+                const savedCode = localStorage.getItem('discountCode');
+                const savedPercent = localStorage.getItem('discountPercent');
+                if (savedCode && discountInput) {
+                    discountInput.value = savedCode;
+                    if (savedPercent) {
+                        discountMsg.textContent = `Slevový kód uplatněn! (-${savedPercent}%)`;
+                        discountMsg.className = 'discount-message success';
+                    }
+                }
+            }
+
+            if (cartTotalEl) cartTotalEl.textContent = this.formatPrice(subtotal - discount);
+            if (checkoutTotalEl) checkoutTotalEl.textContent = this.formatPrice(subtotal - discount);
         }
 
         dispatchCartUpdate() {

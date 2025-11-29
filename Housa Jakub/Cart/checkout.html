@@ -7,6 +7,68 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/cart.css">
+    <style>
+        /* Progress Steps Styles */
+        .checkout-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            width: 100%;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-circle {
+            background: #27445C;
+            color: white;
+            border-color: #27445C;
+        }
+        .step.completed .step-circle {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .step-label {
+            font-size: 0.9rem;
+            color: #999;
+            font-weight: 500;
+        }
+        .step.active .step-label {
+            color: #27445C;
+            font-weight: bold;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 10px;
+            max-width: 100px;
+            transform: translateY(-14px);
+        }
+        .step.completed + .step-line {
+            background: #28a745;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -23,7 +85,69 @@
     </div>
 
     <main class="checkout-container">
+        <!-- Progress Steps -->
+        <div class="checkout-steps">
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Košík</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">Doprava a platba</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Kontrola</div>
+            </div>
+        </div>
+
         <h1>Dokončení objednávky</h1>
+
+        <!-- Auth Section -->
+        <div id="authContainer" style="max-width: 1200px; margin: 0 auto 2rem; display: none;">
+            <div style="background: #E2FBDE; color: #1a3c34; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <i class="fas fa-user-check"></i>
+                    <span style="margin-left: 10px;">Přihlášen jako <strong id="authUserEmail"></strong></span>
+                </div>
+                <button onclick="logout()" style="background: none; border: 1px solid #1a3c34; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: #1a3c34;">Odhlásit</button>
+            </div>
+        </div>
+
+        <div id="loginPrompt" style="max-width: 1200px; margin: 0 auto 2rem;">
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #27445C;">Máte již účet?</h3>
+                    <p style="margin: 0; color: #666;">Přihlaste se pro rychlejší nákup a správu objednávek.</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="toggleLoginModal()" style="background: #27445C; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Přihlásit se</button>
+                    <a href="/Account/index.html" style="text-decoration: none; background: white; color: #27445C; border: 1px solid #27445C; padding: 10px 20px; border-radius: 6px; font-weight: bold;">Registrovat</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; position: relative;">
+                <button onclick="toggleLoginModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <h2 style="margin-top: 0; color: #27445C;">Přihlášení</h2>
+                <form id="checkoutLoginForm">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Email</label>
+                        <input type="email" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Heslo</label>
+                        <input type="password" name="password" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <button type="submit" style="width: 100%; padding: 12px; background: #27445C; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Přihlásit se</button>
+                    <p id="checkoutLoginError" style="color: red; margin-top: 10px; display: none;"></p>
+                </form>
+            </div>
+        </div>
         
         <form id="checkoutForm" class="checkout-grid">
             <div class="checkout-left">
@@ -165,14 +289,95 @@
         </div>
     </footer>
 
-    <script src="cart.js?v=2"></script>
+    <script src="/assets/js/cart.js?v=2"></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Auth Logic
+        async function checkCheckoutAuth() {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('authContainer').style.display = 'block';
+                    document.getElementById('loginPrompt').style.display = 'none';
+                    document.getElementById('authUserEmail').textContent = user.email;
+                    
+                    // Pre-fill email
+                    const emailInput = document.getElementById('email');
+                    if (emailInput) {
+                        emailInput.value = user.email;
+                        emailInput.readOnly = true;
+                        emailInput.style.background = '#f8f9fa';
+                    }
+                } else {
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('loginPrompt').style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function toggleLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.reload();
+        }
+
+        document.getElementById('checkoutLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    const err = await res.json();
+                    const errEl = document.getElementById('checkoutLoginError');
+                    errEl.textContent = err.error;
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        checkCheckoutAuth();
+    </script>
 
         // Load cart data
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const orderItemsList = document.getElementById('orderItemsList');
         const checkoutTotal = document.getElementById('checkoutTotal');
+
+        // Pre-fill form data if available
+        const savedData = JSON.parse(localStorage.getItem('checkoutData'));
+        if (savedData) {
+            if (savedData.email) document.getElementById('email').value = savedData.email;
+            if (savedData.phone) document.getElementById('phone').value = savedData.phone;
+            if (savedData.firstName) document.getElementById('firstName').value = savedData.firstName;
+            if (savedData.lastName) document.getElementById('lastName').value = savedData.lastName;
+            if (savedData.address) document.getElementById('address').value = savedData.address;
+            if (savedData.city) document.getElementById('city').value = savedData.city;
+            if (savedData.zipCode) document.getElementById('zipCode').value = savedData.zipCode;
+            
+            if (savedData.paymentMethod) {
+                const radio = document.querySelector(`input[name="payment"][value="${savedData.paymentMethod}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
 
         if (cart.length === 0) {
             window.location.href = '/Cart/cart.html';
@@ -210,6 +415,16 @@
             `;
             orderItemsList.appendChild(div);
         });
+
+        // Apply discount if exists
+        const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
+        if (discountPercent > 0) {
+            const discountAmount = Math.round(total * (discountPercent / 100));
+            total -= discountAmount;
+            
+            // Optional: Show discount row if you want, but for now just update total
+            // You might want to add a visual indicator that discount is applied
+        }
 
         checkoutTotal.textContent = `${total} Kč`;
 
@@ -256,40 +471,12 @@
                 address: document.getElementById('address').value,
                 city: document.getElementById('city').value,
                 zipCode: zipCode,
-                paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'card',
-                items: validItems
+                paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'card'
             };
 
-            try {
-                const response = await fetch('/api/checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    localStorage.removeItem('cart');
-                    window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
-                } else {
-                    if (result.error === 'Cart is empty') {
-                        console.error('Server reported empty cart. Sent items:', formData.items);
-                        alert('Váš košík obsahuje produkty, které již nejsou v nabídce nebo došlo k chybě synchronizace. Košík bude vyprázdněn.');
-                        localStorage.removeItem('cart');
-                        window.location.href = '/Cart/cart.html';
-                    } else {
-                        alert('Chyba: ' + (result.error || 'Neznámá chyba'));
-                        btn.disabled = false;
-                        btn.textContent = 'Odeslat objednávku';
-                    }
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Chyba připojení k serveru');
-                btn.disabled = false;
-                btn.textContent = 'Odeslat objednávku';
-            }
+            // Save to localStorage and redirect to summary
+            localStorage.setItem('checkoutData', JSON.stringify(formData));
+            window.location.href = '/Cart/summary.html';
         });
     </script>
     <script src="/assets/js/cookie-consent.js"></script>

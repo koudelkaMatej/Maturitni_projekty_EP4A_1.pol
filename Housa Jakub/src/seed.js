@@ -112,6 +112,18 @@ function seedProducts() {
     transaction(toInsert);
     seeded = true;
   }
+
+  // Seed default discount code
+  try {
+    const existingDiscount = db.prepare('SELECT id FROM discounts WHERE code = ?').get('DRIVE10');
+    if (!existingDiscount) {
+      db.prepare('INSERT INTO discounts (code, discount_percent) VALUES (?, ?)').run('DRIVE10', 10);
+      console.log('Seeded discount code: DRIVE10');
+    }
+  } catch (e) {
+    // Ignore if table doesn't exist yet (will be created in db.js)
+  }
+
   const count = db.prepare('SELECT COUNT(*) as c FROM products').get().c;
   return { seeded, count };
 }
