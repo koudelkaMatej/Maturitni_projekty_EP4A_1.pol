@@ -470,7 +470,17 @@
             if (cartSubtotalEl) cartSubtotalEl.textContent = this.formatPrice(subtotal);
             
             // Discount Logic
-            const discount = this.getDiscount();
+            let discount = 0;
+            const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
+            const hasValidCode = !!localStorage.getItem('discountCode');
+
+            if (discountPercent > 0 && hasValidCode) {
+                discount = Math.round(subtotal * (discountPercent / 100));
+            } else if (discountPercent > 0 && !hasValidCode) {
+                // Cleanup invalid state
+                localStorage.removeItem('discountPercent');
+            }
+
             const discountRow = document.getElementById('discountRow');
             const discountAmountEl = document.getElementById('discountAmount');
             const discountInput = document.getElementById('discountCode');
@@ -506,13 +516,13 @@
                             localStorage.setItem('discountPercent', data.discount_percent);
                             discountMsg.textContent = `Slevový kód uplatněn! (-${data.discount_percent}%)`;
                             discountMsg.className = 'discount-message success';
-                            this.updateCartDisplay();
+                            this.updateCartPage();
                         } else {
                             discountMsg.textContent = 'Neplatný slevový kód';
                             discountMsg.className = 'discount-message error';
                             localStorage.removeItem('discountCode');
                             localStorage.removeItem('discountPercent');
-                            this.updateCartDisplay();
+                            this.updateCartPage();
                         }
                     } catch (e) {
                         console.error(e);
@@ -527,8 +537,25 @@
                 if (savedCode && discountInput) {
                     discountInput.value = savedCode;
                     if (savedPercent) {
-                        discountMsg.textContent = `Slevový kód uplatněn! (-${savedPercent}%)`;
+                        discountMsg.innerHTML = `
+                            Slevový kód uplatněn! (-${savedPercent}%) 
+                            <a href="#" id="removeDiscount" style="color: #dc3545; margin-left: 10px; font-size: 0.8em;">Odstranit</a>
+                        `;
                         discountMsg.className = 'discount-message success';
+                        
+                        // Add remove handler
+                        const removeLink = document.getElementById('removeDiscount');
+                        if (removeLink) {
+                            removeLink.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                localStorage.removeItem('discountCode');
+                                localStorage.removeItem('discountPercent');
+                                discountInput.value = '';
+                                discountMsg.textContent = '';
+                                discountMsg.className = 'discount-message';
+                                this.updateCartPage();
+                            });
+                        }
                     }
                 }
             }

@@ -6,278 +6,258 @@
     <title>Můj účet | DRIVE.</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
-    <style>
-        .account-container {
-            max-width: 1000px;
-            margin: 120px auto 60px;
-            padding: 0 20px;
-        }
-        
-        .auth-forms {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        @media (max-width: 768px) {
-            .auth-forms {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-        }
-
-        .form-box {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        .form-box h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
-
-        .form-input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        .btn-auth {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-auth:hover {
-            background: #1a3c34;
-        }
-
-        /* Dashboard Styles */
-        .dashboard {
-            display: none; /* Hidden by default */
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        .user-info {
-            color: var(--text-secondary);
-        }
-
-        .btn-logout {
-            padding: 8px 16px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-
-        .orders-list {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .order-card {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #f8f9fa;
-        }
-
-        .order-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-completed { background: #d4edda; color: #155724; }
-
-        .order-items {
-            margin-bottom: 1rem;
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .subscription-status {
-            background: #E2FBDE;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            color: #155724;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/account.css">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="nav-container">
+        <div class="container nav-container">
             <a href="/index.html" class="logo">
-                <i class="fas fa-bolt logo-icon"></i>
                 <span>DRIVE.</span>
             </a>
-            <div class="nav-links">
-                <a href="/index.html">Domů</a>
-                <a href="/Products/index.html">Produkty</a>
-                <a href="/AboutUs/index.html">O nás</a>
-            </div>
-            <div class="nav-icons">
-                <a href="/Cart/cart.html" class="cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">0</span>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/index.html" class="nav-link">Domů</a></li>
+                <li><a href="/Products/index.html" class="nav-link">Produkty</a></li>
+                <li><a href="/AboutUs/index.html" class="nav-link">O nás</a></li>
+                <li><a href="/index.html#section-newsletter" class="nav-link">Kontakt</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/Account/index.html" class="user-icon active" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="Můj účet">
+                    <i class="fas fa-user"></i>
                 </a>
+                <a href="/Products/index.html" class="btn nav-cta">Nakupovat</a>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                    <div class="mini-cart">
+                        <h3>Váš košík</h3>
+                        <div class="mini-cart-items"></div>
+                        <div class="mini-cart-total">
+                            <span>Celkem:</span>
+                            <span id="miniCartTotal">0 Kč</span>
+                        </div>
+                        <a href="/Cart/cart.html" class="btn btn-block">Zobrazit košík</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="account-container">
-        <!-- Login/Register Forms -->
-        <div id="authSection" class="auth-forms">
-            <div class="form-box">
-                <h2>Přihlášení</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-input" required>
+    <div class="account-page">
+        <div class="account-container">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Můj účet</h1>
+                        <p>Vítejte zpět, <span id="userNameDisplay">Uživateli</span></p>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Heslo</label>
-                        <input type="password" name="password" class="form-input" required>
-                    </div>
-                    <button type="submit" class="btn-auth">Přihlásit se</button>
-                    <p id="loginError" style="color: red; margin-top: 10px; display: none;"></p>
-                </form>
-            </div>
-
-            <div class="form-box">
-                <h2>Registrace</h2>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Heslo</label>
-                        <input type="password" name="password" class="form-input" required minlength="6">
-                    </div>
-                    <button type="submit" class="btn-auth">Vytvořit účet</button>
-                    <p id="registerError" style="color: red; margin-top: 10px; display: none;"></p>
-                </form>
-            </div>
-        </div>
-
-        <!-- User Dashboard -->
-        <div id="dashboardSection" class="dashboard">
-            <div class="dashboard-header">
-                <div>
-                    <h1>Můj účet</h1>
-                    <span id="userEmail" class="user-info"></span>
+                    <button id="logoutBtn" class="btn-outline">Odhlásit se</button>
                 </div>
-                <button id="logoutBtn" class="btn-logout">Odhlásit se</button>
-            </div>
 
-            <div id="subscriptionBanner" class="subscription-status" style="display: none;">
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <strong>Odebíráte novinky</strong>
-                    <div style="font-size: 0.9rem;">Máte nárok na exkluzivní slevy.</div>
+                <div class="dashboard-grid">
+                    <!-- Profile Card -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-circle"></i> Osobní údaje</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Jméno:</span>
+                                <span class="info-value" id="profileName">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value" id="profileEmail">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Telefon:</span>
+                                <span class="info-value" id="profilePhone">-</span>
+                            </div>
+                            <button class="btn-sm" style="margin-top: 1rem;">Upravit údaje</button>
+                        </div>
+                    </div>
+
+                    <!-- Orders Card -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-box"></i> Poslední objednávky</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="ordersList" class="orders-list">
+                                <p style="color: #666; font-style: italic;">Zatím žádné objednávky.</p>
+                            </div>
+                            <a href="/Products/index.html" class="btn-sm" style="margin-top: 1rem; display: inline-block;">Začít nakupovat</a>
+                        </div>
+                    </div>
+
+                    <!-- Address Card -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-map-marker-alt"></i> Adresy</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: #666;">Zatím nemáte uloženou žádnou adresu.</p>
+                            <button class="btn-sm" style="margin-top: 1rem;">Přidat adresu</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <h2>Moje objednávky</h2>
-            <div id="ordersList" class="orders-list">
-                <!-- Orders injected here -->
-                <p style="color: #888;">Zatím nemáte žádné objednávky.</p>
             </div>
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upravit údaje</h3>
+                <button class="close-modal" onclick="closeModal('editProfileModal')">&times;</button>
+            </div>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label>Jméno</label>
+                    <input type="text" name="firstName" id="editFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Příjmení</label>
+                    <input type="text" name="lastName" id="editLastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" name="phone" id="editPhone">
+                </div>
+                <div class="form-group">
+                    <label>Ulice a číslo popisné</label>
+                    <input type="text" name="address" id="editAddress">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Město</label>
+                        <input type="text" name="city" id="editCity">
+                    </div>
+                    <div class="form-group">
+                        <label>PSČ</label>
+                        <input type="text" name="zipCode" id="editZipCode">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-outline" onclick="closeModal('editProfileModal')">Zrušit</button>
+                    <button type="submit" class="btn">Uložit změny</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/assets/js/cart.js?v=2"></script>
     <script>
-        // Check auth status on load
+        let currentUser = null;
+
+        // Check Auth Status
         async function checkAuth() {
             try {
                 const res = await fetch('/api/auth/me');
                 if (res.ok) {
-                    const user = await res.json();
-                    showDashboard(user);
+                    currentUser = await res.json();
+                    showDashboard(currentUser);
                 } else {
-                    showAuth();
+                    // Redirect to login if not authenticated
+                    window.location.href = '/Account/login.html';
                 }
             } catch (e) {
-                showAuth();
+                console.error('Auth check failed', e);
+                window.location.href = '/Account/login.html';
             }
-        }
-
-        function showAuth() {
-            document.getElementById('authSection').style.display = 'grid';
-            document.getElementById('dashboardSection').style.display = 'none';
         }
 
         function showDashboard(user) {
-            document.getElementById('authSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'block';
-            document.getElementById('userEmail').textContent = user.email;
             
-            if (user.isSubscribed) {
-                document.getElementById('subscriptionBanner').style.display = 'flex';
+            const fullName = (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : user.email.split('@')[0];
+            
+            document.getElementById('userNameDisplay').textContent = fullName;
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profilePhone').textContent = user.phone || '-';
+            
+            // Update Address Card
+            const addressCardBody = document.querySelector('.dashboard-card:nth-child(3) .card-body');
+            if (user.address) {
+                addressCardBody.innerHTML = `
+                    <p><strong>${fullName}</strong><br>
+                    ${user.address}<br>
+                    ${user.zipCode} ${user.city}</p>
+                    <button class="btn-sm" style="margin-top: 1rem;" onclick="openEditModal()">Upravit adresu</button>
+                `;
+            } else {
+                addressCardBody.innerHTML = `
+                    <p style="color: #666;">Zatím nemáte uloženou žádnou adresu.</p>
+                    <button class="btn-sm" style="margin-top: 1rem;" onclick="openEditModal()">Přidat adresu</button>
+                `;
             }
 
+            // Bind Edit Button in Profile Card
+            const profileEditBtn = document.querySelector('.dashboard-card:first-child .btn-sm');
+            if (profileEditBtn) {
+                profileEditBtn.onclick = openEditModal;
+            }
+            
             loadOrders();
         }
+
+        function openEditModal() {
+            if (!currentUser) return;
+            
+            document.getElementById('editFirstName').value = currentUser.firstName || '';
+            document.getElementById('editLastName').value = currentUser.lastName || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editAddress').value = currentUser.address || '';
+            document.getElementById('editCity').value = currentUser.city || '';
+            document.getElementById('editZipCode').value = currentUser.zipCode || '';
+            
+            document.getElementById('editProfileModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Ukládám...';
+            btn.disabled = true;
+
+            const formData = {
+                firstName: document.getElementById('editFirstName').value,
+                lastName: document.getElementById('editLastName').value,
+                phone: document.getElementById('editPhone').value,
+                address: document.getElementById('editAddress').value,
+                city: document.getElementById('editCity').value,
+                zipCode: document.getElementById('editZipCode').value
+            };
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (res.ok) {
+                    closeModal('editProfileModal');
+                    checkAuth(); // Reload data
+                } else {
+                    alert('Chyba při ukládání údajů');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Chyba připojení');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
 
         async function loadOrders() {
             try {
@@ -294,103 +274,34 @@
         function renderOrders(orders) {
             const container = document.getElementById('ordersList');
             if (orders.length === 0) {
-                container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">Zatím nemáte žádné objednávky.</p>';
+                container.innerHTML = '<p style="color: #666; font-style: italic;">Zatím žádné objednávky.</p>';
                 return;
             }
 
             container.innerHTML = orders.map(order => `
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <strong>Objednávka #${order.id}</strong>
-                            <div style="color: #888; font-size: 0.9rem;">${new Date(order.created_at).toLocaleDateString('cs-CZ')}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="order-status status-${order.status || 'pending'}">
-                                ${order.status === 'pending' ? 'Zpracovává se' : 'Dokončeno'}
-                            </div>
-                            <div style="margin-top: 5px; font-weight: bold;">
-                                ${(order.total_cents / 100).toFixed(0)} Kč
-                            </div>
-                        </div>
+                <div class="order-card" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong>Objednávka #${order.id}</strong>
+                        <span class="order-status status-${order.status}">${order.status}</span>
                     </div>
-                    <div class="order-items">
-                        ${order.items.map(item => `
-                            <div class="order-item">
-                                <span>${item.quantity}x ${item.product_name}</span>
-                                <span>${(item.price_cents * item.quantity / 100).toFixed(0)} Kč</span>
-                            </div>
-                        `).join('')}
+                    <div style="font-size: 0.9rem; color: #666;">
+                        ${new Date(order.created_at).toLocaleDateString('cs-CZ')} • ${(order.total_cents / 100).toFixed(0)} Kč
                     </div>
                 </div>
             `).join('');
         }
 
-        // Login Handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-            
-            try {
-                const res = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (res.ok) {
-                    window.location.reload();
-                } else {
-                    const err = await res.json();
-                    const errEl = document.getElementById('loginError');
-                    errEl.textContent = err.error;
-                    errEl.style.display = 'block';
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        });
-
-        // Register Handler
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-            
-            try {
-                const res = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (res.ok) {
-                    // Auto login after register
-                    const loginRes = await fetch('/api/auth/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    if (loginRes.ok) window.location.reload();
-                } else {
-                    const err = await res.json();
-                    const errEl = document.getElementById('registerError');
-                    errEl.textContent = err.error;
-                    errEl.style.display = 'block';
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        });
-
         // Logout Handler
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            window.location.reload();
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/Account/login.html';
+            } catch (e) {
+                console.error('Logout failed', e);
+            }
         });
 
-        // Init
+        // Initialize
         checkAuth();
     </script>
 </body>

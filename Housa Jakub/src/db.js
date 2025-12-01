@@ -29,6 +29,12 @@ CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
+  first_name TEXT,
+  last_name TEXT,
+  phone TEXT,
+  address TEXT,
+  city TEXT,
+  zip_code TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -150,6 +156,23 @@ try {
   }
 } catch (e) {
   console.error('Migration failed (discounts):', e);
+}
+
+// Migration: Add profile fields to users if they don't exist
+try {
+  const columns = db.pragma('table_info(users)');
+  const hasFirstName = columns.some(col => col.name === 'first_name');
+  
+  if (!hasFirstName) {
+    db.exec('ALTER TABLE users ADD COLUMN first_name TEXT');
+    db.exec('ALTER TABLE users ADD COLUMN last_name TEXT');
+    db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
+    db.exec('ALTER TABLE users ADD COLUMN address TEXT');
+    db.exec('ALTER TABLE users ADD COLUMN city TEXT');
+    db.exec('ALTER TABLE users ADD COLUMN zip_code TEXT');
+  }
+} catch (e) {
+  console.error('Migration failed (user profile):', e);
 }
 
 module.exports = { db };

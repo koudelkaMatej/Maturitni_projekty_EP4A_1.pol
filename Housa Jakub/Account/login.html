@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihlášení | DRIVE.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/account.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/index.html" class="logo">
+                <span>DRIVE.</span>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/index.html" class="nav-link">Domů</a></li>
+                <li><a href="/Products/index.html" class="nav-link">Produkty</a></li>
+                <li><a href="/AboutUs/index.html" class="nav-link">O nás</a></li>
+                <li><a href="/index.html#section-newsletter" class="nav-link">Kontakt</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/Account/index.html" class="user-icon" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="Můj účet">
+                    <i class="fas fa-user"></i>
+                </a>
+                <a href="/Products/index.html" class="btn nav-cta">Nakupovat</a>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                    <div class="mini-cart">
+                        <h3>Váš košík</h3>
+                        <div class="mini-cart-items"></div>
+                        <div class="mini-cart-total">
+                            <span>Celkem:</span>
+                            <span id="miniCartTotal">0 Kč</span>
+                        </div>
+                        <a href="/Cart/cart.html" class="btn btn-block">Zobrazit košík</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="account-page">
+        <div class="account-container">
+            <div class="auth-wrapper" style="max-width: 500px; grid-template-columns: 1fr; margin: 40px auto;">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h2>Přihlášení</h2>
+                        <p>Vítejte zpět! Přihlaste se ke svému účtu.</p>
+                    </div>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-input" placeholder="vas@email.cz" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Heslo</label>
+                            <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn-auth">Přihlásit se</button>
+                        <div id="loginError" class="form-error"></div>
+                    </form>
+                    <div style="text-align: center; margin-top: 1.5rem; color: #666;">
+                        Nemáte ještě účet? <a href="register.html" style="color: #27445C; font-weight: bold;">Zaregistrujte se</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/cart.js?v=2"></script>
+    <script>
+        // Check if already logged in
+        fetch('/api/auth/me').then(res => {
+            if (res.ok) window.location.href = '/Account/index.html';
+        });
+
+        // Login Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Přihlašování...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    // Check for redirect param
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect');
+                    window.location.href = redirect || '/Account/index.html';
+                } else {
+                    const err = await res.json();
+                    const errEl = document.getElementById('loginError');
+                    errEl.textContent = err.error || 'Chyba přihlášení';
+                    errEl.style.display = 'block';
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

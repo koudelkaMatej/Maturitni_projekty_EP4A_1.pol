@@ -107,48 +107,46 @@
 
         <!-- Auth Section -->
         <div id="authContainer" style="max-width: 1200px; margin: 0 auto 2rem; display: none;">
-            <div style="background: #E2FBDE; color: #1a3c34; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <i class="fas fa-user-check"></i>
-                    <span style="margin-left: 10px;">Přihlášen jako <strong id="authUserEmail"></strong></span>
+            <div style="background: #E2FBDE; color: #1a3c34; padding: 1.2rem 1.5rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #b8e6b3; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1a3c34;">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div>
+                        <span style="display: block; font-size: 0.9rem; opacity: 0.8;">Přihlášen jako</span>
+                        <strong id="authUserEmail" style="font-size: 1.05rem;"></strong>
+                    </div>
                 </div>
-                <button onclick="logout()" style="background: none; border: 1px solid #1a3c34; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: #1a3c34;">Odhlásit</button>
+                <button onclick="logout()" style="background: white; border: 1px solid #1a3c34; padding: 8px 16px; border-radius: 6px; cursor: pointer; color: #1a3c34; font-weight: 600; transition: all 0.2s;">
+                    Odhlásit
+                </button>
             </div>
         </div>
 
         <div id="loginPrompt" style="max-width: 1200px; margin: 0 auto 2rem;">
-            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-                <div>
-                    <h3 style="margin: 0 0 0.5rem 0; color: #27445C;">Máte již účet?</h3>
-                    <p style="margin: 0; color: #666;">Přihlaste se pro rychlejší nákup a správu objednávek.</p>
+            <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                <div style="flex: 1; min-width: 300px;">
+                    <h3 style="margin: 0 0 0.5rem 0; color: #27445C; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user-circle" style="color: #5A8DB9;"></i>
+                        Máte již účet?
+                    </h3>
+                    <p style="margin: 0; color: #666; line-height: 1.5;">Přihlaste se pro rychlejší nákup, správu objednávek a přístup k věrnostním slevám.</p>
                 </div>
                 <div style="display: flex; gap: 1rem;">
-                    <button onclick="toggleLoginModal()" style="background: #27445C; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Přihlásit se</button>
-                    <a href="/Account/index.html" style="text-decoration: none; background: white; color: #27445C; border: 1px solid #27445C; padding: 10px 20px; border-radius: 6px; font-weight: bold;">Registrovat</a>
+                    <a href="/Account/login.html?redirect=/Cart/checkout.html" style="text-decoration: none; background: #27445C; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; transition: background 0.2s;">
+                        Přihlásit se
+                    </a>
+                    <a href="/Account/register.html" style="text-decoration: none; background: white; color: #27445C; border: 2px solid #27445C; padding: 10px 22px; border-radius: 8px; font-weight: 600; transition: all 0.2s;">
+                        Registrovat
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Login Modal -->
-        <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-            <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; position: relative;">
-                <button onclick="toggleLoginModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                <h2 style="margin-top: 0; color: #27445C;">Přihlášení</h2>
-                <form id="checkoutLoginForm">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Email</label>
-                        <input type="email" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Heslo</label>
-                        <input type="password" name="password" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                    <button type="submit" style="width: 100%; padding: 12px; background: #27445C; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Přihlásit se</button>
-                    <p id="checkoutLoginError" style="color: red; margin-top: 10px; display: none;"></p>
-                </form>
-            </div>
-        </div>
-        
+        <style>
+            #loginPrompt a:hover { opacity: 0.9; }
+        </style>
+
         <form id="checkoutForm" class="checkout-grid">
             <div class="checkout-left">
                 <div class="form-section">
@@ -310,6 +308,14 @@
                         emailInput.readOnly = true;
                         emailInput.style.background = '#f8f9fa';
                     }
+
+                    // Pre-fill other fields if available
+                    if (user.firstName) document.getElementById('firstName').value = user.firstName;
+                    if (user.lastName) document.getElementById('lastName').value = user.lastName;
+                    if (user.phone) document.getElementById('phone').value = user.phone;
+                    if (user.address) document.getElementById('address').value = user.address;
+                    if (user.city) document.getElementById('city').value = user.city;
+                    if (user.zipCode) document.getElementById('zipCode').value = user.zipCode;
                 } else {
                     document.getElementById('authContainer').style.display = 'none';
                     document.getElementById('loginPrompt').style.display = 'block';
@@ -319,43 +325,12 @@
             }
         }
 
-        function toggleLoginModal() {
-            const modal = document.getElementById('loginModal');
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        }
-
         async function logout() {
             await fetch('/api/auth/logout', { method: 'POST' });
             window.location.reload();
         }
 
-        document.getElementById('checkoutLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-            
-            try {
-                const res = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (res.ok) {
-                    window.location.reload();
-                } else {
-                    const err = await res.json();
-                    const errEl = document.getElementById('checkoutLoginError');
-                    errEl.textContent = err.error;
-                    errEl.style.display = 'block';
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        });
-
         checkCheckoutAuth();
-    </script>
 
         // Load cart data
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -421,9 +396,6 @@
         if (discountPercent > 0) {
             const discountAmount = Math.round(total * (discountPercent / 100));
             total -= discountAmount;
-            
-            // Optional: Show discount row if you want, but for now just update total
-            // You might want to add a visual indicator that discount is applied
         }
 
         checkoutTotal.textContent = `${total} Kč`;

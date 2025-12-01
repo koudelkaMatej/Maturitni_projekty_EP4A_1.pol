@@ -494,7 +494,39 @@ a {
     transition: transform 0.3s ease;
 }
 
-/* Obrázek nahoře (čtverec) */
+/* Wrapper pro obrázky (překrývání) */
+.product-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+}
+
+.product-img-main,
+.product-img-hover {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transition: opacity 0.4s ease;
+}
+
+.product-img-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.product-image-link:hover .product-img-hover {
+    opacity: 1;
+}
+
+.product-image-link:hover .product-img-main {
+    opacity: 0;
+}
+
+/* Starý styl pro zpětnou kompatibilitu (pokud by někde zůstal) */
 .product-image {
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -507,9 +539,6 @@ a {
 /* Hover efekt – jen na obrázek */
 .product-image-link:hover {
     transform: translateY(-5px);
-}
-.product-image-link:hover .product-image {
-    background-image: var(--secondary-image);
 }
 
 /* Text pod obrázkem */

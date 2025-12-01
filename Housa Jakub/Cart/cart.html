@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Košík | Drive.</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css?v=2">
-    <link rel="stylesheet" href="/assets/css/cart.css?v=2">
+    <link rel="stylesheet" href="../assets/css/style.css?v=2">
+    <link rel="stylesheet" href="../assets/css/cart.css?v=2">
 </head>
 <body>
     <div class="container">
         <div class="cart-top-nav">
-            <a href="/Products/index.html" class="back-link">
+            <a href="../Products/index.html" class="back-link">
                 <i class="fas fa-arrow-left"></i>
                 Zpět k nákupu
             </a>
-            <a href="/index.html" class="simple-logo">
+            <a href="../index.html" class="simple-logo">
                 <i class="fas fa-bolt"></i>
                 <span>DRIVE.</span>
             </a>
@@ -209,56 +209,10 @@
         }
     </style>
 
-    <footer>
-        <div class="footer-container">
-            <div class="footer-section footer-info">
-                <a href="/index.html" class="logo">
-                    <i class="fas fa-bolt logo-icon"></i>
-                    <span>Drive.</span>
-                </a>
-                <p>Osvěžující energie s nulovými kaloriemi. Vaše denní dávka hydratace a koncentrace.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Odkazy</h4>
-                <ul>
-                    <li><a href="/index.html">Domů</a></li>
-                    <li><a href="/Products/index.html">Produkty</a></li>
-                    <li><a href="/AboutUs/index.html">O nás</a></li>
-                    <li><a href="/index.html#section-newsletter">Kontakt</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Informace</h4>
-                <ul>
-                    <li><a href="/Info/terms.html">Obchodní podmínky</a></li>
-                    <li><a href="/Info/privacy.html">Ochrana soukromí</a></li>
-                    <li><a href="/Info/shipping.html">Doprava a platba</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Kontakt</h4>
-                <p>
-                    <i class="fas fa-map-marker-alt"></i> 123 Ulice Vody, Praha<br>
-                    <i class="fas fa-phone"></i> +420 123 456 789<br>
-                    <i class="fas fa-envelope"></i> info@kofeinovavoda.cz
-                </p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; <span id="year">2025</span> Drive. Všechna práva vyhrazena.</p>
-            <div class="payment-icons">
-                <i class="fab fa-cc-visa" title="Visa"></i>
-                <i class="fab fa-cc-mastercard" title="Mastercard"></i>
-                <i class="fab fa-apple-pay" title="Apple Pay"></i>
-                <i class="fab fa-google-pay" title="Google Pay"></i>
-            </div>
-        </div>
-    </footer>
 
-    <script src="/assets/js/cart.js?v=2"></script>
+
+    <script src="../assets/js/cart.js?v=2"></script>
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-
         // Clear discount code on page load
         localStorage.removeItem('discountCode');
 
@@ -271,7 +225,7 @@
             window.location.href = 'checkout.html';
         }
     </script>
-    <script src="/assets/js/cookie-consent.js"></script>
+    <script src="../assets/js/cookie-consent.js"></script>
 </body>
 </html>
 

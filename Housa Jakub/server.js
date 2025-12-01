@@ -504,6 +504,19 @@ app.post('/api/checkout', (req, res) => {
   const user = getCurrentUser(req);
   const userId = user ? user.id : (cart.user_id || null);
 
+  // Update user profile if logged in
+  if (user) {
+      try {
+          db.prepare(`
+              UPDATE users 
+              SET first_name = ?, last_name = ?, phone = ?, address = ?, city = ?, zip_code = ?
+              WHERE id = ?
+          `).run(firstName, lastName, phone, address, city, zipCode, user.id);
+      } catch (e) {
+          console.error('Failed to update user profile during checkout:', e);
+      }
+  }
+
   // Transaction to ensure order and items are created together
   const createOrderTransaction = db.transaction(() => {
     // 1. Create Order
@@ -605,11 +618,40 @@ app.get('/api/auth/me', (req, res) => {
     // Check subscription status
     const sub = db.prepare('SELECT * FROM subscribers WHERE email = ?').get(user.email);
     
+    // Get full user details
+    const userDetails = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+
     res.json({ 
         id: user.id, 
         email: user.email,
+        firstName: userDetails.first_name,
+        lastName: userDetails.last_name,
+        phone: userDetails.phone,
+        address: userDetails.address,
+        city: userDetails.city,
+        zipCode: userDetails.zip_code,
         isSubscribed: !!sub
     });
+});
+
+app.put('/api/user/profile', (req, res) => {
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Not logged in' });
+    
+    const { firstName, lastName, phone, address, city, zipCode } = req.body;
+    
+    try {
+        db.prepare(`
+            UPDATE users 
+            SET first_name = ?, last_name = ?, phone = ?, address = ?, city = ?, zip_code = ?
+            WHERE id = ?
+        `).run(firstName, lastName, phone, address, city, zipCode, user.id);
+        
+        res.json({ success: true });
+    } catch (e) {
+        console.error('Profile update failed:', e);
+        res.status(500).json({ error: 'Failed to update profile' });
+    }
 });
 
 app.get('/api/user/orders', (req, res) => {
