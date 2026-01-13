@@ -808,6 +808,10 @@ body.mini-cart-open {
 }
 
 /* Nové styly pro "fresh" sekci benefitů */
+.fresh-benefits {
+    background-color: #ffffff;
+}
+
 .fresh-benefits .benefits-grid {
     grid-template-columns: repeat(4, 1fr);
 }
@@ -2003,6 +2007,226 @@ body.hide-navbar #cart {
 
 .info-page li {
     margin-bottom: 0.5rem;
+}
+
+/* =========================================
+   MODERN HERO REDESIGN (Liquid Glass)
+   ========================================= */
+
+/* Container & Layout */
+.hero {
+    position: relative;
+    overflow: hidden;
+    /* Smooth gradient background matching reference */
+    background: linear-gradient(90deg, #dcfce7 0%, #e0f2fe 100%);
+}
+
+.modern-hero {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    align-items: center;
+    gap: 2rem;
+    height: 100%;
+    position: relative;
+    z-index: 2; /* Above blobs */
+}
+
+/* Background Blobs */
+.hero-background-blobs {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: blob-float 20s infinite alternate ease-in-out;
+}
+
+.blob-1 {
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: var(--primary-light);
+    animation-delay: 0s;
+}
+
+.blob-2 {
+    bottom: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: var(--primary-dark);
+    animation-delay: -5s;
+}
+
+/* Typography */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 100%;
+}
+
+.hero-title-large {
+    font-family: 'TelkaTRIALBold', sans-serif;
+    font-size: clamp(3rem, 5vw, 5rem);
+    line-height: 1.1;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    /* Subtle gradient text */
+    background: linear-gradient(135deg, var(--text-primary) 0%, #1a3c34 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0;
+    padding-top: 0.1em; /* Extra space for accents */
+    padding-bottom: 0.1em;
+}
+
+.hero-subtitle-modern {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-weight: 500;
+    max-width: 90%;
+}
+
+/* Buttons (Glassmorphism) */
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-glass {
+    background: #27445C; /* Solid dark blue to match reference */
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(39, 68, 92, 0.2);
+}
+
+.btn-glass:hover {
+    background: #1a3c34;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(39, 68, 92, 0.3);
+}
+
+.btn-glass-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--text-primary);
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-glass-outline:hover {
+    background: rgba(39, 68, 92, 0.05);
+    transform: translateY(-3px);
+}
+
+/* Visuals */
+.hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.glass-circle {
+    position: absolute;
+    width: min(40vw, 500px);
+    height: min(40vw, 500px);
+    background: rgba(255, 255, 255, 0.4); /* Softer white */
+    backdrop-filter: blur(20px);
+    border-radius: 50%;
+    /* Removed border to match soft look */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    z-index: 1;
+}
+
+.hero-bottle-large {
+    position: relative;
+    z-index: 2;
+    width: auto;
+    height: min(70vh, 600px);
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+}
+
+/* Animations */
+@keyframes blob-float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(20px, -20px) scale(1.1); }
+}
+
+@keyframes float-y {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float {
+    animation: float-y 6s ease-in-out infinite;
+}
+
+.animate-fade-up {
+    animation: fade-up 1s ease-out forwards;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .modern-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+        padding-top: 2rem;
+    }
+
+    .hero-content {
+        align-items: center;
+        margin: 0 auto;
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+
+    .hero-bottle-large {
+        height: 40vh;
+    }
+    
+    .glass-circle {
+        width: 300px;
+        height: 300px;
+    }
 }
 
 

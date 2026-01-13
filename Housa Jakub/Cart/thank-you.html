@@ -6,113 +6,7 @@
     <title>Objednávka přijata | DRIVE.</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #fff; /* Ensure background is white or matches theme */
-        }
-        /* Progress Steps Styles */
-        .checkout-steps {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 40px;
-            padding: 20px 0;
-            width: 100%;
-            max-width: 600px;
-        }
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f0f0f0;
-            color: #999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-bottom: 8px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-        .step.active .step-circle {
-            background: #27445C;
-            color: white;
-            border-color: #27445C;
-        }
-        .step.completed .step-circle {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-        .step-label {
-            font-size: 0.9rem;
-            color: #999;
-            font-weight: 500;
-        }
-        .step.active .step-label {
-            color: #27445C;
-            font-weight: bold;
-        }
-        .step-line {
-            flex: 1;
-            height: 2px;
-            background: #e0e0e0;
-            margin: 0 10px;
-            max-width: 100px;
-            transform: translateY(-14px);
-        }
-        .step.completed + .step-line {
-            background: #28a745;
-        }
-
-        .thank-you-page {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            /* Optional: if you want it slightly offset from the very top visually, 
-               but center is usually best. */
-        }
-        .success-icon {
-            font-size: 5rem;
-            color: #28a745;
-            margin-bottom: 1.5rem;
-        }
-        .thank-you-page h1 {
-            font-size: 3rem;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-        .thank-you-page p {
-            margin-bottom: 2rem;
-            color: var(--text-secondary);
-            max-width: 500px;
-            font-size: 1.1rem;
-        }
-        .order-id {
-            background: #f8f9fa;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 1.2rem;
-            color: var(--text-primary);
-            margin-bottom: 2rem;
-            display: inline-block;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/cart.css">
 </head>
 <body>
     <!-- Navbar removed as requested -->
@@ -124,27 +18,35 @@
                 <div class="step-circle"><i class="fas fa-check"></i></div>
                 <div class="step-label">Košík</div>
             </div>
-            <div class="step-line"></div>
             <div class="step completed">
                 <div class="step-circle"><i class="fas fa-check"></i></div>
                 <div class="step-label">Doprava a platba</div>
             </div>
-            <div class="step-line"></div>
             <div class="step completed">
                 <div class="step-circle"><i class="fas fa-check"></i></div>
                 <div class="step-label">Kontrola</div>
             </div>
         </div>
 
-        <i class="fas fa-check-circle success-icon"></i>
-        <h1>Děkujeme za objednávku!</h1>
-        <p>Vaše objednávka byla úspěšně přijata a zpracováváme ji. Potvrzení a shrnutí objednávky jsme vám zaslali na email.</p>
-        
-        <div id="orderIdContainer" style="display: none;">
-            Číslo objednávky: <span id="orderIdDisplay" class="order-id"></span>
-        </div>
+        <div style="background: white; padding: 3rem; border-radius: 24px; border: 1px solid #e5e7eb; box-shadow: 0 10px 40px rgba(0,0,0,0.04); max-width: 650px; width: 100%; margin-top: 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <div style="margin-bottom: 1.5rem;">
+                <div style="width: 80px; height: 80px; background: #dcfce7; color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2.5rem;">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            
+            <h1 style="margin-bottom: 1rem; font-size: 2.5rem;">Objednávka dokončena!</h1>
+            <p style="font-size: 1.1rem; color: #6b7280; line-height: 1.6; margin-bottom: 2rem; max-width: 500px;">
+                Děkujeme za váš nákup. Vaši objednávku jsme úspěšně přijali a začínáme ji zpracovávat. Potvrzení s detaily jsme zaslali na váš email.
+            </p>
+            
+            <div id="orderIdContainer" style="display: none; margin-bottom: 2rem; padding: 1.5rem; background: #f9fafb; border-radius: 12px; border: 1px dashed #d1d5db;">
+                <span style="display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin-bottom: 0.5rem; font-weight: 600;">Číslo objednávky</span>
+                <span id="orderIdDisplay" style="font-size: 1.5rem; font-weight: 800; color: #111827; font-family: monospace;"></span>
+            </div>
 
-        <a href="/index.html" class="btn">Zpět na úvod</a>
+            <a href="/index.html" class="btn" style="min-width: 200px;">Zpět na úvod</a>
+        </div>
     </main>
 
     <!-- Footer removed as requested -->
@@ -161,6 +63,7 @@
     </script>
 </body>
 </html>
+
 
 
 

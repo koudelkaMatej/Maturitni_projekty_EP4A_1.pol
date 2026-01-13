@@ -45,108 +45,149 @@
 
     <div class="account-page">
         <div class="account-container">
-            <!-- Dashboard Section -->
-            <div id="dashboardSection" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h1>Můj účet</h1>
-                        <p>Vítejte zpět, <span id="userNameDisplay">Uživateli</span></p>
+            <!-- Dashboard Grid -->
+            <div id="dashboardSection" class="dashboard-grid" style="display: none;">
+                
+                <!-- Sidebar -->
+                <aside class="dashboard-sidebar">
+                    <div class="user-profile-summary">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3 class="user-name" id="sidebarName">Načítání...</h3>
+                        <p class="user-email" id="sidebarEmail" style="font-size: 0.9rem; color: #666;">...</p>
                     </div>
-                    <button id="logoutBtn" class="btn-outline">Odhlásit se</button>
-                </div>
+                    
+                    <nav class="dashboard-menu">
+                        <button class="menu-item active" onclick="switchTab('overview', this)">
+                            <i class="fas fa-th-large"></i> Přehled
+                        </button>
+                        <button class="menu-item" onclick="switchTab('orders', this)">
+                            <i class="fas fa-shopping-bag"></i> Objednávky
+                        </button>
+                        <button class="menu-item" onclick="switchTab('addresses', this)">
+                            <i class="fas fa-map-marker-alt"></i> Adresy
+                        </button>
+                        <button class="menu-item" onclick="switchTab('settings', this)">
+                            <i class="fas fa-cog"></i> Nastavení
+                        </button>
+                        <div class="menu-divider"></div>
+                        <button class="menu-item logout-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Odhlásit se
+                        </button>
+                    </nav>
+                </aside>
 
-                <div class="dashboard-grid">
-                    <!-- Profile Card -->
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-user-circle"></i> Osobní údaje</h3>
+                <!-- Content Area -->
+                <main class="dashboard-content">
+                    
+                    <!-- Tab: Overview -->
+                    <div id="tab-overview" class="dashboard-tab active">
+                        <div class="tab-header">
+                            <h2>Vítejte zpět, <span id="welcomeName">Uživateli</span>! 👋</h2>
+                            <p>Zde je přehled vašeho účtu a poslední aktivity.</p>
                         </div>
-                        <div class="card-body">
-                            <div class="info-row">
-                                <span class="info-label">Jméno:</span>
-                                <span class="info-value" id="profileName">-</span>
+
+                        <div class="overview-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statsOrdersCount">0</span>
+                                    <span class="stat-label">Objednávek</span>
+                                </div>
                             </div>
-                            <div class="info-row">
-                                <span class="info-label">Email:</span>
-                                <span class="info-value" id="profileEmail">-</span>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-map-marked-alt"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statsAddressCount">0</span>
+                                    <span class="stat-label">Uložených adres</span>
+                                </div>
                             </div>
-                            <div class="info-row">
-                                <span class="info-label">Telefon:</span>
-                                <span class="info-value" id="profilePhone">-</span>
+                        </div>
+
+                        <div class="recent-section">
+                            <div class="section-top" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3>Poslední objednávky</h3>
+                                <button class="btn-secondary btn-sm" onclick="switchTab('orders', document.querySelector('.dashboard-menu .menu-item:nth-child(2)'))" style="padding: 8px 16px; font-size: 0.9rem;">Zobrazit vše</button>
                             </div>
-                            <button class="btn-sm" style="margin-top: 1rem;">Upravit údaje</button>
+                            <div id="overviewOrdersList" class="orders-list-simple">
+                                <!-- Populated by JS -->
+                                <div class="empty-state">
+                                    <i class="fas fa-box-open"></i>
+                                    <p>Zatím žádné objednávky.</p>
+                                    <a href="/Products/index.html" class="btn-sm">Nakupovat</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Orders Card -->
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-box"></i> Poslední objednávky</h3>
+                    <!-- Tab: Orders -->
+                    <div id="tab-orders" class="dashboard-tab" style="display: none;">
+                        <div class="tab-header">
+                            <h2>Moje objednávky</h2>
+                            <p>Historie vašich nákupů a stav doručení.</p>
                         </div>
-                        <div class="card-body">
-                            <div id="ordersList" class="orders-list">
-                                <p style="color: #666; font-style: italic;">Zatím žádné objednávky.</p>
+                        <div id="fullOrdersList" class="orders-list-full">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <p>Nemáte žádné objednávky.</p>
+                                <a href="/Products/index.html" class="btn">Přejít do obchodu</a>
                             </div>
-                            <a href="/Products/index.html" class="btn-sm" style="margin-top: 1rem; display: inline-block;">Začít nakupovat</a>
                         </div>
                     </div>
 
-                    <!-- Address Card -->
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-map-marker-alt"></i> Adresy</h3>
+                    <!-- Tab: Addresses -->
+                    <div id="tab-addresses" class="dashboard-tab" style="display: none;">
+                        <div class="tab-header">
+                            <h2>Adresář</h2>
+                            <button class="btn btn-sm" onclick="openAddressModal()">+ Nová adresa</button>
                         </div>
-                        <div class="card-body">
-                            <p style="color: #666;">Zatím nemáte uloženou žádnou adresu.</p>
-                            <button class="btn-sm" style="margin-top: 1rem;">Přidat adresu</button>
+                        <div class="addresses-grid" id="addressesGrid">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
-                </div>
+
+                    <!-- Tab: Settings -->
+                    <div id="tab-settings" class="dashboard-tab" style="display: none;">
+                        <div class="tab-header">
+                            <h2>Nastavení účtu</h2>
+                            <p>Spravujte své osobní údaje a heslo.</p>
+                        </div>
+                        
+                        <div class="settings-form-container">
+                            <form id="profileForm" class="settings-form">
+                                <h3>Osobní údaje</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Jméno</label>
+                                        <input type="text" id="settingsFirstName" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Příjmení</label>
+                                        <input type="text" id="settingsLastName" class="form-input">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="settingsEmail" class="form-input" disabled title="Email nelze změnit">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Telefon</label>
+                                    <input type="tel" id="settingsPhone" class="form-input">
+                                </div>
+                                <div class="form-actions" style="margin-top: 1.5rem;">
+                                    <button type="submit" class="btn">Uložit změny</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </main>
             </div>
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div class="modal-overlay" id="editProfileModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Upravit údaje</h3>
-                <button class="close-modal" onclick="closeModal('editProfileModal')">&times;</button>
-            </div>
-            <form id="editProfileForm">
-                <div class="form-group">
-                    <label>Jméno</label>
-                    <input type="text" name="firstName" id="editFirstName" required>
-                </div>
-                <div class="form-group">
-                    <label>Příjmení</label>
-                    <input type="text" name="lastName" id="editLastName" required>
-                </div>
-                <div class="form-group">
-                    <label>Telefon</label>
-                    <input type="tel" name="phone" id="editPhone">
-                </div>
-                <div class="form-group">
-                    <label>Ulice a číslo popisné</label>
-                    <input type="text" name="address" id="editAddress">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label>Město</label>
-                        <input type="text" name="city" id="editCity">
-                    </div>
-                    <div class="form-group">
-                        <label>PSČ</label>
-                        <input type="text" name="zipCode" id="editZipCode">
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-outline" onclick="closeModal('editProfileModal')">Zrušit</button>
-                    <button type="submit" class="btn">Uložit změny</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
 
     <script src="/assets/js/cart.js?v=2"></script>
     <script>
@@ -158,9 +199,8 @@
                 const res = await fetch('/api/auth/me');
                 if (res.ok) {
                     currentUser = await res.json();
-                    showDashboard(currentUser);
+                    initDashboard(currentUser);
                 } else {
-                    // Redirect to login if not authenticated
                     window.location.href = '/Account/login.html';
                 }
             } catch (e) {
@@ -169,95 +209,30 @@
             }
         }
 
-        function showDashboard(user) {
-            document.getElementById('dashboardSection').style.display = 'block';
+        function initDashboard(user) {
+            document.getElementById('dashboardSection').style.display = 'grid';
             
-            const fullName = (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : user.email.split('@')[0];
+            const fullName = (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : 'Uživatel';
             
-            document.getElementById('userNameDisplay').textContent = fullName;
-            document.getElementById('profileName').textContent = fullName;
-            document.getElementById('profileEmail').textContent = user.email;
-            document.getElementById('profilePhone').textContent = user.phone || '-';
+            // Sidebar info
+            document.getElementById('sidebarName').textContent = fullName;
+            document.getElementById('sidebarEmail').textContent = user.email;
             
-            // Update Address Card
-            const addressCardBody = document.querySelector('.dashboard-card:nth-child(3) .card-body');
-            if (user.address) {
-                addressCardBody.innerHTML = `
-                    <p><strong>${fullName}</strong><br>
-                    ${user.address}<br>
-                    ${user.zipCode} ${user.city}</p>
-                    <button class="btn-sm" style="margin-top: 1rem;" onclick="openEditModal()">Upravit adresu</button>
-                `;
-            } else {
-                addressCardBody.innerHTML = `
-                    <p style="color: #666;">Zatím nemáte uloženou žádnou adresu.</p>
-                    <button class="btn-sm" style="margin-top: 1rem;" onclick="openEditModal()">Přidat adresu</button>
-                `;
-            }
+            // Welcome Section
+            document.getElementById('welcomeName').textContent = user.firstName || 'Uživateli';
 
-            // Bind Edit Button in Profile Card
-            const profileEditBtn = document.querySelector('.dashboard-card:first-child .btn-sm');
-            if (profileEditBtn) {
-                profileEditBtn.onclick = openEditModal;
-            }
-            
+            // Settings Form Pre-fill
+            document.getElementById('settingsFirstName').value = user.firstName || '';
+            document.getElementById('settingsLastName').value = user.lastName || '';
+            document.getElementById('settingsEmail').value = user.email || '';
+            document.getElementById('settingsPhone').value = user.phone || '';
+
+            // Load Orders
             loadOrders();
+
+            // Render Addresses (Mock logic for now, using user.address)
+            renderAddresses(user);
         }
-
-        function openEditModal() {
-            if (!currentUser) return;
-            
-            document.getElementById('editFirstName').value = currentUser.firstName || '';
-            document.getElementById('editLastName').value = currentUser.lastName || '';
-            document.getElementById('editPhone').value = currentUser.phone || '';
-            document.getElementById('editAddress').value = currentUser.address || '';
-            document.getElementById('editCity').value = currentUser.city || '';
-            document.getElementById('editZipCode').value = currentUser.zipCode || '';
-            
-            document.getElementById('editProfileModal').classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.textContent;
-            btn.textContent = 'Ukládám...';
-            btn.disabled = true;
-
-            const formData = {
-                firstName: document.getElementById('editFirstName').value,
-                lastName: document.getElementById('editLastName').value,
-                phone: document.getElementById('editPhone').value,
-                address: document.getElementById('editAddress').value,
-                city: document.getElementById('editCity').value,
-                zipCode: document.getElementById('editZipCode').value
-            };
-
-            try {
-                const res = await fetch('/api/user/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                if (res.ok) {
-                    closeModal('editProfileModal');
-                    checkAuth(); // Reload data
-                } else {
-                    alert('Chyba při ukládání údajů');
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Chyba připojení');
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        });
 
         async function loadOrders() {
             try {
@@ -272,33 +247,156 @@
         }
 
         function renderOrders(orders) {
-            const container = document.getElementById('ordersList');
+            const overviewContainer = document.getElementById('overviewOrdersList');
+            const fullContainer = document.getElementById('fullOrdersList');
+            const statsCount = document.getElementById('statsOrdersCount');
+            
+            statsCount.textContent = orders.length;
+
             if (orders.length === 0) {
-                container.innerHTML = '<p style="color: #666; font-style: italic;">Zatím žádné objednávky.</p>';
+                const emptyHtml = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>Zatím žádné objednávky.</p>
+                        <a href="/Products/index.html" class="btn-sm">Nakupovat</a>
+                    </div>`;
+                overviewContainer.innerHTML = emptyHtml;
+                fullContainer.innerHTML = emptyHtml;
                 return;
             }
 
-            container.innerHTML = orders.map(order => `
-                <div class="order-card" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <strong>Objednávka #${order.id}</strong>
-                        <span class="order-status status-${order.status}">${order.status}</span>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666;">
-                        ${new Date(order.created_at).toLocaleDateString('cs-CZ')} • ${(order.total_cents / 100).toFixed(0)} Kč
+            // HTML Generator
+            const createOrderCard = (order) => `
+                <div class="card-item" style="padding: 1rem; border: 1px solid #eee; border-radius: 8px; margin-bottom: 0.5rem; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <strong style="display: block; font-size: 1.05rem;">Objednávka #${order.id}</strong>
+                            <span style="font-size: 0.9rem; color: #666;">
+                                ${new Date(order.created_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </span>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong style="color: var(--text-primary); display: block;">${(order.total_cents / 100).toFixed(0)} Kč</strong>
+                            <span class="order-status status-${order.status}" style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; background: #eee; margin-top: 4px;">${order.status}</span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+
+            // Overview (Limit 3)
+            overviewContainer.innerHTML = orders.slice(0, 3).map(createOrderCard).join('') + 
+                (orders.length > 3 ? `<button class="btn-text" onclick="switchTab('orders', document.querySelector('.dashboard-menu .menu-item:nth-child(2)'))" style="margin-top: 10px; width: 100%;">Zobrazit dalších ${orders.length - 3} objednávek</button>` : '');
+
+            // Full List
+            fullContainer.innerHTML = `<div style="display: flex; flex-direction: column; gap: 1rem;">` + 
+                orders.map(createOrderCard).join('') + 
+                `</div>`;
         }
 
-        // Logout Handler
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                window.location.href = '/Account/login.html';
-            } catch (e) {
-                console.error('Logout failed', e);
+        function renderAddresses(user) {
+            const grid = document.getElementById('addressesGrid');
+            grid.innerHTML = '';
+
+            if (user.address) {
+                const card = document.createElement('div');
+                card.className = 'address-card';
+                card.innerHTML = `
+                    <div class="address-header">
+                        <span class="tag">Hlavní</span>
+                        <div class="address-actions">
+                            <button class="icon-btn"><i class="fas fa-pen"></i></button>
+                            <button class="icon-btn delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="address-body">
+                        <strong>${user.firstName || ''} ${user.lastName || ''}</strong><br>
+                        ${user.address}<br>
+                        ${user.zipCode} ${user.city}<br>
+                        ${user.country || 'Česká republika'}
+                    </div>
+                `;
+                grid.appendChild(card);
+                document.getElementById('statsAddressCount').textContent = '1';
+            } else {
+                grid.innerHTML = '<p class="empty-text" style="grid-column: 1/-1; color: #666;">Zatím žádné adresy.</p>';
+                 document.getElementById('statsAddressCount').textContent = '0';
             }
+        }
+
+        function switchTab(tabId, btnElement) {
+            // Hide all tabs
+            document.querySelectorAll('.dashboard-tab').forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+            
+            // Show selected
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.style.display = 'block';
+                // Trigger reflow for transition
+                requestAnimationFrame(() => target.classList.add('active'));
+            }
+
+            // Update Menu
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            if (btnElement) {
+                btnElement.classList.add('active');
+            }
+        }
+        
+        function openAddressModal() {
+            alert('Funkce přidání adresy bude dostupná brzy.');
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/Account/login.html';
+        });
+        
+        // Profile Update
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Ukládám...';
+            btn.disabled = true;
+
+            const formData = {
+                firstName: document.getElementById('settingsFirstName').value,
+                lastName: document.getElementById('settingsLastName').value,
+                phone: document.getElementById('settingsPhone').value
+            };
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (res.ok) {
+                    btn.textContent = 'Uloženo!';
+                    btn.style.background = '#10B981';
+                    // Update header name immediately
+                    document.getElementById('welcomeName').textContent = formData.firstName;
+                    document.getElementById('sidebarName').textContent = `${formData.firstName} ${formData.lastName}`;
+                } else {
+                    btn.textContent = 'Chyba!';
+                    btn.style.background = '#EF4444';
+                }
+            } catch (err) {
+                console.error(err);
+                btn.textContent = 'Chyba!';
+            }
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.disabled = false;
+            }, 2000);
         });
 
         // Initialize

@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Košík | Drive.</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/style.css?v=2">
-    <link rel="stylesheet" href="../assets/css/cart.css?v=2">
+    <link rel="stylesheet" href="/assets/css/style.css?v=2">
+    <link rel="stylesheet" href="/assets/css/cart.css?v=2">
 </head>
 <body>
     <div class="container">
         <div class="cart-top-nav">
-            <a href="../Products/index.html" class="back-link">
+            <a href="/Products/index.html" class="back-link">
                 <i class="fas fa-arrow-left"></i>
                 Zpět k nákupu
             </a>
-            <a href="../index.html" class="simple-logo">
+            <a href="/index.html" class="simple-logo">
                 <i class="fas fa-bolt"></i>
                 <span>DRIVE.</span>
             </a>
@@ -29,15 +29,13 @@
                 <div class="step-circle">1</div>
                 <div class="step-label">Košík</div>
             </div>
-            <div class="step-line"></div>
             <div class="step">
                 <div class="step-circle">2</div>
                 <div class="step-label">Doprava a platba</div>
             </div>
-            <div class="step-line"></div>
             <div class="step">
                 <div class="step-circle">3</div>
-                <div class="step-label">Shrnutí</div>
+                <div class="step-label">Kontrola</div>
             </div>
         </div>
 
@@ -94,124 +92,9 @@
         </div>
     </main>
 
-    <style>
-        /* Progress Steps Styles */
-        .checkout-steps {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 40px;
-            padding: 20px 0;
-            width: 100%;
-        }
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f0f0f0;
-            color: #999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-bottom: 8px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-        .step.active .step-circle {
-            background: #27445C;
-            color: white;
-            border-color: #27445C;
-        }
-        .step.completed .step-circle {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-        .step-label {
-            font-size: 0.9rem;
-            color: #999;
-            font-weight: 500;
-        }
-        .step.active .step-label {
-            color: #27445C;
-            font-weight: bold;
-        }
-        .step-line {
-            flex: 1;
-            height: 2px;
-            background: #e0e0e0;
-            margin: 0 10px;
-            max-width: 100px;
-            transform: translateY(-14px);
-        }
-        .step.completed + .step-line {
-            background: #28a745;
-        }
-
-        /* Discount Code Styles */
-        .discount-section {
-            margin: 15px 0;
-            padding: 15px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-        }
-        .discount-input-group {
-            display: flex;
-            gap: 10px;
-        }
-        .discount-input-group input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .btn-small {
-            padding: 8px 15px;
-            background: #27445C;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .discount-message {
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-        .discount-message.success { color: #28a745; }
-        .discount-message.error { color: #dc3545; }
-        
-        /* Layout adjustment for separate discount box */
-        .cart-content {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-        }
-        
-        /* Ensure the right column stacks correctly */
-        .cart-content > div:nth-child(2) {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        @media (max-width: 900px) {
-            .cart-content {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 
 
-
-    <script src="../assets/js/cart.js?v=2"></script>
+    <script src="/assets/js/cart.js?v=2"></script>
     <script>
         // Clear discount code on page load
         localStorage.removeItem('discountCode');
@@ -225,9 +108,10 @@
             window.location.href = 'checkout.html';
         }
     </script>
-    <script src="../assets/js/cookie-consent.js"></script>
+    <script src="/assets/js/cookie-consent.js"></script>
 </body>
 </html>
+
 
 
 

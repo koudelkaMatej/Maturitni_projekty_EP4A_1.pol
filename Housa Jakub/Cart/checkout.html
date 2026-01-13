@@ -7,68 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/cart.css">
-    <style>
-        /* Progress Steps Styles */
-        .checkout-steps {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 40px;
-            padding: 20px 0;
-            width: 100%;
-        }
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f0f0f0;
-            color: #999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-bottom: 8px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-        .step.active .step-circle {
-            background: #27445C;
-            color: white;
-            border-color: #27445C;
-        }
-        .step.completed .step-circle {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-        .step-label {
-            font-size: 0.9rem;
-            color: #999;
-            font-weight: 500;
-        }
-        .step.active .step-label {
-            color: #27445C;
-            font-weight: bold;
-        }
-        .step-line {
-            flex: 1;
-            height: 2px;
-            background: #e0e0e0;
-            margin: 0 10px;
-            max-width: 100px;
-            transform: translateY(-14px);
-        }
-        .step.completed + .step-line {
-            background: #28a745;
-        }
-    </style>
+    
 </head>
 <body>
     <div class="container">
@@ -84,19 +23,17 @@
         </div>
     </div>
 
-    <main class="checkout-container">
+    <main class="container main-content">
         <!-- Progress Steps -->
         <div class="checkout-steps">
             <div class="step completed">
                 <div class="step-circle"><i class="fas fa-check"></i></div>
                 <div class="step-label">Košík</div>
             </div>
-            <div class="step-line"></div>
             <div class="step active">
                 <div class="step-circle">2</div>
                 <div class="step-label">Doprava a platba</div>
             </div>
-            <div class="step-line"></div>
             <div class="step">
                 <div class="step-circle">3</div>
                 <div class="step-label">Kontrola</div>
@@ -106,46 +43,44 @@
         <h1>Dokončení objednávky</h1>
 
         <!-- Auth Section -->
-        <div id="authContainer" style="max-width: 1200px; margin: 0 auto 2rem; display: none;">
-            <div style="background: #E2FBDE; color: #1a3c34; padding: 1.2rem 1.5rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #b8e6b3; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1a3c34;">
+        <div id="authContainer" class="checkout-auth-container" style="display: none;">
+            <div class="auth-banner-clean">
+                <div class="auth-info">
+                    <div class="auth-icon">
                         <i class="fas fa-user-check"></i>
                     </div>
-                    <div>
-                        <span style="display: block; font-size: 0.9rem; opacity: 0.8;">Přihlášen jako</span>
-                        <strong id="authUserEmail" style="font-size: 1.05rem;"></strong>
+                    <div class="auth-text">
+                        <span class="auth-label">Přihlášen jako</span>
+                        <strong id="authUserEmail" class="auth-email"></strong>
                     </div>
                 </div>
-                <button onclick="logout()" style="background: white; border: 1px solid #1a3c34; padding: 8px 16px; border-radius: 6px; cursor: pointer; color: #1a3c34; font-weight: 600; transition: all 0.2s;">
+                <button onclick="logout()" class="btn-logout-clean">
                     Odhlásit
                 </button>
             </div>
         </div>
 
-        <div id="loginPrompt" style="max-width: 1200px; margin: 0 auto 2rem;">
-            <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                <div style="flex: 1; min-width: 300px;">
-                    <h3 style="margin: 0 0 0.5rem 0; color: #27445C; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-user-circle" style="color: #5A8DB9;"></i>
+        <div id="loginPrompt">
+            <div class="login-prompt-card">
+                <div class="login-prompt-content" style="flex: 1; min-width: 300px;">
+                    <h3>
+                        <i class="fas fa-user-circle" style="color: var(--text-secondary);"></i>
                         Máte již účet?
                     </h3>
-                    <p style="margin: 0; color: #666; line-height: 1.5;">Přihlaste se pro rychlejší nákup, správu objednávek a přístup k věrnostním slevám.</p>
+                    <p>Přihlaste se pro rychlejší nákup, správu objednávek a přístup k věrnostním slevám.</p>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="/Account/login.html?redirect=/Cart/checkout.html" style="text-decoration: none; background: #27445C; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; transition: background 0.2s;">
+                <div class="login-prompt-actions">
+                    <a href="/Account/login.html?redirect=/Cart/checkout.html" class="btn-login">
                         Přihlásit se
                     </a>
-                    <a href="/Account/register.html" style="text-decoration: none; background: white; color: #27445C; border: 2px solid #27445C; padding: 10px 22px; border-radius: 8px; font-weight: 600; transition: all 0.2s;">
+                    <a href="/Account/register.html" class="btn-register">
                         Registrovat
                     </a>
                 </div>
             </div>
         </div>
 
-        <style>
-            #loginPrompt a:hover { opacity: 0.9; }
-        </style>
+        
 
         <form id="checkoutForm" class="checkout-grid">
             <div class="checkout-left">
@@ -215,6 +150,13 @@
                                 <span>Google Pay</span>
                             </div>
                         </label>
+                        <label class="payment-method-card">
+                            <input type="radio" name="payment" value="paypal">
+                            <div class="payment-content">
+                                <i class="fab fa-paypal"></i>
+                                <span>PayPal</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -230,7 +172,7 @@
                         <span id="checkoutTotal">0 Kč</span>
                     </div>
                     <button type="submit" class="btn-place-order">
-                        Odeslat objednávku
+                        Pokračovat na rekapitulaci <i class="fas fa-arrow-right"></i>
                     </button>
                     <div class="secure-checkout-badge" style="margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
                         <i class="fas fa-lock"></i>
@@ -241,219 +183,217 @@
         </form>
     </main>
 
-    <footer>
-        <div class="footer-container">
-            <div class="footer-section footer-info">
-                <a href="/index.html" class="logo">
-                    <i class="fas fa-bolt logo-icon"></i>
-                    <span>Drive.</span>
-                </a>
-                <p>Osvěžující energie s nulovými kaloriemi. Vaše denní dávka hydratace a koncentrace.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Odkazy</h4>
-                <ul>
-                    <li><a href="/index.html">Domů</a></li>
-                    <li><a href="/Products/index.html">Produkty</a></li>
-                    <li><a href="/AboutUs/index.html">O nás</a></li>
-                    <li><a href="/index.html#section-newsletter">Kontakt</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Informace</h4>
-                <ul>
-                    <li><a href="/Info/terms.html">Obchodní podmínky</a></li>
-                    <li><a href="/Info/privacy.html">Ochrana soukromí</a></li>
-                    <li><a href="/Info/shipping.html">Doprava a platba</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Kontakt</h4>
-                <p>
-                    <i class="fas fa-map-marker-alt"></i> 123 Ulice Vody, Praha<br>
-                    <i class="fas fa-phone"></i> +420 123 456 789<br>
-                    <i class="fas fa-envelope"></i> info@kofeinovavoda.cz
-                </p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; <span id="year">2025</span> Drive. Všechna práva vyhrazena.</p>
-            <div class="payment-icons">
-                <i class="fab fa-cc-visa" title="Visa"></i>
-                <i class="fab fa-cc-mastercard" title="Mastercard"></i>
-                <i class="fab fa-apple-pay" title="Apple Pay"></i>
-                <i class="fab fa-google-pay" title="Google Pay"></i>
-            </div>
-        </div>
-    </footer>
-
     <script src="/assets/js/cart.js?v=2"></script>
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
+        document.addEventListener('DOMContentLoaded', () => {
+            const yearEl = document.getElementById('year');
+            if (yearEl) {
+                yearEl.textContent = new Date().getFullYear();
+            }
 
-        // Auth Logic
-        async function checkCheckoutAuth() {
-            try {
-                const res = await fetch('/api/auth/me');
-                if (res.ok) {
-                    const user = await res.json();
-                    document.getElementById('authContainer').style.display = 'block';
-                    document.getElementById('loginPrompt').style.display = 'none';
-                    document.getElementById('authUserEmail').textContent = user.email;
-                    
-                    // Pre-fill email
-                    const emailInput = document.getElementById('email');
-                    if (emailInput) {
-                        emailInput.value = user.email;
-                        emailInput.readOnly = true;
-                        emailInput.style.background = '#f8f9fa';
+            // Auth Logic
+            async function checkCheckoutAuth() {
+                try {
+                    const res = await fetch('/api/auth/me');
+                    if (res.ok) {
+                        const user = await res.json();
+                        const authContainer = document.getElementById('authContainer');
+                        const loginPrompt = document.getElementById('loginPrompt');
+                        const authEmail = document.getElementById('authUserEmail');
+                        
+                        if (authContainer) authContainer.style.display = 'block';
+                        if (loginPrompt) loginPrompt.style.display = 'none';
+                        if (authEmail) authEmail.textContent = user.email;
+                        
+                        // Pre-fill email
+                        const emailInput = document.getElementById('email');
+                        if (emailInput) {
+                            emailInput.value = user.email;
+                            emailInput.readOnly = true;
+                            emailInput.style.background = '#f8f9fa';
+                        }
+
+                        // Pre-fill other fields if available
+                        if (user.firstName) document.getElementById('firstName').value = user.firstName;
+                        if (user.lastName) document.getElementById('lastName').value = user.lastName;
+                        if (user.phone) document.getElementById('phone').value = user.phone;
+                        if (user.address) document.getElementById('address').value = user.address;
+                        if (user.city) document.getElementById('city').value = user.city;
+                        if (user.zipCode) document.getElementById('zipCode').value = user.zipCode;
+                    } else {
+                        const authContainer = document.getElementById('authContainer');
+                        const loginPrompt = document.getElementById('loginPrompt');
+                        if (authContainer) authContainer.style.display = 'none';
+                        if (loginPrompt) loginPrompt.style.display = 'block';
                     }
-
-                    // Pre-fill other fields if available
-                    if (user.firstName) document.getElementById('firstName').value = user.firstName;
-                    if (user.lastName) document.getElementById('lastName').value = user.lastName;
-                    if (user.phone) document.getElementById('phone').value = user.phone;
-                    if (user.address) document.getElementById('address').value = user.address;
-                    if (user.city) document.getElementById('city').value = user.city;
-                    if (user.zipCode) document.getElementById('zipCode').value = user.zipCode;
-                } else {
-                    document.getElementById('authContainer').style.display = 'none';
-                    document.getElementById('loginPrompt').style.display = 'block';
+                } catch (e) {
+                    console.error(e);
                 }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        async function logout() {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            window.location.reload();
-        }
-
-        checkCheckoutAuth();
-
-        // Load cart data
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const orderItemsList = document.getElementById('orderItemsList');
-        const checkoutTotal = document.getElementById('checkoutTotal');
-
-        // Pre-fill form data if available
-        const savedData = JSON.parse(localStorage.getItem('checkoutData'));
-        if (savedData) {
-            if (savedData.email) document.getElementById('email').value = savedData.email;
-            if (savedData.phone) document.getElementById('phone').value = savedData.phone;
-            if (savedData.firstName) document.getElementById('firstName').value = savedData.firstName;
-            if (savedData.lastName) document.getElementById('lastName').value = savedData.lastName;
-            if (savedData.address) document.getElementById('address').value = savedData.address;
-            if (savedData.city) document.getElementById('city').value = savedData.city;
-            if (savedData.zipCode) document.getElementById('zipCode').value = savedData.zipCode;
-            
-            if (savedData.paymentMethod) {
-                const radio = document.querySelector(`input[name="payment"][value="${savedData.paymentMethod}"]`);
-                if (radio) radio.checked = true;
-            }
-        }
-
-        if (cart.length === 0) {
-            window.location.href = '/Cart/cart.html';
-        }
-
-        let total = 0;
-        // Placeholder for missing images
-        const placeholderPath = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiNmOGY5ZmEiLz4KICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzI3NDQ1QyI+RFJJVkUuPC90ZXh0Pgo8L3N2Zz4=';
-
-        cart.forEach(item => {
-            const itemTotal = item.price * item.quantity;
-            total += itemTotal;
-            
-            // Resolve image path using CartManager if available, or manual fallback
-            let imgUrl = item.image;
-            if (window.cartManager && typeof window.cartManager.resolvePath === 'function') {
-                imgUrl = window.cartManager.resolvePath(item.image);
-            } else if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/') && !imgUrl.startsWith('../')) {
-                imgUrl = '../' + imgUrl;
             }
 
-            const div = document.createElement('div');
-            div.className = 'summary-item';
-            div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:1rem;">
-                    <img src="${imgUrl || placeholderPath}" alt="${item.name}" 
-                         style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: #f8f9fa;" 
-                         onerror="this.onerror=null; this.src='${placeholderPath}';">
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        <small>${item.quantity} ks</small>
-                    </div>
-                </div>
-                <span>${itemTotal} Kč</span>
-            `;
-            orderItemsList.appendChild(div);
-        });
-
-        // Apply discount if exists
-        const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
-        if (discountPercent > 0) {
-            const discountAmount = Math.round(total * (discountPercent / 100));
-            total -= discountAmount;
-        }
-
-        checkoutTotal.textContent = `${total} Kč`;
-
-        // Handle form submit
-        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = e.target.querySelector('button[type="submit"]');
-            
-            // Validation
-            const zipCode = document.getElementById('zipCode').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            
-            const zipRegex = /^\d{3}\s?\d{2}$/;
-            if (!zipRegex.test(zipCode)) {
-                alert('Zadejte prosím platné PSČ (např. 123 45 nebo 12345).');
-                return;
-            }
-
-            const phoneRegex = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
-            if (!phoneRegex.test(phone)) {
-                alert('Zadejte prosím platné telefonní číslo (např. 777 123 456).');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Odesílám...';
-
-            // Filter out invalid items
-            const validItems = cart.filter(item => item.id).map(item => ({ id: item.id, quantity: item.quantity }));
-            
-            if (validItems.length === 0) {
-                alert('Váš košík neobsahuje platné produkty. Budete přesměrováni zpět.');
-                localStorage.removeItem('cart');
-                window.location.href = '/Cart/cart.html';
-                return;
-            }
-
-            const formData = {
-                email: document.getElementById('email').value,
-                phone: phone,
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                zipCode: zipCode,
-                paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'card'
+            // Expose logout globally carefully
+            window.logout = async function() {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.reload();
             };
 
-            // Save to localStorage and redirect to summary
-            localStorage.setItem('checkoutData', JSON.stringify(formData));
-            window.location.href = '/Cart/summary.html';
+            checkCheckoutAuth();
+
+            // Load cart data
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const orderItemsList = document.getElementById('orderItemsList');
+            const checkoutTotal = document.getElementById('checkoutTotal');
+
+            // Pre-fill form data if available
+            try {
+                const storedData = localStorage.getItem('checkoutData');
+                if (storedData) {
+                    const savedData = JSON.parse(storedData);
+                    if (savedData) {
+                        if (savedData.email) document.getElementById('email').value = savedData.email;
+                        if (savedData.phone) document.getElementById('phone').value = savedData.phone;
+                        if (savedData.firstName) document.getElementById('firstName').value = savedData.firstName;
+                        if (savedData.lastName) document.getElementById('lastName').value = savedData.lastName;
+                        if (savedData.address) document.getElementById('address').value = savedData.address;
+                        if (savedData.city) document.getElementById('city').value = savedData.city;
+                        if (savedData.zipCode) document.getElementById('zipCode').value = savedData.zipCode;
+                        
+                        if (savedData.paymentMethod) {
+                            const radio = document.querySelector(`input[name="payment"][value="${savedData.paymentMethod}"]`);
+                            if (radio) radio.checked = true;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Error loading checkout data', e);
+            }
+
+            if (cart.length === 0) {
+                if (orderItemsList) {
+                    orderItemsList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                            <i class="fas fa-shopping-basket" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                            <p>Váš košík je prázdný</p>
+                            <a href="/Products/index.html" style="color: var(--text-primary); text-decoration: underline; margin-top: 0.5rem; display: inline-block;">Přejít do obchodu</a>
+                        </div>
+                    `;
+                }
+                const submitBtn = document.querySelector('.btn-place-order');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
+                }
+                return; 
+            }
+
+            let total = 0;
+            const placeholderPath = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiNmOGY5ZmEiLz4KICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzI3NDQ1QyI+RFJJVkUuPC90ZXh0Pgo8L3N2Zz4=';
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                let imgUrl = item.image;
+                if (window.cartManager && typeof window.cartManager.resolvePath === 'function') {
+                    imgUrl = window.cartManager.resolvePath(item.image);
+                } else if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/') && !imgUrl.startsWith('../')) {
+                    imgUrl = '../' + imgUrl;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'summary-item';
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <img src="${imgUrl || placeholderPath}" alt="${item.name}" 
+                             style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: #f8f9fa;" 
+                             onerror="this.onerror=null; this.src='${placeholderPath}';">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>${item.quantity} ks</small>
+                        </div>
+                    </div>
+                    <span>${itemTotal} Kč</span>
+                `;
+                orderItemsList.appendChild(div);
+            });
+
+            // Apply discount
+            const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
+            if (discountPercent > 0) {
+                const discountAmount = Math.round(total * (discountPercent / 100));
+                total -= discountAmount;
+            }
+
+            if (checkoutTotal) {
+                checkoutTotal.textContent = `${total} Kč`;
+            }
+
+            // Handle form submit
+            const checkoutForm = document.getElementById('checkoutForm');
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    console.log('Form submitted');
+                    
+                    const btn = e.target.querySelector('button[type="submit"]');
+                    
+                    const zipCode = document.getElementById('zipCode').value.trim();
+                    const phone = document.getElementById('phone').value.trim();
+                    
+                    const zipRegex = /^\d{3}\s?\d{2}$/;
+                    if (!zipRegex.test(zipCode)) {
+                        alert('Zadejte prosím platné PSČ (např. 123 45 nebo 12345).');
+                        return;
+                    }
+
+                    const phoneRegex = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
+                    if (!phoneRegex.test(phone)) {
+                        alert('Zadejte prosím platné telefonní číslo (např. 777 123 456).');
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    btn.textContent = 'Zpracovávám...';
+
+                    const validItems = cart.filter(item => item.id).map(item => ({ id: item.id, quantity: item.quantity }));
+                    
+                    if (validItems.length === 0) {
+                        alert('Váš košík neobsahuje platné produkty. Budete přesměrováni zpět.');
+                        localStorage.removeItem('cart');
+                        window.location.href = '/Cart/cart.html';
+                        return;
+                    }
+
+                    const formData = {
+                        email: document.getElementById('email').value,
+                        phone: phone,
+                        firstName: document.getElementById('firstName').value,
+                        lastName: document.getElementById('lastName').value,
+                        address: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        zipCode: zipCode,
+                        paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'card'
+                    };
+
+                    try {
+                        localStorage.setItem('checkoutData', JSON.stringify(formData));
+                        window.location.href = '/Cart/summary.html';
+                    } catch (err) {
+                        console.error('Error during checkout submit:', err);
+                        alert('Chyba při ukládání dat. Zkuste to prosím znovu.');
+                        btn.disabled = false;
+                        btn.textContent = 'Pokračovat na rekapitulaci';
+                    }
+                });
+            }
         });
     </script>
     <script src="/assets/js/cookie-consent.js"></script>
 </body>
 </html>
+
+
 
 
 

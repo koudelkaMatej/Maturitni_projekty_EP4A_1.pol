@@ -305,8 +305,9 @@ body.mini-cart-open {
 
 /* Mobilní chování sjednoceno níže (992px) */
 .hero {
-    padding: clamp(11rem, 14vw, 14rem) 0 clamp(4rem, 8vw, 6rem);
-    background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 50%, var(--primary-light) 100%);
+    padding: clamp(12rem, 15vw, 16rem) 0 clamp(5rem, 10vw, 8rem);
+    /* Fresh gradient matching homepage liquid glass theme */
+    background: linear-gradient(90deg, #dcfce7 0%, #e0f2fe 100%);
     position: relative;
     overflow: hidden;
 }
@@ -314,31 +315,40 @@ body.mini-cart-open {
 .hero::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 600px;
-    height: 600px;
+    top: -40%;
+    right: -10%;
+    width: 70vw;
+    height: 70vw;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(169, 236, 255, 0.3), transparent);
+    background: radial-gradient(circle, rgba(169, 236, 255, 0.4), transparent 70%);
+    filter: blur(60px);
     pointer-events: none;
+    animation: floatBlob 20s infinite alternate ease-in-out;
 }
 
 .hero::after {
     content: '';
     position: absolute;
-    bottom: -40%;
-    left: -15%;
-    width: 500px;
-    height: 500px;
+    bottom: -30%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(226, 251, 222, 0.25), transparent);
+    background: radial-gradient(circle, rgba(226, 251, 222, 0.4), transparent 70%);
+    filter: blur(60px);
     pointer-events: none;
+    animation: floatBlob 25s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes floatBlob {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 50px) scale(1.1); }
 }
 
 .hero__layout {
     position: relative;
     z-index: 1;
-    max-width: 880px;
+    max-width: 960px;
     margin: 0 auto;
     text-align: center;
 }
@@ -346,14 +356,21 @@ body.mini-cart-open {
 .hero__content {
     display: flex;
     flex-direction: column;
-    gap: 1.6rem;
+    gap: 2rem;
 }
 
 .hero__content h1 {
-    font-size: clamp(2.3rem, 5vw + 0.3rem, 3.8rem);
-    line-height: 1.15;
-    max-width: 24ch;
+    font-family: 'TelkaTRIALBold', sans-serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
     margin: 0 auto;
+    /* Subtle gradient text effect */
+    background: linear-gradient(135deg, var(--text-primary) 0%, #1a3c34 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .hero__body {
@@ -579,19 +596,22 @@ body.mini-cart-open {
 }
 
 .founder-card {
-    background: #fff;
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
     overflow: hidden;
-    border: 1px solid rgba(39, 68, 92, 0.12);
-    box-shadow: 0 6px 16px rgba(39, 68, 92, 0.08);
-    transition: box-shadow 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(39, 68, 92, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
 }
 
 .founder-card::before { content: none; display: none; }
 .founder-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(39, 68, 92, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(39, 68, 92, 0.12);
+    border-color: rgba(255, 255, 255, 0.9);
 }
 
 .founder-card__image {

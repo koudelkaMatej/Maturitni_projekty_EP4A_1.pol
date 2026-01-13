@@ -3,27 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vývojová dokumentace | DRIVE.</title>
+    <title>Vývojářská konzole | DRIVE.</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="/assets/js/dev-mode.js"></script>
     <link rel="stylesheet" href="/assets/css/style.css">
     <style>
-        body { background-color: #f8f9fa; color: #333; }
-        .doc-container { max-width: 1200px; margin: 100px auto 50px; padding: 0 20px; }
-        .doc-section { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .doc-title { color: #27445C; font-size: 2rem; margin-bottom: 20px; border-bottom: 2px solid #E2FBDE; padding-bottom: 10px; }
-        .diagram-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .diagram-card { border: 1px solid #eee; padding: 15px; border-radius: 8px; text-align: center; transition: transform 0.2s; }
-        .diagram-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        .diagram-card img { max-width: 100%; height: auto; margin-bottom: 10px; cursor: pointer; }
-        .diagram-card h3 { color: #5A8DB9; margin-bottom: 10px; }
-        .tech-stack { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .tech-badge { background: #DBF6ED; color: #1a3c34; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
-        code { background: #f1f1f1; padding: 2px 5px; border-radius: 4px; font-family: monospace; color: #d63384; }
+        :root {
+            --sidebar-width: 280px;
+            --accent-color: #A9ECFF;
+            --danger-color: #ff6b6b;
+            --success-color: #2e8b57;
+        }
 
-        /* Modal styles */
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .dev-sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-nav {
+            padding: 2rem 1rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-item i { width: 25px; }
+
+        .nav-item:hover {
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background-color: #E2FBDE;
+            color: #1a3c34;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* Main Content Styling */
+        .dev-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 2rem 3rem;
+            max-width: 1600px;
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+        }
+
+        /* Cards */
+        .dev-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .dev-card:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Custom Components */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            background: #fcfcfc;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .highlight-box {
+            background: #FFF8E1; /* Soft Yellow */
+            border-left: 4px solid #FFC107;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 30px;
+        }
+
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+        .form-input { 
+            width: 100%; 
+            padding: 10px 15px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 6px; 
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: var(--text-secondary); }
+
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary { background: var(--text-primary); color: white; }
+        .btn-primary:hover { opacity: 0.9; }
+        
+        .btn-danger { background: var(--danger-color); color: white; }
+        
+        /* Badges */
+        .badge-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tech-badge {
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #dbeafe;
+        }
+
+        /* Diagrams */
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .diagram-item {
+            cursor: pointer;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            transition: transform 0.2s;
+        }
+        
+        .diagram-item:hover { transform: translateY(-4px); }
+        .diagram-preview { padding: 20px; text-align: center; background: #fafafa; }
+        .diagram-preview img { max-height: 140px; }
+        .diagram-footer { padding: 15px; border-top: 1px solid #eee; }
+        .diagram-footer h4 { margin: 0; font-size: 1rem; color: var(--text-primary); }
+        .diagram-footer p { margin: 5px 0 0; font-size: 0.85rem; color: #888; }
+
+        /* Modal */
         .modal {
             display: none; 
             position: fixed; 
@@ -34,7 +241,8 @@
             width: 100%; 
             height: 100%; 
             overflow: auto; 
-            background-color: rgba(0,0,0,0.9); 
+            background-color: rgba(0,0,0,0.95); 
+            backdrop-filter: blur(5px);
         }
         .modal-content {
             margin: auto;
@@ -42,385 +250,464 @@
             max-width: 90%;
             max-height: 90vh;
             object-fit: contain;
+            border-radius: 4px;
         }
         .modal-close {
             position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
+            top: 25px;
+            right: 40px;
+            color: #fff;
             font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
             cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
         }
-        .modal-close:hover,
-        .modal-close:focus {
-            color: #bbb;
-            text-decoration: none;
-            cursor: pointer;
-        }
+        .modal-close:hover { opacity: 1; }
+        
         .modal-caption {
-            margin: auto;
-            display: block;
-            width: 80%;
-            max-width: 700px;
             text-align: center;
-            color: #ccc;
-            padding: 10px 0;
-            height: 150px;
+            color: #fff;
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            body { flex-direction: column; }
+            .dev-sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid #eee; }
+            .dev-main { margin-left: 0; padding: 20px; }
+            .sidebar-nav { display: flex; overflow-x: auto; padding: 10px; }
+            .nav-item { white-space: nowrap; }
+            .sidebar-footer { display: none; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container nav-container">
-            <a href="/index.html" class="logo"><span>DRIVE.</span></a>
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="/index.html" class="nav-link">Domů</a></li>
-                <li><a href="/Products/index.html" class="nav-link">Produkty</a></li>
-            </ul>
+    
+    <!-- Left Sidebar Navigation -->
+    <aside class="dev-sidebar">
+        <div class="sidebar-header">
+            <a href="/index.html" class="sidebar-logo">
+                <i class="fas fa-bolt" style="color: var(--text-primary);"></i>
+                <span>DRIVE.</span>
+                <span style="font-size: 0.7rem; background: #eee; padding: 2px 6px; border-radius: 4px; margin-left: auto; color: #666;">DEV</span>
+            </a>
         </div>
-    </nav>
+        
+        <nav class="sidebar-nav">
+            <a href="#intro" class="nav-item active" onclick="setActive(this)">
+                <i class="fas fa-flag"></i> Průvodce (Maturita)
+            </a>
+            <a href="#tech-info" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-microchip"></i> Technologie
+            </a>
+            <div style="margin: 15px 15px 5px; font-size: 0.75rem; text-transform: uppercase; color: #999; font-weight: 700; letter-spacing: 0.5px;">Administrace</div>
+            <a href="#discounts" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-tags"></i> Slevové kódy
+            </a>
+            <a href="#newsletter" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-paper-plane"></i> Newsletter
+            </a>
+            <div style="margin: 15px 15px 5px; font-size: 0.75rem; text-transform: uppercase; color: #999; font-weight: 700; letter-spacing: 0.5px;">Dokumentace</div>
+            <a href="#db-arch" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-database"></i> Databáze
+            </a>
+            <a href="#seq-diagrams" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-project-diagram"></i> Procesy
+            </a>
+        </nav>
 
-    <div class="doc-container">
-        <div class="doc-section">
-            <h1 class="doc-title">Technická dokumentace</h1>
-            <p>Vítejte v sekci pro vývojáře. Zde naleznete přehled architektury, datových toků a použitých technologií projektu DRIVE.</p>
-            
-            <h3>Použité technologie</h3>
-            <div class="tech-stack">
-                <span class="tech-badge">Node.js</span>
-                <span class="tech-badge">Express</span>
-                <span class="tech-badge">SQLite (better-sqlite3)</span>
-                <span class="tech-badge">HTML / CSS</span>
-                <span class="tech-badge">JavaScript</span>
-                <span class="tech-badge">Nodemailer</span>
-                <span class="tech-badge">PDFKit</span>
+        <div class="sidebar-footer">
+            <a href="/dev-disable" class="btn-action btn-danger" style="display: block; text-align: center; width: 100%; text-decoration: none;">
+                <i class="fas fa-power-off"></i> Vypnout dev režim
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="dev-main">
+        <header class="page-header">
+            <h1 class="page-title">Vývojářská konzole</h1>
+            <p class="page-subtitle">Správa projektu, dokumentace a administrativní nástroje na jednom místě.</p>
+        </header>
+
+        <!-- MATURITA START -->
+        <section id="intro" class="highlight-box">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; color: #856404;">
+                <i class="fas fa-graduation-cap fa-lg"></i>
+                <h3 style="margin: 0;">Maturitní práce – Průvodce projektem</h3>
             </div>
-        </div>
+            
+            <p style="margin-bottom: 20px;">
+                <strong>DRIVE.</strong> je moderní e-shopová platforma zaměřená na rychlost a uživatelskou přívětivost (UX). 
+                Web využívá architekturu, která odděluje prezentační vrstvu (Frontend) od logické vrstvy (Backend API).
+            </p>
 
-        <div class="doc-section" id="discount-manager">
-            <h2 class="doc-title">Správa slevových kódů</h2>
-            <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Kód slevy</label>
-                    <input type="text" id="discountCode" placeholder="např. DRIVE10" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <div class="info-grid">
+                <div class="feature-item">
+                    <div style="background: white; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <i class="fas fa-desktop" style="color: #27445C;"></i>
+                    </div>
+                    <div>
+                        <strong>Frontend (Uživatel)</strong>
+                        <p style="font-size: 0.9rem; margin-top: 5px; color: #666;">
+                            Využívá <strong>LocalStorage</strong> pro perzistentní košík bez nutnosti přihlášení. Rychlé načítání bez reloadů při přidávání zboží.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Sleva (%)</label>
-                    <input type="number" id="discountPercent" placeholder="10" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 80px;">
+                <div class="feature-item">
+                    <div style="background: white; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <i class="fas fa-server" style="color: #27445C;"></i>
+                    </div>
+                    <div>
+                        <strong>Backend (Logika)</strong>
+                        <p style="font-size: 0.9rem; margin-top: 5px; color: #666;">
+                            Node.js server s <strong>SQLite</strong> databází. Zajišťuje validaci objednávek, generování PDF faktur a rozesílání emailů.
+                        </p>
+                    </div>
                 </div>
-                <button onclick="addDiscount()" class="btn" style="padding: 8px 20px;">Přidat</button>
+            </div>
+        </section>
+        <!-- MATURITA END -->
+
+        <section id="tech-info" class="dev-card">
+            <h2 class="card-title"><i class="fas fa-code"></i> Použitý Tech Stack</h2>
+            <p style="color: #666; margin: 10px 0 20px;">Technologie zvolené pro tento projekt s ohledem na výkon a škálovatelnost.</p>
+            <div class="badge-grid">
+                <span class="tech-badge"><i class="fab fa-node-js"></i> Node.js</span>
+                <span class="tech-badge"><i class="fas fa-server"></i> Express</span>
+                <span class="tech-badge"><i class="fas fa-database"></i> SQLite</span>
+                <span class="tech-badge"><i class="fab fa-html5"></i> HTML5 / CSS3</span>
+                <span class="tech-badge"><i class="fab fa-js"></i> Vanilla JS</span>
+                <span class="tech-badge"><i class="fas fa-envelope"></i> Nodemailer</span>
+                <span class="tech-badge"><i class="fas fa-file-pdf"></i> PDFKit</span>
+                <span class="tech-badge"><i class="fas fa-lock"></i> Bcrypt</span>
+                <span class="tech-badge"><i class="fab fa-paypal"></i> PayPal SDK</span>
+            </div>
+        </section>
+
+        <section id="discounts" class="dev-card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-tag"></i> Správa slevových kódů</h2>
+            </div>
+            
+            <div style="background: var(--light-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 200px;">
+                        <label class="form-label">Kód slevy</label>
+                        <input type="text" id="discountCode" class="form-input">
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                        <label class="form-label">Sleva (%)</label>
+                        <input type="number" id="discountPercent" class="form-input">
+                    </div>
+                    <button onclick="addDiscount()" class="btn-action btn-primary" style="margin-bottom: 2px;">
+                        <i class="fas fa-plus"></i> Vytvořit
+                    </button>
+                </div>
             </div>
 
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr style="background: #f8f9fa; text-align: left;">
-                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Kód</th>
-                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Sleva</th>
-                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Akce</th>
+                    <tr style="text-align: left; color: var(--text-secondary); font-size: 0.9rem;">
+                        <th style="padding: 15px 10px; border-bottom: 1px solid #eee;">NÁZEV KÓDU</th>
+                        <th style="padding: 15px 10px; border-bottom: 1px solid #eee;">HODNOTA</th>
+                        <th style="padding: 15px 10px; border-bottom: 1px solid #eee;">AKCE</th>
                     </tr>
                 </thead>
                 <tbody id="discountTableBody">
-                    <!-- Rows will be populated by JS -->
+                    <!-- JS population -->
                 </tbody>
             </table>
-        </div>
+        </section>
 
-        <script>
-            async function loadDiscounts() {
-                try {
-                    const res = await fetch('/api/admin/discounts');
-                    if (!res.ok) return;
-                    const discounts = await res.json();
-                    const tbody = document.getElementById('discountTableBody');
-                    if (discounts.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #888;">Žádné aktivní slevové kódy</td></tr>';
-                        return;
-                    }
-                    tbody.innerHTML = discounts.map(d => `
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee; color: #27445C;"><strong>${d.code}</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee;">${d.discount_percent}%</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                                <button onclick="deleteDiscount(${d.id})" style="background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Smazat</button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-
-            async function addDiscount() {
-                const code = document.getElementById('discountCode').value;
-                const percent = document.getElementById('discountPercent').value;
-                if (!code || !percent) return alert('Vyplňte kód a slevu');
-
-                try {
-                    const res = await fetch('/api/admin/discounts', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ code, discount_percent: percent })
-                    });
-                    if (res.ok) {
-                        document.getElementById('discountCode').value = '';
-                        document.getElementById('discountPercent').value = '';
-                        loadDiscounts();
-                    } else {
-                        // Handle non-JSON responses (like 404 HTML from Express)
-                        const contentType = res.headers.get("content-type");
-                        if (contentType && contentType.indexOf("application/json") !== -1) {
-                            const err = await res.json();
-                            alert(err.error || 'Chyba');
-                        } else {
-                            alert('Chyba serveru: ' + res.status + ' ' + res.statusText + '\n(Zkuste restartovat server)');
-                        }
-                    }
-                } catch (e) {
-                    console.error(e);
-                    alert('Chyba komunikace se serverem.\nZkuste restartovat server.');
-                }
-            }
-
-            async function deleteDiscount(id) {
-                if (!confirm('Opravdu smazat tento kód?')) return;
-                try {
-                    await fetch(`/api/admin/discounts/${id}`, { method: 'DELETE' });
-                    loadDiscounts();
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-
-            // Load on start
-            document.addEventListener('DOMContentLoaded', loadDiscounts);
-        </script>
-
-        <div class="doc-section">
-            <h2 class="doc-title">Správa Newsletteru</h2>
-            <p>Odeslat hromadný email všem odběratelům.</p>
-            <form id="admin-newsletter-form" style="display: flex; flex-direction: column; gap: 15px;">
-                <input type="text" id="nl-subject" placeholder="Předmět emailu" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>
+        <section id="newsletter" class="dev-card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-envelope-open-text"></i> Rozesílání Newsletteru</h2>
+            </div>
+            
+            <form id="admin-newsletter-form">
+                <div class="form-group">
+                    <label class="form-label">Předmět emailu</label>
+                    <input type="text" id="nl-subject" class="form-input" placeholder="Zadejte poutavý předmět..." required>
+                </div>
                 
-                <!-- Editor Toolbar Area -->
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
-                    <button type="button" id="toggle-html-btn" style="background: #eee; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-                        <i class="fas fa-code"></i> Upravit HTML
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label class="form-label" style="margin: 0;">Obsah zprávy</label>
+                        <button type="button" id="toggle-html-btn" style="background: transparent; border: 1px solid #ddd; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #666;">
+                            <i class="fas fa-code"></i> Přepnout na HTML
+                        </button>
+                    </div>
+                    
+                    <!-- Editor wrapper -->
+                    <div style="border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+                        <div id="editor-container" style="height: 300px; background: white; border: none;"></div>
+                        <textarea id="html-editor" style="display: none; height: 300px; width: 100%; border: none; padding: 15px; font-family: monospace; resize: vertical;" placeholder="<html>..."></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-action btn-primary">
+                        <i class="fas fa-paper-plane"></i> Odeslat všem odběratelům
                     </button>
                 </div>
-
-                <!-- Visual Editor -->
-                <div id="editor-container" style="height: 300px; background: white;"></div>
-                
-                <!-- Raw HTML Editor (Hidden by default) -->
-                <textarea id="html-editor" style="display: none; height: 300px; width: 100%; font-family: monospace; padding: 10px; border: 1px solid #ccc;" placeholder="Zde vložte HTML kód..."></textarea>
-
-                <input type="hidden" id="nl-content">
-                <button type="submit" class="btn" style="background: #27445C; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Odeslat všem</button>
             </form>
-        </div>
+        </section>
 
-        <div class="doc-section">
-            <h2 class="doc-title">Architektura a Databáze</h2>
+        <section id="db-arch" class="dev-card">
+            <h2 class="card-title" style="margin-bottom: 20px;"><i class="fas fa-database"></i> Databázové schéma</h2>
             <div class="diagram-grid">
-                <div class="diagram-card">
-                    <h3>ER Diagram (Minimal)</h3>
-                    <img src="diagrams/svg/er-minimal.svg" alt="ER Diagram Minimal">
-                    <p>Základní struktura databáze.</p>
+                <div class="diagram-item">
+                    <div class="diagram-preview">
+                        <img src="diagrams/svg/er-minimal.svg" alt="ER Diagram Minimal">
+                    </div>
+                    <div class="diagram-footer">
+                        <h4>Základní ERD</h4>
+                        <p>Entity: User, Order, Product</p>
+                    </div>
                 </div>
-                <div class="diagram-card">
-                    <h3>ER Diagram (Recommended)</h3>
-                    <img src="diagrams/svg/er-recommended.svg" alt="ER Diagram Recommended">
-                    <p>Rozšířený návrh databáze.</p>
+                <div class="diagram-item">
+                    <div class="diagram-preview">
+                        <img src="diagrams/svg/er-recommended.svg" alt="ER Diagram Recommended">
+                    </div>
+                    <div class="diagram-footer">
+                        <h4>Rozšířené ERD</h4>
+                        <p>Kompletní relace a číselníky</p>
+                    </div>
                 </div>
-                <div class="diagram-card">
-                    <h3>Data Flow Diagram</h3>
-                    <img src="diagrams/svg/data-flow.svg" alt="Data Flow Diagram">
-                    <p>Tok dat v aplikaci.</p>
+                <div class="diagram-item">
+                    <div class="diagram-preview">
+                        <img src="diagrams/svg/data-flow.svg" alt="Data Flow Diagram">
+                    </div>
+                    <div class="diagram-footer">
+                        <h4>Data Flow</h4>
+                        <p>Tok dat mezi klientem a serverem</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="doc-section">
-            <h2 class="doc-title">Sekvenční diagramy</h2>
+        <section id="seq-diagrams" class="dev-card">
+            <h2 class="card-title" style="margin-bottom: 20px;"><i class="fas fa-stream"></i> Procesní diagramy</h2>
             <div class="diagram-grid">
-                <div class="diagram-card">
-                    <h3>Objednávkový proces</h3>
-                    <img src="diagrams/svg/seq-order.svg" alt="Sequence Order">
-                    <p>Průběh vytvoření objednávky.</p>
+                <div class="diagram-item">
+                    <div class="diagram-preview">
+                        <img src="diagrams/svg/seq-order.svg" alt="Sequence Order">
+                    </div>
+                    <div class="diagram-footer">
+                        <h4>Průchod pokladnou</h4>
+                        <p>Checkout & Payment flow</p>
+                    </div>
                 </div>
-                <div class="diagram-card">
-                    <h3>Přidání do košíku</h3>
-                    <img src="diagrams/svg/seq-add-to-cart.svg" alt="Sequence Add to Cart">
-                    <p>Interakce při nákupu.</p>
+                <div class="diagram-item">
+                    <div class="diagram-preview">
+                        <img src="diagrams/svg/seq-add-to-cart.svg" alt="Sequence Add to Cart">
+                    </div>
+                    <div class="diagram-footer">
+                        <h4>Nákupní košík</h4>
+                        <p>Interakce s LocalStorage</p>
+                    </div>
                 </div>
-                <div class="diagram-card">
-                    <h3>Načítání produktů</h3>
-                    <img src="diagrams/svg/seq-load-products.svg" alt="Sequence Load Products">
-                    <p>Zobrazení katalogu.</p>
+                <div class="diagram-item">
+                    <div class="diagram-preview">
+                        <img src="diagrams/svg/seq-load-products.svg" alt="Sequence Load Products">
+                    </div>
+                    <div class="diagram-footer">
+                        <h4>Katalog produktů</h4>
+                        <p>Načítání a filtrování</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="doc-section">
-            <h2 class="doc-title">Struktura projektu</h2>
-            <pre style="background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 8px; overflow-x: auto;">
-/
-├── server.js           # Hlavní backend (Express)
-├── src/
-│   ├── db.js           # Připojení k SQLite
-│   └── seed.js         # Seedování dat
-├── assets/             # Statické soubory (CSS, JS, IMG)
-├── docs/               # Dokumentace (tato sekce)
-├── Cart/               # Stránky košíku
-├── Products/           # Stránky produktů
-└── AboutUs/            # Stránka O nás
-            </pre>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="/dev-disable" class="btn" style="background: #dc3545; color: white;">Vypnout vývojářský režim</a>
-        </div>
-    </div>
+    </main>
 
-    <!-- The Modal -->
+    <!-- Modal for Images -->
     <div id="imageModal" class="modal">
         <span class="modal-close">&times;</span>
         <img class="modal-content" id="modalImg">
         <div id="caption" class="modal-caption"></div>
     </div>
 
+    <!-- Logic Script -->
     <script>
-        // Simple active link handling
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if(link.href === window.location.href) link.classList.add('active');
-        });
+        // Navigation Active State
+        function setActive(element) {
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
 
-        // Modal logic
+        /* --- DISCOUNT LOGIC --- */
+        async function loadDiscounts() {
+            try {
+                const res = await fetch('/api/admin/discounts');
+                if (!res.ok) return;
+                const discounts = await res.json();
+                const tbody = document.getElementById('discountTableBody');
+                
+                if (discounts.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="padding: 30px; text-align: center; color: #999; font-style: italic;">Zatím zde nejsou žádné slevové kódy</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = discounts.map(d => `
+                    <tr>
+                        <td style="padding: 15px 10px; border-bottom: 1px solid #f0f0f0;">
+                            <span style="font-family: monospace; background: #eee; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${d.code}</span>
+                        </td>
+                        <td style="padding: 15px 10px; border-bottom: 1px solid #f0f0f0; color: var(--success-color); font-weight: bold;">
+                            -${d.discount_percent}%
+                        </td>
+                        <td style="padding: 15px 10px; border-bottom: 1px solid #f0f0f0;">
+                            <button onclick="deleteDiscount(${d.id})" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1); border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <i class="fas fa-trash-alt"></i> Smazat
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function addDiscount() {
+            const code = document.getElementById('discountCode').value;
+            const percent = document.getElementById('discountPercent').value;
+            if (!code || !percent) return alert('Vyplňte kód a slevu');
+
+            try {
+                const res = await fetch('/api/admin/discounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, discount_percent: percent })
+                });
+                if (res.ok) {
+                    document.getElementById('discountCode').value = '';
+                    document.getElementById('discountPercent').value = '';
+                    loadDiscounts();
+                } else {
+                    const contentType = res.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        const err = await res.json();
+                        alert(err.error || 'Chyba');
+                    } else {
+                        alert('Chyba serveru');
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteDiscount(id) {
+            if (!confirm('Opravdu smazat tento kód?')) return;
+            try {
+                await fetch(`/api/admin/discounts/${id}`, { method: 'DELETE' });
+                loadDiscounts();
+            } catch (e) { console.error(e); }
+        }
+
+        /* --- MODAL LOGIC --- */
         const modal = document.getElementById("imageModal");
         const modalImg = document.getElementById("modalImg");
         const captionText = document.getElementById("caption");
         const closeBtn = document.getElementsByClassName("modal-close")[0];
 
-        document.querySelectorAll('.diagram-card img').forEach(img => {
-            img.onclick = function(){
+        // Click on diagram item (container) or image inside
+        document.querySelectorAll('.diagram-item').forEach(item => {
+            item.onclick = function() {
+                const img = this.querySelector('img');
+                const title = this.querySelector('h4').textContent;
                 modal.style.display = "block";
-                modalImg.src = this.src;
-                captionText.innerHTML = this.alt;
+                modalImg.src = img.src;
+                captionText.innerHTML = title;
             }
         });
 
-        closeBtn.onclick = function() { 
-            modal.style.display = "none";
-        }
+        closeBtn.onclick = function() { modal.style.display = "none"; }
+        modal.onclick = function(event) { if (event.target === modal) modal.style.display = "none"; }
+        document.addEventListener('keydown', function(event) { if (event.key === "Escape") modal.style.display = "none"; });
 
-        modal.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        }
-        
-        // Close on Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") {
-                modal.style.display = "none";
-            }
-        });
+        /* --- NEWSLETTER LOGIC --- */
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDiscounts();
+            
+            const adminForm = document.getElementById('admin-newsletter-form');
+            if (adminForm) {
+                var quill = new Quill('#editor-container', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'link'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['clean']
+                        ]
+                    },
+                    placeholder: 'Začněte psát...'
+                });
 
-        // Admin Newsletter Logic
-        const adminForm = document.getElementById('admin-newsletter-form');
-        if (adminForm) {
-            // Initialize Quill
-            var quill = new Quill('#editor-container', {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        ['link', 'image'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'color': [] }, { 'background': [] }],
-                        ['clean']
-                    ]
-                },
-                placeholder: 'Zde napište obsah emailu...'
-            });
+                const toggleBtn = document.getElementById('toggle-html-btn');
+                const htmlEditor = document.getElementById('html-editor');
+                const editorContainer = document.getElementById('editor-container');
+                const qlContainer = editorContainer.parentElement.querySelector('.ql-container');
+                const toolbar = document.querySelector('.ql-toolbar');
+                let isHtmlMode = false;
 
-            // HTML Toggle Logic
-            const toggleBtn = document.getElementById('toggle-html-btn');
-            const htmlEditor = document.getElementById('html-editor');
-            const editorContainer = document.getElementById('editor-container').parentElement.querySelector('.ql-container'); // Quill wrapper
-            const toolbar = document.querySelector('.ql-toolbar');
-            let isHtmlMode = false;
-
-            toggleBtn.addEventListener('click', () => {
-                isHtmlMode = !isHtmlMode;
-                if (isHtmlMode) {
-                    // Switch to HTML mode
-                    htmlEditor.value = quill.root.innerHTML;
-                    editorContainer.style.display = 'none';
-                    toolbar.style.display = 'none';
-                    htmlEditor.style.display = 'block';
-                    toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Zobrazit náhled';
-                } else {
-                    // Switch back to Visual mode
-                    quill.root.innerHTML = htmlEditor.value;
-                    htmlEditor.style.display = 'none';
-                    editorContainer.style.display = 'block';
-                    toolbar.style.display = 'block';
-                    toggleBtn.innerHTML = '<i class="fas fa-code"></i> Upravit HTML';
-                }
-            });
-
-            adminForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const subject = document.getElementById('nl-subject').value;
-                
-                // Get content based on current mode
-                let content;
-                if (isHtmlMode) {
-                    content = htmlEditor.value;
-                } else {
-                    content = quill.root.innerHTML;
-                }
-                
-                // Basic validation
-                if (!content || (content.trim().length === 0 && !content.includes('<img'))) {
-                     alert('Prosím vyplňte obsah emailu.');
-                     return;
-                }
-
-                const btn = adminForm.querySelector('button');
-                
-                if (!confirm('Opravdu chcete odeslat tento email všem odběratelům?')) return;
-
-                btn.disabled = true;
-                btn.textContent = 'Odesílání...';
-
-                try {
-                    const res = await fetch('/api/admin/send-newsletter', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ subject, content })
-                    });
-                    const data = await res.json();
-                    
-                    if (res.ok) {
-                        alert(`Úspěšně odesláno ${data.sent} z ${data.total} odběratelů.`);
-                        adminForm.reset();
-                        quill.setContents([]);
+                toggleBtn.addEventListener('click', () => {
+                    isHtmlMode = !isHtmlMode;
+                    if (isHtmlMode) {
+                        htmlEditor.value = quill.root.innerHTML;
+                        qlContainer.style.display = 'none';
+                        toolbar.style.display = 'none';
+                        htmlEditor.style.display = 'block';
+                        toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Zobrazit náhled';
                     } else {
-                        throw new Error(data.error);
+                        quill.root.innerHTML = htmlEditor.value;
+                        htmlEditor.style.display = 'none';
+                        qlContainer.style.display = 'block';
+                        toolbar.style.display = 'block';
+                        toggleBtn.innerHTML = '<i class="fas fa-code"></i> Přepnout na HTML';
                     }
-                } catch (err) {
-                    alert('Chyba: ' + err.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = 'Odeslat všem';
-                }
-            });
-        }
+                });
+
+                adminForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const subject = document.getElementById('nl-subject').value;
+                    let content = isHtmlMode ? htmlEditor.value : quill.root.innerHTML;
+                    
+                    if (!content || (content.trim().length === 0 && !content.includes('<img'))) {
+                        return alert('Prosím vyplňte obsah emailu.');
+                    }
+
+                    if (!confirm('Odeslat newsletter všem odběratelům?')) return;
+                    
+                    const btn = adminForm.querySelector('button[type="submit"]');
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Odesílání...';
+
+                    try {
+                        const res = await fetch('/api/admin/send-newsletter', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ subject, content })
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert(`Úspěšně odesláno: ${data.sent} emailů.`);
+                            adminForm.reset();
+                            quill.setContents([]);
+                        } else {
+                            throw new Error(data.error);
+                        }
+                    } catch (err) {
+                        alert('Chyba: ' + err.message);
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

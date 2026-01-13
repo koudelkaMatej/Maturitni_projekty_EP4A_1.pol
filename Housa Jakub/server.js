@@ -286,6 +286,11 @@ function getCartItems(cartId) {
   return { items, total_cents };
 }
 
+// Explicitly serve index.html at root to avoid confusion
+app.get('/', (req, res) => {
+  res.sendFile(path.join(ROOT, 'index.html'));
+});
+
 // Serve static files with directory index support
 app.use(
   express.static(ROOT, {
@@ -379,6 +384,13 @@ app.delete('/api/cart/:itemId', (req, res) => {
   res.json({ cart_id: cart.id, ...payload });
 });
 
+// Clear entire cart
+app.delete('/api/cart', (req, res) => {
+  const cart = getOrCreateCartSession(req, res);
+  db.prepare('DELETE FROM cart_items WHERE cart_id = ?').run(cart.id);
+  res.json({ cart_id: cart.id, items: [], total_cents: 0 });
+});
+
 app.post('/api/validate-discount', (req, res) => {
   console.log('[Validate Discount] Request body:', req.body);
   try {
@@ -407,57 +419,65 @@ app.post('/api/checkout', (req, res) => {
   const cart = getOrCreateCartSession(req, res);
   const { email, phone, firstName, lastName, address, city, zipCode, paymentMethod, items, discountCode } = req.body || {};
 
+  console.log('[Checkout] Received payload:', { email, firstName, lastName, itemCount: items?.length });
+
   if (!email || !firstName || !lastName || !address || !city || !zipCode) {
+    console.warn('[Checkout] Missing required fields:', { email, firstName, lastName, address, city, zipCode });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   let itemsToOrder = [];
   let totalCents = 0;
 
-  // Helper to get product info including stock
+  // Helper to get product info including stock - supports both numeric IDs and slugs
+  const getProductInfo = (idOrSlug) => {
+    try {
+      const numId = parseInt(idOrSlug, 10);
+      if (!isNaN(numId)) {
+        return db.prepare('SELECT id, name, price_cents, stock FROM products WHERE id = ?').get(numId);
+      } else {
+        return db.prepare('SELECT id, name, price_cents, stock FROM products WHERE slug = ?').get(String(idOrSlug));
+      }
+    } catch (e) {
+      console.error('[Checkout] Error fetching product:', idOrSlug, e);
+      return null;
+    }
+  };
+
   const getProductsInfo = (ids) => {
     if (ids.length === 0) return [];
-    // Ensure IDs are numbers for safety and consistency
-    const safeIds = ids.map(id => parseInt(id, 10)).filter(n => !isNaN(n));
-    if (safeIds.length === 0) return [];
-    
-    try {
-        const placeholders = safeIds.map(() => '?').join(',');
-        const query = `SELECT id, name, price_cents, stock FROM products WHERE id IN (${placeholders})`;
-        console.log('[Checkout] Executing query:', query, 'Params:', safeIds);
-        const results = db.prepare(query).all(...safeIds);
-        console.log('[Checkout] Query results:', JSON.stringify(results));
-        return results;
-    } catch (e) {
-        console.error('Error fetching products info:', e);
-        return [];
+    const results = [];
+    for (const id of ids) {
+      const product = getProductInfo(id);
+      if (product) results.push(product);
     }
+    console.log('[Checkout] Products found:', JSON.stringify(results));
+    return results;
   };
 
   if (items && Array.isArray(items) && items.length > 0) {
     // Validate items from request body against database prices and stock
-    const productIds = items.map(i => i.id);
     console.log('[Checkout] Processing items:', JSON.stringify(items));
     
-    const products = getProductsInfo(productIds);
-    
     for (const item of items) {
-      // Robust comparison using Strings to handle "1" vs 1
-      const product = products.find(p => String(p.id) === String(item.id));
+      // Lookup each product individually by ID or slug
+      const product = getProductInfo(item.id);
       
       if (product) {
-        if (product.stock < item.quantity) {
+        const qty = parseInt(item.quantity, 10) || 1;
+        if (product.stock < qty) {
             return res.status(400).json({ error: `Nedostatek zboží na skladě: ${product.name}. Dostupné: ${product.stock} ks` });
         }
         itemsToOrder.push({
           product_id: product.id,
-          quantity: item.quantity,
+          quantity: qty,
           price_cents: product.price_cents,
           name: product.name
         });
-        totalCents += product.price_cents * item.quantity;
+        totalCents += product.price_cents * qty;
+        console.log(`[Checkout] Added: ${product.name} x${qty} @ ${product.price_cents} cents`);
       } else {
-          console.warn(`[Checkout] Product ID ${item.id} not found in database results.`);
+          console.warn(`[Checkout] Product not found: ${item.id}`);
       }
     }
   } else {
