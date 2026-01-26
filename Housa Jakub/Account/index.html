@@ -54,26 +54,41 @@
                         <div class="user-avatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <h3 class="user-name" id="sidebarName">Načítání...</h3>
-                        <p class="user-email" id="sidebarEmail" style="font-size: 0.9rem; color: #666;">...</p>
+                        <div class="user-info-col">
+                            <h3 class="user-name" id="sidebarName">Načítání...</h3>
+                            <p class="user-email" id="sidebarEmail">...</p>
+                        </div>
                     </div>
                     
                     <nav class="dashboard-menu">
-                        <button class="menu-item active" onclick="switchTab('overview', this)">
-                            <i class="fas fa-th-large"></i> Přehled
+                        <button class="menu-item active" id="menu-overview" onclick="switchTab('overview', this)">
+                            <div class="icon-box"><i class="fas fa-home"></i></div>
+                            <span>Přehled</span>
+                            <i class="fas fa-chevron-right arrow"></i>
                         </button>
-                        <button class="menu-item" onclick="switchTab('orders', this)">
-                            <i class="fas fa-shopping-bag"></i> Objednávky
+                        <button class="menu-item" id="menu-orders" onclick="switchTab('orders', this)">
+                            <div class="icon-box"><i class="fas fa-box"></i></div>
+                            <span>Objednávky</span>
+                            <i class="fas fa-chevron-right arrow"></i>
                         </button>
-                        <button class="menu-item" onclick="switchTab('addresses', this)">
-                            <i class="fas fa-map-marker-alt"></i> Adresy
+                        <button class="menu-item" id="menu-addresses" onclick="switchTab('addresses', this)">
+                            <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                            <span>Adresa</span>
+                            <i class="fas fa-chevron-right arrow"></i>
                         </button>
-                        <button class="menu-item" onclick="switchTab('settings', this)">
-                            <i class="fas fa-cog"></i> Nastavení
+                        <button class="menu-item" id="menu-subscription" onclick="switchTab('subscription', this)">
+                            <div class="icon-box"><i class="fas fa-crown"></i></div>
+                            <span>Předplatné</span>
+                            <i class="fas fa-chevron-right arrow"></i>
                         </button>
-                        <div class="menu-divider"></div>
+                        <button class="menu-item" id="menu-settings" onclick="switchTab('settings', this)">
+                            <div class="icon-box"><i class="fas fa-user-cog"></i></div>
+                            <span>Nastavení</span>
+                            <i class="fas fa-chevron-right arrow"></i>
+                        </button>
                         <button class="menu-item logout-item" id="logoutBtn">
-                            <i class="fas fa-sign-out-alt"></i> Odhlásit se
+                            <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
+                            <span>Odhlásit se</span>
                         </button>
                     </nav>
                 </aside>
@@ -83,39 +98,57 @@
                     
                     <!-- Tab: Overview -->
                     <div id="tab-overview" class="dashboard-tab active">
-                        <div class="tab-header">
-                            <h2>Vítejte zpět, <span id="welcomeName">Uživateli</span>! 👋</h2>
-                            <p>Zde je přehled vašeho účtu a poslední aktivity.</p>
+                        <div class="welcome-banner">
+                            <div class="welcome-content">
+                                <h2 class="welcome-title">Vítejte zpět, <span id="welcomeName">Uživateli</span>! 👋</h2>
+                                <p class="welcome-text">Tady je rychlý přehled toho, co se děje s vaším účtem.</p>
+                            </div>
+                            <i class="fas fa-bolt welcome-bg-icon"></i>
                         </div>
 
-                        <div class="overview-stats">
-                            <div class="stat-card">
-                                <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="stats-grid">
+                            <div class="stat-card-clean">
+                                <div class="stat-icon-box stat-icon-orders">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
                                 <div class="stat-info">
-                                    <span class="stat-value" id="statsOrdersCount">0</span>
-                                    <span class="stat-label">Objednávek</span>
+                                    <div class="label">Celkem objednávek</div>
+                                    <div class="value" id="statsOrdersCount">0</div>
                                 </div>
                             </div>
-                            <div class="stat-card">
-                                <div class="stat-icon"><i class="fas fa-map-marked-alt"></i></div>
+                            <div class="stat-card-clean">
+                                <div class="stat-icon-box stat-icon-completed">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
                                 <div class="stat-info">
-                                    <span class="stat-value" id="statsAddressCount">0</span>
-                                    <span class="stat-label">Uložených adres</span>
+                                    <div class="label">Dokončeno</div>
+                                    <div class="value" id="statsCompletedCount">-</div>
+                                </div>
+                            </div>
+                            <div class="stat-card-clean">
+                                <div class="stat-icon-box stat-icon-addresses">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="label">Uložené adresy</div>
+                                    <div class="value" id="statsAddressCount">0</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="recent-section">
-                            <div class="section-top" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h3>Poslední objednávky</h3>
-                                <button class="btn-secondary btn-sm" onclick="switchTab('orders', document.querySelector('.dashboard-menu .menu-item:nth-child(2)'))" style="padding: 8px 16px; font-size: 0.9rem;">Zobrazit vše</button>
+                            <div class="section-top">
+                                <h3 class="section-title-sm">Poslední objednávky</h3>
+                                <button class="btn-view-all" onclick="switchTab('orders', document.getElementById('menu-orders'))">
+                                    Zobrazit vše <i class="fas fa-arrow-right"></i>
+                                </button>
                             </div>
-                            <div id="overviewOrdersList" class="orders-list-simple">
+                            <div id="overviewOrdersList" class="orders-list-simple-container">
                                 <!-- Populated by JS -->
-                                <div class="empty-state">
-                                    <i class="fas fa-box-open"></i>
-                                    <p>Zatím žádné objednávky.</p>
-                                    <a href="/Products/index.html" class="btn-sm">Nakupovat</a>
+                                <div class="empty-state-box">
+                                    <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+                                    <p style="color: #666; margin-bottom: 2rem;">Zatím jste u nás nenakoupili.</p>
+                                    <a href="/Products/index.html" class="btn btn-primary">První nákup</a>
                                 </div>
                             </div>
                         </div>
@@ -123,35 +156,52 @@
 
                     <!-- Tab: Orders -->
                     <div id="tab-orders" class="dashboard-tab" style="display: none;">
-                        <div class="tab-header">
-                            <h2>Moje objednávky</h2>
-                            <p>Historie vašich nákupů a stav doručení.</p>
+                        <div class="tab-header" style="margin-bottom: 2rem;">
+                            <h2 style="margin: 0;">Moje objednávky</h2>
                         </div>
                         <div id="fullOrdersList" class="orders-list-full">
-                            <div class="empty-state">
-                                <i class="fas fa-search"></i>
-                                <p>Nemáte žádné objednávky.</p>
-                                <a href="/Products/index.html" class="btn">Přejít do obchodu</a>
-                            </div>
+                            <!-- Populated by JS -->
                         </div>
                     </div>
 
                     <!-- Tab: Addresses -->
                     <div id="tab-addresses" class="dashboard-tab" style="display: none;">
-                        <div class="tab-header">
-                            <h2>Adresář</h2>
-                            <button class="btn btn-sm" onclick="openAddressModal()">+ Nová adresa</button>
+                        <div class="tab-header" style="margin-bottom: 2rem;">
+                            <h2 style="margin: 0;">Moje adresa</h2>
                         </div>
-                        <div class="addresses-grid" id="addressesGrid">
+                        <div id="singleAddressContainer">
                             <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Tab: Subscription -->
+                    <div id="tab-subscription" class="dashboard-tab" style="display: none;">
+                        <div class="tab-header" style="margin-bottom: 2rem;">
+                            <h2 style="margin: 0;">Moje předplatné</h2>
+                            <p class="tab-subtitle" style="color: #666; margin-top: 0.5rem;">Spravujte své aktivní odběry a pravidelné zásilky</p>
+                        </div>
+                        
+                        <div id="subscriptionListContainer" class="subscription-list">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <div id="noSubscriptionsView" style="display: none;">
+                            <div class="empty-state-box">
+                                <div class="empty-icon text-primary"><i class="fas fa-sync-alt"></i></div>
+                                <h3>Nemáte žádné aktivní předplatné</h3>
+                                <p style="margin-bottom: 2rem;">Všechny vaše pravidelné zásilky najdete zde.</p>
+                                <a href="/Products/index.html" class="btn btn-primary">Přejít k produktům</a>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Tab: Settings -->
                     <div id="tab-settings" class="dashboard-tab" style="display: none;">
                         <div class="tab-header">
-                            <h2>Nastavení účtu</h2>
-                            <p>Spravujte své osobní údaje a heslo.</p>
+                            <div>
+                                <h2>Nastavení účtu</h2>
+                                <p style="margin-top: 0.5rem; color: #666;">Spravujte své osobní údaje a heslo.</p>
+                            </div>
                         </div>
                         
                         <div class="settings-form-container">
@@ -175,10 +225,78 @@
                                     <label class="form-label">Telefon</label>
                                     <input type="tel" id="settingsPhone" class="form-input">
                                 </div>
-                                <div class="form-actions" style="margin-top: 1.5rem;">
+                                <div class="form-actions" style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                                     <button type="submit" class="btn">Uložit změny</button>
+                                    <button type="button" id="deleteAccountBtn" class="btn" style="background-color: transparent; color: #dc2626; border: 1px solid #fecaca; padding: 0.6rem 1.2rem; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fas fa-trash-alt"></i> Smazat účet
+                                    </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+
+                    <!-- Modals -->
+                    <!-- Address Modal -->
+                    <div class="modal-overlay" id="addressModal">
+                        <div class="modal-content">
+                            <button class="modal-close" onclick="closeAddressModal()"><i class="fas fa-times"></i></button>
+                            <h3 id="addressModalTitle" class="modal-title">Přidat adresu</h3>
+                            <form id="addressForm" class="address-form-grid">
+                                <div class="form-group-modal">
+                                    <label>Jméno a příjmení</label>
+                                    <input type="text" id="addrName" required>
+                                </div>
+                                <div class="form-group-modal">
+                                    <label>Ulice a číslo popisné</label>
+                                    <input type="text" id="addrStreet" required>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div class="form-group-modal">
+                                        <label>Město</label>
+                                        <input type="text" id="addrCity" required>
+                                    </div>
+                                    <div class="form-group-modal">
+                                        <label>PSČ</label>
+                                        <input type="text" id="addrZip" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-full">Uložit adresu</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Order Detail Modal -->
+                    <div class="modal-overlay" id="orderModal">
+                        <div class="modal-content" style="max-width: 600px;">
+                            <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+                            <h3 id="orderModalTitle" class="modal-title">Detail objednávky</h3>
+                            <div id="orderModalContent">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delete Account Confirmation Modal -->
+                    <div class="modal-overlay" id="deleteAccountModal" style="display: none; align-items: center; justify-content: center;">
+                        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2.5rem;">
+                            <button class="modal-close" onclick="closeDeleteAccountModal()"><i class="fas fa-times"></i></button>
+                            <div style="font-size: 3rem; color: #dc2626; margin-bottom: 1rem;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3 class="modal-title" style="margin-bottom: 1rem; font-family: 'TelkaTRIALBold', sans-serif;">Opravdu smazat účet?</h3>
+                            <p style="color: #4b5563; margin-bottom: 2rem; line-height: 1.6;">
+                                Tato akce je <strong>nevratná</strong>. Dojde k trvalému smazání:<br>
+                                <ul style="text-align: left; background: #fef2f2; padding: 1rem 1rem 1rem 2.5rem; border-radius: 12px; margin-bottom: 1.5rem; color: #991b1b; font-size: 0.95rem;">
+                                    <li>Osobních údajů a nastavení</li>
+                                    <li>Historie objednávek</li>
+                                    <li>Uložených adres</li>
+                                    <li><strong>Všech aktivních předplatných</strong></li>
+                                </ul>
+                            </p>
+                            <div style="display: flex; gap: 1rem; justify-content: center;">
+                                <button class="btn" style="background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb;" onclick="closeDeleteAccountModal()">Ponechat účet</button>
+                                <button id="confirmDeleteAccountBtn" class="btn" style="background: #dc2626; color: white; border: 1px solid #dc2626; min-width: 180px;">Ano, smazat navždy</button>
+                            </div>
                         </div>
                     </div>
 
@@ -192,6 +310,7 @@
     <script src="/assets/js/cart.js?v=2"></script>
     <script>
         let currentUser = null;
+        let allOrders = [];
 
         // Check Auth Status
         async function checkAuth() {
@@ -229,8 +348,10 @@
 
             // Load Orders
             loadOrders();
+            // Load Subscription
+            loadSubscription();
 
-            // Render Addresses (Mock logic for now, using user.address)
+            // Render Addresses
             renderAddresses(user);
         }
 
@@ -238,92 +359,515 @@
             try {
                 const res = await fetch('/api/user/orders');
                 if (res.ok) {
-                    const orders = await res.json();
-                    renderOrders(orders);
+                    allOrders = await res.json();
+                    renderOrders(allOrders);
                 }
             } catch (e) {
                 console.error('Failed to load orders', e);
             }
         }
 
+        async function loadSubscription() {
+            try {
+                const res = await fetch('/api/user/subscription');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Handle array response (take the first active subscription or the first one)
+                    let sub = null;
+                    if (Array.isArray(data)) {
+                        sub = data.find(s => s.status === 'active') || data[0];
+                    } else {
+                        sub = data;
+                    }
+
+                    if (sub && sub.status === 'active') {
+                        document.getElementById('activeSubView').style.display = 'block';
+                        document.getElementById('inactiveSubView').style.display = 'none';
+                        
+                        // Populate flavors
+                        if (sub.flavors) {
+                            subFlavors = sub.flavors;
+                            // Find which one is selected (has 24)
+                            let found = false;
+                            for (let key in subFlavors) {
+                                if (subFlavors[key] === 24) {
+                                    selectFlavor(key);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) selectFlavor('mango'); // Default fallback
+                        }
+                    } else {
+                        document.getElementById('activeSubView').style.display = 'none';
+                        document.getElementById('inactiveSubView').style.display = 'block';
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load subscription', e);
+            }
+        }
+
+        // --- Orders Logic ---
         function renderOrders(orders) {
             const overviewContainer = document.getElementById('overviewOrdersList');
             const fullContainer = document.getElementById('fullOrdersList');
             const statsCount = document.getElementById('statsOrdersCount');
+            const statsCompleted = document.getElementById('statsCompletedCount');
             
             statsCount.textContent = orders.length;
+            if (statsCompleted) {
+                statsCompleted.textContent = orders.filter(o => o.status === 'completed' || o.status === 'paid').length;
+            }
 
             if (orders.length === 0) {
                 const emptyHtml = `
-                    <div class="empty-state">
-                        <i class="fas fa-box-open"></i>
-                        <p>Zatím žádné objednávky.</p>
-                        <a href="/Products/index.html" class="btn-sm">Nakupovat</a>
+                    <div class="empty-state" style="text-align: center; padding: 4rem; background: white; border-radius: 16px; border: 1px dashed #ddd;">
+                        <div style="background: #f9fafb; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <i class="fas fa-search" style="font-size: 2rem; color: #ccc;"></i>
+                        </div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #333;">Nemáte žádné objednávky</h3>
+                        <p style="color: #666; margin-bottom: 2rem;">Vypadá to, že jste u nás ještě nenakoupili.</p>
+                        <a href="/Products/index.html" class="btn btn-primary" style="background: #27445C; color: white; padding: 0.8rem 2rem; border-radius: 50px; text-decoration: none; font-weight: 600;">Začít nakupovat</a>
                     </div>`;
                 overviewContainer.innerHTML = emptyHtml;
                 fullContainer.innerHTML = emptyHtml;
                 return;
             }
 
+            // Map status IDs to visual text and colors
+            const statusMap = {
+                'pending': { text: 'Čeká na platbu', color: '#b45309', bg: '#fffbeb' },
+                'paid': { text: 'Zaplaceno', color: '#047857', bg: '#d1fae5' },
+                'processing': { text: 'Vyřizuje se', color: '#1d4ed8', bg: '#dbeafe' },
+                'shipped': { text: 'Odesláno', color: '#4338ca', bg: '#e0e7ff' },
+                'completed': { text: 'Doručeno', color: '#15803d', bg: '#dcfce7' },
+                'cancelled': { text: 'Zrušeno', color: '#b91c1c', bg: '#fee2e2' }
+            };
+
+            const getStatusBadge = (status) => {
+                const s = statusMap[status] || { text: status, color: '#4b5563', bg: '#f3f4f6' };
+                return `<span class="order-status-badge" style="background: ${s.bg}; color: ${s.color};">${s.text}</span>`;
+            };
+
             // HTML Generator
-            const createOrderCard = (order) => `
-                <div class="card-item" style="padding: 1rem; border: 1px solid #eee; border-radius: 8px; margin-bottom: 0.5rem; background: white;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
+            const createOrderRow = (order) => `
+                <div class="order-card-row">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div class="order-card-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
                         <div>
-                            <strong style="display: block; font-size: 1.05rem;">Objednávka #${order.id}</strong>
-                            <span style="font-size: 0.9rem; color: #666;">
-                                ${new Date(order.created_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </span>
+                            <div class="order-id">#${order.id}</div>
+                            <div class="order-meta">${order.itemCount || (order.items ? order.items.length : '1')} položka</div>
                         </div>
-                        <div style="text-align: right;">
-                            <strong style="color: var(--text-primary); display: block;">${(order.total_cents / 100).toFixed(0)} Kč</strong>
-                            <span class="order-status status-${order.status}" style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; background: #eee; margin-top: 4px;">${order.status}</span>
+                    </div>
+                    <div class="order-date">
+                        ${new Date(order.created_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </div>
+                    <div>
+                        ${getStatusBadge(order.status)}
+                    </div>
+                    <div class="order-price">
+                        ${(order.total_cents / 100).toLocaleString('cs-CZ')} Kč
+                    </div>
+                    <button class="btn-icon-nav" onclick="openOrderDetail('${order.id}')" title="Zobrazit detail">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+
+            // Simple version for Overview (just minimal info)
+            const createSimpleRow = (order) => `
+                <div class="order-row-simple">
+                     <div class="order-simple-left">
+                         <div class="order-simple-icon">
+                            <i class="fas fa-check"></i>
                         </div>
+                        <div class="order-simple-info">
+                            <div class="id">Objednávka #${order.id}</div>
+                            <div class="date">${new Date(order.created_at).toLocaleDateString('cs-CZ')}</div>
+                        </div>
+                    </div>
+                    <div class="order-simple-price">
+                        ${(order.total_cents / 100).toLocaleString('cs-CZ')} Kč
                     </div>
                 </div>
             `;
 
             // Overview (Limit 3)
-            overviewContainer.innerHTML = orders.slice(0, 3).map(createOrderCard).join('') + 
-                (orders.length > 3 ? `<button class="btn-text" onclick="switchTab('orders', document.querySelector('.dashboard-menu .menu-item:nth-child(2)'))" style="margin-top: 10px; width: 100%;">Zobrazit dalších ${orders.length - 3} objednávek</button>` : '');
+            overviewContainer.innerHTML = `
+                <div>
+                    ${orders.slice(0, 3).map(createSimpleRow).join('')}
+                </div>
+            `;
 
-            // Full List
-            fullContainer.innerHTML = `<div style="display: flex; flex-direction: column; gap: 1rem;">` + 
-                orders.map(createOrderCard).join('') + 
-                `</div>`;
+            // Full List (Headers + Rows)
+            fullContainer.innerHTML = `
+                <div class="orders-header-row">
+                    <div>Objednávka</div>
+                    <div>Datum</div>
+                    <div>Stav</div>
+                    <div>Cena</div>
+                    <div></div>
+                </div>
+                <div class="orders-list">
+                    ${orders.map(createOrderRow).join('')}
+                </div>
+            `;
+        }
+        
+        function openOrderDetail(orderId) {
+            const order = allOrders.find(o => o.id == orderId);
+            if (!order) return;
+
+            document.getElementById('orderModalTitle').textContent = `Detail objednávky #${order.id}`;
+            const modalContent = document.getElementById('orderModalContent');
+            
+            let itemsHtml = '';
+            if (order.items && order.items.length > 0) {
+                itemsHtml = order.items.map(item => `
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                         <div>
+                            <div style="font-weight: 600;">${item.product_name || item.name || 'Produkt'}</div>
+                            <div style="font-size: 0.9rem; color: #666;">${item.quantity}x ${((item.price_cents || item.price || 0) / 100).toLocaleString('cs-CZ')} Kč</div>
+                         </div>
+                         <div style="font-weight: 600;">${(( (item.price_cents || item.price || 0) * item.quantity) / 100).toLocaleString('cs-CZ')} Kč</div>
+                    </div>
+                `).join('');
+            } else {
+                 itemsHtml = '<p style="color: #888; font-style: italic;">Žádné položky (historická data bez detailů)</p>';
+            }
+
+            modalContent.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <h4 class="modal-section-title">Datum a stav</h4>
+                    <div style="font-size: 1.1rem; margin-bottom: 0.5rem; font-family: 'TelkaTRIALBold', sans-serif;">${new Date(order.created_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                    <div class="order-status-badge" style="background: #f1f5f9;">${order.status}</div>
+                </div>
+                <div>
+                    <h4 class="modal-section-title">Položky</h4>
+                    ${itemsHtml}
+                    <div class="modal-total-row">
+                         <span>Celkem</span>
+                         <span>${(order.total_cents / 100).toLocaleString('cs-CZ')} Kč</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('orderModal').classList.add('active');
         }
 
+        function closeOrderModal() {
+             document.getElementById('orderModal').classList.remove('active');
+        }
+
+        // --- Address Logic ---
         function renderAddresses(user) {
-            const grid = document.getElementById('addressesGrid');
+            const grid = document.getElementById('singleAddressContainer');
+            const addBtn = document.getElementById('addAddressBtn');
             grid.innerHTML = '';
 
+            // Ensure grid is not a grid anymore if we want a single large card, 
+            // but we can just style the child to be 100% width or just change grid columns.
+            // For now, we keep the container but render a big card inside.
+
             if (user.address) {
+                // Should have only ONE address -> Hide Add Button
+                if (addBtn) addBtn.style.display = 'none';
+
                 const card = document.createElement('div');
-                card.className = 'address-card';
+                card.className = 'address-detail-card'; // New class for detailed look
+                const displayName = [(user.firstName || ''), (user.lastName || '')].filter(x => x).join(' ') || 'Neuvedeno';
                 card.innerHTML = `
-                    <div class="address-header">
-                        <span class="tag">Hlavní</span>
-                        <div class="address-actions">
-                            <button class="icon-btn"><i class="fas fa-pen"></i></button>
-                            <button class="icon-btn delete"><i class="fas fa-trash"></i></button>
+                    <div class="address-detail-content">
+                        <div class="address-detail-header">
+                            <span class="badge-active">Aktivní doručovací adresa</span>
+                        </div>
+                        <div class="address-info-large">
+                            <h3>${displayName}</h3>
+                            <p class="addr-line"><i class="fas fa-map-marker-alt"></i> ${user.address}</p>
+                            <p class="addr-line pl-icon">${user.zipCode} ${user.city}</p>
+                            <p class="addr-line pl-icon">${user.country || 'Česká republika'}</p>
                         </div>
                     </div>
-                    <div class="address-body">
-                        <strong>${user.firstName || ''} ${user.lastName || ''}</strong><br>
-                        ${user.address}<br>
-                        ${user.zipCode} ${user.city}<br>
-                        ${user.country || 'Česká republika'}
+                    <div class="address-actions-detail">
+                        <button class="btn-action-large edit" onclick="openAddressModal(true)">
+                            <i class="fas fa-pen"></i> Upravit údaje
+                        </button>
+                        <button class="btn-action-large delete" onclick="deleteAddress()">
+                            <i class="fas fa-trash"></i> Smazat adresu
+                        </button>
                     </div>
                 `;
                 grid.appendChild(card);
                 document.getElementById('statsAddressCount').textContent = '1';
             } else {
-                grid.innerHTML = '<p class="empty-text" style="grid-column: 1/-1; color: #666;">Zatím žádné adresy.</p>';
+                // No address -> Show Add Button logic
+                if (addBtn) addBtn.style.display = 'flex';
+
+                grid.innerHTML = `
+                    <div class="empty-state-box">
+                        <div class="empty-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>Zatím nemáte uloženou adresu</h3>
+                        <p>Přidejte si adresu pro rychlejší objednání zboží v našem e-shopu.</p>
+                        <button onclick="openAddressModal(false)" class="btn-primary-soft" style="margin-top: 20px;">
+                            <i class="fas fa-plus"></i> Přidat novou adresu
+                        </button>
+                    </div>`;
                  document.getElementById('statsAddressCount').textContent = '0';
             }
         }
 
+        function openAddressModal(isEdit = false) {
+            const modal = document.getElementById('addressModal');
+            document.getElementById('addressModalTitle').textContent = isEdit ? 'Upravit adresu' : 'Přidat adresu';
+            
+            const fullName = [(currentUser.firstName || ''), (currentUser.lastName || '')].filter(x => x).join(' ');
+            
+            if (isEdit) {
+                document.getElementById('addrName').value = fullName;
+                document.getElementById('addrStreet').value = currentUser.address || '';
+                document.getElementById('addrCity').value = currentUser.city || '';
+                document.getElementById('addrZip').value = currentUser.zipCode || '';
+            } else {
+                document.getElementById('addressForm').reset();
+                document.getElementById('addrName').value = fullName;
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeAddressModal() {
+            document.getElementById('addressModal').classList.remove('active');
+        }
+
+        async function deleteAddress() {
+            if (!confirm('Opravdu chcete smazat tuto adresu?')) return;
+
+            // Preserve existing user data, but clear address fields
+            const formData = {
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+                phone: currentUser.phone,
+                address: '',
+                city: '',
+                zipCode: '',
+                country: ''
+            };
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (res.ok) {
+                    currentUser = { ...currentUser, ...formData };
+                    delete currentUser.address; // ensure it's falsy
+                    renderAddresses(currentUser);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        // Address Form Submit
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const street = document.getElementById('addrStreet').value;
+            const city = document.getElementById('addrCity').value;
+            const zip = document.getElementById('addrZip').value;
+            
+            // Preserve existing user data + new address
+            const formData = {
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+                phone: currentUser.phone,
+                address: street,
+                city: city,
+                zipCode: zip,
+                country: 'Česká republika'
+            };
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (res.ok) {
+                    const updatedUser = await res.json();
+                    
+                    // Note: mock server might not return full updated user object structure correctly if strictly generic
+                    // So we update local state manually to be safe or re-fetch
+                    currentUser = { ...currentUser, ...formData }; 
+                    renderAddresses(currentUser);
+                    closeAddressModal();
+                } else {
+                    alert('Chyba při ukládání adresy');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Chyba spojení');
+            }
+        });
+
+        // --- Subscription Logic ---
+
+        async function loadSubscriptions() {
+            const container = document.getElementById('subscriptionListContainer');
+            const emptyView = document.getElementById('noSubscriptionsView');
+            
+            container.innerHTML = '<div style="text-align:center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Načítám předplatné...</div>';
+            emptyView.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/user/subscription');
+                
+                if (res.status === 401) {
+                    window.location.href = '/Account/login.html';
+                    return;
+                }
+                
+                if (!res.ok) throw new Error('Chyba serveru: ' + res.status);
+
+                const subs = await res.json();
+
+                if (!Array.isArray(subs) || subs.length === 0) {
+                    container.innerHTML = '';
+                    emptyView.style.display = 'block';
+                    return;
+                }
+
+                container.innerHTML = '';
+                subs.forEach(sub => {
+                    const nextDate = new Date(sub.next_billing_date || new Date());
+                    const formattedDate = nextDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' });
+                    
+                    const isCancelled = sub.status === 'cancelled';
+                    const statusBadge = isCancelled 
+                        ? '<span class="subscription-badge cancelled">Zrušeno</span>'
+                        : '<span class="subscription-badge active">Aktivní</span>';
+
+                    const actionBtn = isCancelled
+                        ? `<button onclick="reactivateSubscription(${sub.id})" class="btn-reactivate">Obnovit</button>`
+                        : `<button onclick="cancelSubscription(${sub.id})" class="btn-outline">Zrušit</button>`;
+                    
+                    // Clean up product name - remove redundant size info if already in title to avoid double wrap
+                    let pName = sub.product_name || 'Neznámý produkt';
+                    pName = pName.replace(' — 24 × 330ml', ''); 
+
+                    // Image Handling
+                    let imgSrc = sub.product_hover_image || sub.product_image || '/assets/img/products/test.png';
+                    // Fix relative paths that are missing leading slash
+                    if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('/') && !imgSrc.startsWith('data:')) {
+                        imgSrc = '/' + imgSrc;
+                    }
+
+                    const html = `
+                        <div class="subscription-card" style="position: relative;">
+                            ${isCancelled ? `<button type="button" onclick="event.stopPropagation(); deleteSubscription(${sub.id})" class="btn-delete-sub" title="Odstranit"><i class="fas fa-times"></i></button>` : ''}
+                            <div class="subscription-image-wrapper">
+                                <img src="${imgSrc}" 
+                                     alt="${pName}" 
+                                     class="subscription-image"
+                                     onerror="this.onerror=null; this.src='/assets/img/products/test.png';">
+                            </div>
+                            
+                            <div class="subscription-info">
+                                <h3 class="subscription-title">${pName}</h3>
+                                <div class="subscription-meta">
+                                    ${statusBadge}
+                                    <div class="subscription-price">
+                                        ${((sub.price_cents || 0) / 100).toFixed(0)} <span class="subscription-unit">Kč / měsíc</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subscription-next-payment">
+                                <div class="label">Příští platba</div>
+                                <div class="date">${isCancelled ? '–' : formattedDate}</div>
+                            </div>
+                            
+                            <div class="subscription-actions">
+                                ${actionBtn}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = `<p style="color:red; text-align:center;">Chyba při načítání: ${e.message}</p>`;
+            }
+        }
+
+        async function cancelSubscription(subId) {
+            if(!confirm('Opravdu chcete zrušit toto předplatné?')) return;
+            try {
+                const res = await fetch('/api/user/subscription/cancel', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriptionId: subId })
+                });
+                if (res.ok) {
+                    loadSubscriptions(); // Reload list
+                } else {
+                    alert('Chyba při rušení.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Chyba spojení.');
+            }
+        }
+
+        async function reactivateSubscription(subId) {
+            try {
+                const res = await fetch('/api/user/subscription/reactivate', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriptionId: subId })
+                });
+                if (res.ok) {
+                    alert('Předplatné obnoveno!');
+                    loadSubscriptions(); // Reload list
+                } else {
+                    alert('Chyba při obnově.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Chyba spojení.');
+            }
+        }
+
+        async function deleteSubscription(subId) {
+            if(!confirm('Opravdu chcete odstranit toto zrušené předplatné z historie?')) return;
+            try {
+                const res = await fetch(`/api/user/subscription/${subId}`, { 
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    loadSubscriptions(); // Reload list
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Chyba při odstraňování.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Chyba spojení.');
+            }
+        }
+
+
         function switchTab(tabId, btnElement) {
+            if (tabId === 'subscription') loadSubscriptions();
             // Hide all tabs
             document.querySelectorAll('.dashboard-tab').forEach(el => {
                 el.style.display = 'none';
@@ -344,15 +888,57 @@
                 btnElement.classList.add('active');
             }
         }
-        
-        function openAddressModal() {
-            alert('Funkce přidání adresy bude dostupná brzy.');
-        }
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await fetch('/api/auth/logout', { method: 'POST' });
             window.location.href = '/Account/login.html';
+        });
+
+        function openDeleteAccountModal() {
+            const modal = document.getElementById('deleteAccountModal');
+            // Remove inline style that might have been added
+            modal.style.display = '';
+            // Add class for CSS transition
+            modal.classList.add('active');
+        }
+
+        function closeDeleteAccountModal() {
+            document.getElementById('deleteAccountModal').classList.remove('active');
+        }
+
+        // Delete Account
+        const deleteBtn = document.getElementById('deleteAccountBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openDeleteAccountModal();
+            });
+        }
+
+        document.getElementById('confirmDeleteAccountBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('confirmDeleteAccountBtn');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Mazání...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/user/delete', { method: 'DELETE' });
+                if (res.ok) {
+                    window.location.href = '/Account/register.html';
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    alert('Chyba při mazání účtu: ' + (data.error || 'Neznámá chyba'));
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Nastala chyba: ' + e.message);
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
         });
         
         // Profile Update

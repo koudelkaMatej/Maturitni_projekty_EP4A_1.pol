@@ -123,7 +123,57 @@
         </div>
     </main>
 
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
+        // Toast Notification System
+        class ToastNotification {
+            constructor() {
+                this.container = document.getElementById('toastContainer');
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const iconMap = {
+                    error: 'fas fa-exclamation-circle',
+                    success: 'fas fa-check-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+
+                toast.innerHTML = `
+                    <i class="toast-icon ${iconMap[type]}"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.classList.remove('show'); setTimeout(() => this.parentElement.remove(), 300);">✕</button>
+                `;
+
+                this.container.appendChild(toast);
+                
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (toast.parentElement) {
+                            toast.classList.remove('show');
+                            setTimeout(() => toast.remove(), 300);
+                        }
+                    }, duration);
+                }
+            }
+
+            error(message, duration = 5000) { this.show(message, 'error', duration); }
+            success(message) { this.show(message, 'success', 3000); }
+            warning(message) { this.show(message, 'warning', 4000); }
+            info(message) { this.show(message, 'info', 3000); }
+        }
+
+        const toast = new ToastNotification();
         const yearEl = document.getElementById('year');
         if (yearEl) {
             yearEl.textContent = new Date().getFullYear();
@@ -204,13 +254,18 @@
             btn.textContent = 'Odesílám...';
 
             // Map items with both numeric ID and slug for robust backend lookup
-            const validItems = cart.filter(item => item.id).map(item => ({ 
-                id: item.id,  // This might be numeric ID or slug
-                quantity: parseInt(item.quantity, 10) || 1
-            }));
+            const validItems = cart.filter(item => item.id).map(item => {
+                const mapped = { 
+                    id: item.id,  // This might be numeric ID or slug
+                    quantity: parseInt(item.quantity, 10) || 1,
+                    isSubscription: !!item.isSubscription
+                };
+                console.log('[Summary] Mapping item for checkout:', mapped);
+                return mapped;
+            });
             
             if (validItems.length === 0) {
-                alert('Košík neobsahuje platné produkty.');
+                toast.error('Košík neobsahuje platné produkty.');
                 btn.disabled = false;
                 btn.textContent = 'Odeslat objednávku';
                 return;
@@ -246,16 +301,29 @@
                     localStorage.removeItem('cart');
                     localStorage.removeItem('checkoutData');
                     localStorage.removeItem('discountCode');
-                    window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
+                    toast.success('Objednávka přijata! Přesměrovávám...');
+                    setTimeout(() => {
+                        window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
+                    }, 800);
                 } else {
                     console.error('Order failed:', result);
-                    alert('Chyba při odesílání objednávky: ' + (result.error || 'Neznámá chyba'));
-                    btn.disabled = false;
-                    btn.textContent = 'Odeslat objednávku';
+                    
+                    if (result.code === 'AUTH_REQUIRED') {
+                        // Tlačítko necháme zablokované a změníme text
+                        btn.textContent = 'Přesměrovávám na přihlášení...';
+                        
+                        // Okamžité přesměrování
+                        window.location.href = '/Account/login.html?redirect=/Cart/summary.html&message=' + encodeURIComponent(result.error);
+                    } else {
+                        toast.error('Chyba při odesílání objednávky: ' + (result.error || 'Neznámá chyba'));
+                        // Jen v případě jiné chyby tlačítko odblokujeme
+                        btn.disabled = false;
+                        btn.textContent = 'Odeslat objednávku';
+                    }
                 }
             } catch (error) {
                 console.error('Network error:', error);
-                alert('Chyba připojení k serveru. Zkontrolujte své připojení.');
+                toast.error('Chyba připojení k serveru. Zkontrolujte své připojení.');
                 btn.disabled = false;
                 btn.textContent = 'Odeslat objednávku';
             }

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/account.css">
+    <link rel="stylesheet" href="/assets/css/account-auth.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -44,32 +45,49 @@
     </nav>
 
     <div class="account-page">
-        <div class="account-container">
-            <div class="auth-wrapper" style="max-width: 500px; grid-template-columns: 1fr; margin: 40px auto;">
-                <div class="auth-card">
-                    <div class="auth-header">
-                        <h2>Registrace</h2>
-                        <p>Vytvořte si účet a sledujte své objednávky.</p>
+        <div class="account-container auth-wrapper">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-icon" style="font-size: 2.5rem; color: #27445c; margin-bottom: 1rem;">
+                        <i class="fas fa-user-plus"></i>
                     </div>
-                    <form id="registerForm">
-                        <div class="form-group">
-                            <label class="form-label">Jméno a příjmení</label>
+                    <h2>Vytvořit nový účet</h2>
+                    <p>Získejte přístup k historii objednávek a rychlejšímu nákupu</p>
+                </div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label">Jméno a příjmení</label>
+                        <div style="position: relative;">
                             <input type="text" name="name" class="form-input" placeholder="Jan Novák" required>
+                            <i class="fas fa-user" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-input" placeholder="vas@email.cz" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Heslo</label>
-                            <input type="password" name="password" class="form-input" placeholder="Minimálně 6 znaků" required minlength="6">
-                        </div>
-                        <button type="submit" class="btn-auth">Vytvořit účet</button>
-                        <div id="registerError" class="form-error"></div>
-                    </form>
-                    <div style="text-align: center; margin-top: 1.5rem; color: #666;">
-                        Již máte účet? <a href="login.html" style="color: #27445C; font-weight: bold;">Přihlaste se</a>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Emailová adresa</label>
+                        <div style="position: relative;">
+                            <input type="email" name="email" class="form-input" placeholder="vas@email.cz" required>
+                            <i class="fas fa-envelope" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heslo</label>
+                        <div style="position: relative;">
+                            <input type="password" name="password" class="form-input" placeholder="Minimálně 6 znaků" required minlength="6">
+                            <i class="fas fa-lock" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #888; margin-top: 5px; margin-left: 5px;">
+                            <i class="fas fa-info-circle"></i> Heslo musí mít alespoň 6 znaků
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-auth">
+                        Vytvořit účet <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                    </button>
+                    <div id="registerError" class="form-error">
+                        <i class="fas fa-exclamation-circle"></i> <span></span>
+                    </div>
+                </form>
+                <div class="auth-footer">
+                    Již máte účet? <a href="login.html">Přihlaste se</a>
                 </div>
             </div>
         </div>
@@ -101,7 +119,25 @@
                 });
                 
                 if (res.ok) {
-                    window.location.href = '/Account/index.html';
+                    const userData = await res.json();
+                    // Auto-login logic is actually handled by register? No, register just creates user.
+                    // But wait, the original code redirected to index directly, implying user might not be logged in immediately?
+                    // Actually, typically register logs user in immediately.
+                    // Let's check updated server logic. Oh, I didn't add auto-login to register endpoint.
+                    // Let's first try to login automatically with the password provided.
+                    
+                    const loginRes = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: data.email, password: data.password })
+                    });
+                    
+                    if (loginRes.ok) {
+                        window.location.href = '/Account/index.html';
+                    } else {
+                        // Fallback
+                        window.location.href = '/Account/login.html';
+                    }
                 } else {
                     const err = await res.json();
                     const errEl = document.getElementById('registerError');

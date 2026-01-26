@@ -40,6 +40,9 @@
                 <li><a href="/index.html#section-newsletter" class="nav-link">Kontakt</a></li>
             </ul>
             <div class="nav-actions">
+                <a href="/Account/index.html" class="user-icon" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="Můj účet">
+                    <i class="fas fa-user"></i>
+                </a>
                 <a href="/Products/index.html" class="btn nav-cta">Nakupovat</a>
                 <div class="cart-icon" id="cartIcon">
                     <i class="fas fa-shopping-cart"></i>
@@ -128,7 +131,7 @@
                 <div class="price-section">
                     <h3>Zvolte způsob nákupu:</h3>
                     <div class="purchase-options">
-                        <div class="purchase-option active" onclick="selectPurchaseOption('single', this)">
+                        <div class="purchase-option active" onclick="selectPurchaseOption('single', this)" data-type="single">
                             <div class="option-info">
                                 <div class="option-title">Jednorázový nákup</div>
                                 <div class="option-description">Zakupte si balení bez závazků</div>
@@ -138,7 +141,7 @@
                                 <div class="price-note">za 24 plechovek</div>
                             </div>
                         </div>
-                        <div class="purchase-option" onclick="selectPurchaseOption('subscription', this)">
+                        <div class="purchase-option" onclick="selectPurchaseOption('subscription', this)" data-type="subscription">
                             <div class="option-info">
                                 <div class="option-title">Předplatné</div>
                                 <div class="option-description">Pravidelné doručení se slevou</div>

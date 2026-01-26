@@ -183,8 +183,84 @@
         </form>
     </main>
 
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script src="/assets/js/cart.js?v=2"></script>
     <script>
+        // Toast Notification System
+        class ToastNotification {
+            constructor() {
+                this.container = document.getElementById('toastContainer');
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const iconMap = {
+                    error: 'fas fa-exclamation-circle',
+                    success: 'fas fa-check-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+
+                toast.innerHTML = `
+                    <i class="toast-icon ${iconMap[type]}"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.remove();">✕</button>
+                `;
+
+                this.container.appendChild(toast);
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (toast.parentElement) {
+                            toast.style.animation = `slideOutRight 0.3s ease-out forwards`;
+                            setTimeout(() => toast.remove(), 300);
+                        }
+                    }, duration);
+                }
+            }
+
+            error(message) { this.show(message, 'error', 5000); }
+            success(message) { this.show(message, 'success', 3000); }
+            warning(message) { this.show(message, 'warning', 4000); }
+            info(message) { this.show(message, 'info', 3000); }
+        }
+
+        const toast = new ToastNotification();
+
+        // Inline Error Display
+        function showFieldError(fieldId, errorMessage) {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+            
+            field.classList.add('error');
+            
+            let errorEl = field.nextElementSibling;
+            if (!errorEl || !errorEl.classList.contains('form-error-message')) {
+                errorEl = document.createElement('div');
+                errorEl.className = 'form-error-message';
+                field.parentNode.insertBefore(errorEl, field.nextSibling);
+            }
+            
+            errorEl.innerHTML = `<i class="fas fa-times-circle"></i> ${errorMessage}`;
+            errorEl.classList.add('show');
+        }
+
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+            
+            field.classList.remove('error');
+            
+            const errorEl = field.nextElementSibling;
+            if (errorEl && errorEl.classList.contains('form-error-message')) {
+                errorEl.classList.remove('show');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const yearEl = document.getElementById('year');
             if (yearEl) {
@@ -338,18 +414,68 @@
                     
                     const btn = e.target.querySelector('button[type="submit"]');
                     
-                    const zipCode = document.getElementById('zipCode').value.trim();
+                    // Clear all previous errors
+                    ['email', 'phone', 'firstName', 'lastName', 'address', 'city', 'zipCode'].forEach(id => {
+                        clearFieldError(id);
+                    });
+
+                    // Get and validate values
+                    const email = document.getElementById('email').value.trim();
                     const phone = document.getElementById('phone').value.trim();
-                    
-                    const zipRegex = /^\d{3}\s?\d{2}$/;
-                    if (!zipRegex.test(zipCode)) {
-                        alert('Zadejte prosím platné PSČ (např. 123 45 nebo 12345).');
-                        return;
+                    const firstName = document.getElementById('firstName').value.trim();
+                    const lastName = document.getElementById('lastName').value.trim();
+                    const address = document.getElementById('address').value.trim();
+                    const city = document.getElementById('city').value.trim();
+                    const zipCode = document.getElementById('zipCode').value.trim();
+
+                    let hasErrors = false;
+
+                    // Email validation
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!email || !emailRegex.test(email)) {
+                        showFieldError('email', 'Zadejte prosím platný email.');
+                        hasErrors = true;
                     }
 
+                    // Name validations
+                    if (!firstName || firstName.length < 2) {
+                        showFieldError('firstName', 'Jméno musí mít alespoň 2 znaky.');
+                        hasErrors = true;
+                    }
+
+                    if (!lastName || lastName.length < 2) {
+                        showFieldError('lastName', 'Příjmení musí mít alespoň 2 znaky.');
+                        hasErrors = true;
+                    }
+
+                    // Address validation
+                    if (!address || address.length < 3) {
+                        showFieldError('address', 'Adresa musí mít alespoň 3 znaky.');
+                        hasErrors = true;
+                    }
+
+                    // City validation
+                    if (!city || city.length < 2) {
+                        showFieldError('city', 'Město musí mít alespoň 2 znaky.');
+                        hasErrors = true;
+                    }
+
+                    // ZIP code validation
+                    const zipRegex = /^\d{3}\s?\d{2}$/;
+                    if (!zipRegex.test(zipCode)) {
+                        showFieldError('zipCode', 'Zadejte prosím platné PSČ (např. 110 00 nebo 11000).');
+                        hasErrors = true;
+                    }
+
+                    // Phone validation
                     const phoneRegex = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
                     if (!phoneRegex.test(phone)) {
-                        alert('Zadejte prosím platné telefonní číslo (např. 777 123 456).');
+                        showFieldError('phone', 'Zadejte prosím platné telefonní číslo (např. 777 123 456 nebo +420 777 123 456).');
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        toast.error('Prosím, opravte chyby v na formuláři.');
                         return;
                     }
 
@@ -359,29 +485,34 @@
                     const validItems = cart.filter(item => item.id).map(item => ({ id: item.id, quantity: item.quantity }));
                     
                     if (validItems.length === 0) {
-                        alert('Váš košík neobsahuje platné produkty. Budete přesměrováni zpět.');
+                        toast.error('Váš košík neobsahuje platné produkty. Budete přesměrováni zpět.');
                         localStorage.removeItem('cart');
-                        window.location.href = '/Cart/cart.html';
+                        setTimeout(() => {
+                            window.location.href = '/Cart/cart.html';
+                        }, 1500);
                         return;
                     }
 
                     const formData = {
-                        email: document.getElementById('email').value,
+                        email: email,
                         phone: phone,
-                        firstName: document.getElementById('firstName').value,
-                        lastName: document.getElementById('lastName').value,
-                        address: document.getElementById('address').value,
-                        city: document.getElementById('city').value,
+                        firstName: firstName,
+                        lastName: lastName,
+                        address: address,
+                        city: city,
                         zipCode: zipCode,
                         paymentMethod: document.querySelector('input[name="payment"]:checked')?.value || 'card'
                     };
 
                     try {
                         localStorage.setItem('checkoutData', JSON.stringify(formData));
-                        window.location.href = '/Cart/summary.html';
+                        toast.success('Data uložena, přesměrovávám...');
+                        setTimeout(() => {
+                            window.location.href = '/Cart/summary.html';
+                        }, 800);
                     } catch (err) {
                         console.error('Error during checkout submit:', err);
-                        alert('Chyba při ukládání dat. Zkuste to prosím znovu.');
+                        toast.error('Chyba při ukládání dat. Zkuste to prosím znovu.');
                         btn.disabled = false;
                         btn.textContent = 'Pokračovat na rekapitulaci';
                     }

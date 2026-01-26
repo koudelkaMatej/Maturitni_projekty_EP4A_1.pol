@@ -260,7 +260,8 @@ function handleAddToCart(event) {
         id: flavor.id,
         name: flavor.fullName,
         price: price,
-        image: flavor.images.mini
+        image: flavor.images.mini,
+        isSubscription: currentPurchaseOption === 'subscription'
     };
 
     const variantLabel = label;

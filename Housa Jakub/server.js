@@ -31,8 +31,39 @@ const ROOT = __dirname; // Serve from workspace root (where HTML/CSS/JS live)
 // Basic middleware
 app.use(compression());
 app.use(morgan('tiny'));
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET || 'secure-secret-key-123'));
 app.use(express.json());
+
+// Simple In-Memory Rate Limiter
+const loginAttempts = new Map();
+const rateLimiter = (req, res, next) => {
+    const ip = req.ip;
+    const now = Date.now();
+    const windowMs = 15 * 60 * 1000; // 15 minutes
+    
+    if (loginAttempts.has(ip)) {
+        const data = loginAttempts.get(ip);
+        if (now - data.startTime < windowMs) {
+            if (data.count >= 5) {
+                return res.status(429).json({ error: 'Too many login attempts, please try again later' });
+            }
+            data.count++;
+        } else {
+            loginAttempts.set(ip, { count: 1, startTime: now });
+        }
+    } else {
+        loginAttempts.set(ip, { count: 1, startTime: now });
+    }
+    next();
+};
+
+const requireAdmin = (req, res, next) => {
+    // Check signed cookie 'dev_token' instead of easy-to-spoof 'dev_mode'
+    if (req.signedCookies.dev_token !== 'authorized') {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+    next();
+};
 
 // Ensure DB has basic seed
 try {
@@ -277,12 +308,12 @@ function getOrCreateCartSession(req, res) {
 
 function getCartItems(cartId) {
   const items = db.prepare(`
-    SELECT ci.id, ci.quantity, p.id as product_id, p.slug, p.name, p.price_cents, p.image, p.hover_image
+    SELECT ci.id, ci.quantity, ci.is_subscription, p.id as product_id, p.slug, p.name, p.price_cents, p.image, p.hover_image
     FROM cart_items ci
     JOIN products p ON p.id = ci.product_id
     WHERE ci.cart_id = ?
   `).all(cartId);
-  const total_cents = items.reduce((acc, it) => acc + it.price_cents * it.quantity, 0);
+  const total_cents = items.reduce((acc, it) => acc + (it.is_subscription ? Math.round(it.price_cents * 0.8) : it.price_cents) * it.quantity, 0);
   return { items, total_cents };
 }
 
@@ -343,9 +374,16 @@ app.get('/api/products/:idOrSlug', (req, res) => {
 
 // ========== API: Cart ==========
 app.get('/api/cart', (req, res) => {
+  const user = getCurrentUser(req);
   const cart = getOrCreateCartSession(req, res);
+  
+  // For logged-in users, also store the user_id in cart session for later reference
+  if (user && !cart.user_id) {
+    db.prepare('UPDATE carts SET user_id = ? WHERE id = ?').run(user.id, cart.id);
+  }
+  
   const payload = getCartItems(cart.id);
-  res.json({ cart_id: cart.id, ...payload });
+  res.json({ cart_id: cart.id, user_id: user?.id || null, ...payload });
 });
 
 app.post('/api/cart', (req, res) => {
@@ -389,6 +427,116 @@ app.delete('/api/cart', (req, res) => {
   const cart = getOrCreateCartSession(req, res);
   db.prepare('DELETE FROM cart_items WHERE cart_id = ?').run(cart.id);
   res.json({ cart_id: cart.id, items: [], total_cents: 0 });
+});
+
+// ========== Logged-in User Cart Sync API ==========
+// Load cart for logged-in user (sync from DB to client)
+app.get('/api/user/cart', (req, res) => {
+  const user = getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: 'Not logged in' });
+  
+  // Get or create cart for this user
+  let cart = db.prepare('SELECT id FROM carts WHERE user_id = ? LIMIT 1').get(user.id);
+  if (!cart) {
+    const result = db.prepare('INSERT INTO carts (session_id, user_id) VALUES (?, ?)').run(uuidv4(), user.id);
+    cart = { id: result.lastInsertRowid };
+  }
+  
+  const payload = getCartItems(cart.id);
+  res.json({ cart_id: cart.id, user_id: user.id, ...payload });
+});
+
+// Save/sync cart for logged-in user (persist LocalStorage to DB)
+app.post('/api/user/cart/sync', (req, res) => {
+  const user = getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: 'Not logged in' });
+  
+  const { items } = req.body || {}; // items = [{ id, quantity, name, price_cents }]
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'Items must be an array' });
+  
+  // Get or create cart for this user
+  let cart = db.prepare('SELECT id FROM carts WHERE user_id = ? LIMIT 1').get(user.id);
+  if (!cart) {
+    const result = db.prepare('INSERT INTO carts (session_id, user_id) VALUES (?, ?)').run(uuidv4(), user.id);
+    cart = { id: result.lastInsertRowid };
+  }
+  
+  // Sync cart items in transaction
+  const syncTransaction = db.transaction(() => {
+    // Clear existing items for this cart
+    db.prepare('DELETE FROM cart_items WHERE cart_id = ?').run(cart.id);
+    
+    // Insert new items
+    let totalCents = 0;
+    for (const item of items) {
+      const product = db.prepare('SELECT id, price_cents FROM products WHERE id = ? OR slug = ?').get(item.id, item.id);
+      if (product) {
+        const isSub = !!item.isSubscription;
+        db.prepare('INSERT INTO cart_items (cart_id, product_id, quantity, is_subscription) VALUES (?, ?, ?, ?)').run(
+          cart.id, 
+          product.id, 
+          parseInt(item.quantity, 10) || 1,
+          isSub ? 1 : 0
+        );
+        const price = isSub ? Math.round(product.price_cents * 0.8) : product.price_cents;
+        totalCents += price * (parseInt(item.quantity, 10) || 1);
+      }
+    }
+    
+    // Update cart timestamp
+    db.prepare('UPDATE carts SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(cart.id);
+    
+    return totalCents;
+  });
+  
+  try {
+    const totalCents = syncTransaction();
+    const payload = getCartItems(cart.id);
+    res.json({ ok: true, cart_id: cart.id, user_id: user.id, ...payload });
+  } catch (e) {
+    console.error('Cart sync failed:', e);
+    res.status(500).json({ error: 'Failed to sync cart' });
+  }
+});
+
+// Add item to logged-in user's cart
+app.post('/api/user/cart/add', (req, res) => {
+  const user = getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: 'Not logged in' });
+  
+  const { productId, quantity = 1 } = req.body || {};
+  if (!productId || quantity <= 0) return res.status(400).json({ error: 'Invalid payload' });
+  
+  // Get or create cart for this user
+  let cart = db.prepare('SELECT id FROM carts WHERE user_id = ? LIMIT 1').get(user.id);
+  if (!cart) {
+    const result = db.prepare('INSERT INTO carts (session_id, user_id) VALUES (?, ?)').run(uuidv4(), user.id);
+    cart = { id: result.lastInsertRowid };
+  }
+  
+  // Add or update item
+  const existing = db.prepare('SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?').get(cart.id, productId);
+  if (existing) {
+    db.prepare('UPDATE cart_items SET quantity = ? WHERE id = ?').run(existing.quantity + quantity, existing.id);
+  } else {
+    db.prepare('INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)').run(cart.id, productId, quantity);
+  }
+  
+  const payload = getCartItems(cart.id);
+  res.json({ cart_id: cart.id, user_id: user.id, ...payload });
+});
+
+// Clear logged-in user's cart
+app.delete('/api/user/cart', (req, res) => {
+  const user = getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: 'Not logged in' });
+  
+  const cart = db.prepare('SELECT id FROM carts WHERE user_id = ? LIMIT 1').get(user.id);
+  if (cart) {
+    db.prepare('DELETE FROM cart_items WHERE cart_id = ?').run(cart.id);
+  }
+  
+  res.json({ ok: true, cart_id: cart?.id || null, items: [], total_cents: 0 });
 });
 
 app.post('/api/validate-discount', (req, res) => {
@@ -456,49 +604,39 @@ app.post('/api/checkout', (req, res) => {
   };
 
   if (items && Array.isArray(items) && items.length > 0) {
-    // Validate items from request body against database prices and stock
+    // Validate items from request body against database prices - but NOT stock yet
+    // Stock check will happen inside transaction to prevent race conditions
     console.log('[Checkout] Processing items:', JSON.stringify(items));
     
     for (const item of items) {
-      // Lookup each product individually by ID or slug
+      // Lookup each product individually by ID or slug - get price
       const product = getProductInfo(item.id);
       
       if (product) {
         const qty = parseInt(item.quantity, 10) || 1;
-        if (product.stock < qty) {
-            return res.status(400).json({ error: `Nedostatek zboží na skladě: ${product.name}. Dostupné: ${product.stock} ks` });
-        }
+        const isSub = !!item.isSubscription;
+        // Apply 20% discount for subscription
+        const finalPrice = isSub ? Math.round(product.price_cents * 0.8) : product.price_cents;
+
         itemsToOrder.push({
           product_id: product.id,
           quantity: qty,
-          price_cents: product.price_cents,
-          name: product.name
+          price_cents: finalPrice,
+          name: product.name,
+          isSubscription: isSub
         });
-        totalCents += product.price_cents * qty;
-        console.log(`[Checkout] Added: ${product.name} x${qty} @ ${product.price_cents} cents`);
-      } else {
-          console.warn(`[Checkout] Product not found: ${item.id}`);
+        totalCents += finalPrice * qty;
       }
     }
   } else {
-    // Fallback to server-side cart
+    // Fallback to server-side cart - get items and calculate total, but NOT stock check yet
     const cartData = getCartItems(cart.id);
-    // Check stock for server cart items
-    const productIds = cartData.items.map(i => i.product_id);
-    const products = getProductsInfo(productIds);
-
-    for (const item of cartData.items) {
-        const product = products.find(p => p.id == item.product_id);
-        if (product && product.stock < item.quantity) {
-            return res.status(400).json({ error: `Not enough stock for ${product.name}. Available: ${product.stock}` });
-        }
-    }
-
     itemsToOrder = cartData.items.map(i => ({
       product_id: i.product_id,
       quantity: i.quantity,
-      price_cents: i.price_cents,
-      name: i.name
+      price_cents: i.is_subscription ? Math.round(i.price_cents * 0.8) : i.price_cents,
+      name: i.name,
+      isSubscription: !!i.is_subscription
     }));
     totalCents = cartData.total_cents;
   }
@@ -522,24 +660,71 @@ app.post('/api/checkout', (req, res) => {
 
   const customerName = `${firstName} ${lastName}`;
   const user = getCurrentUser(req);
-  const userId = user ? user.id : (cart.user_id || null);
+  let userId = user ? user.id : (cart.user_id || null);
+
+  console.log('[Checkout Debug] Auth State:', { 
+      sessionUser: user, 
+      cartUserId: cart.user_id, 
+      resolvedUserId: userId,
+      email: email
+  });
+
+
+  // If no user is logged in, but we have a strong email match in the database, we could theoretically link it,
+  // but for security we usually don't.
+  // HOWEVER, for subscriptions, we MUST have a user.
+  const hasSubscription = itemsToOrder.some(i => i.isSubscription);
+  
+  if (hasSubscription) {
+      if (!userId) {
+          // Try to look up user by email
+          const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+          if (existingUser) {
+              console.log('[Checkout] Found existing user by email, linking order to user ID:', existingUser.id);
+              userId = existingUser.id;
+          } else {
+             // CRITICAL: Block subscription without account
+             console.error('[Checkout] Cannot create subscription for guest without generic account.');
+             return res.status(400).json({ 
+                 error: 'Pro zakoupení předplatného je nutné mít vytvořený účet. Prosím, zaregistrujte se se stejným emailem nebo se přihlaste.',
+                 code: 'AUTH_REQUIRED'
+             });
+          }
+      } else {
+          console.log('[Checkout] User ID validated for subscription:', userId);
+      }
+  }
 
   // Update user profile if logged in
-  if (user) {
+  if (userId) {
+      // OPTIONAL: Update profile only if empty? Or never?
+      // For now, let's disable overwriting profile with checkout data to prevent confusion
+      /*
       try {
           db.prepare(`
               UPDATE users 
               SET first_name = ?, last_name = ?, phone = ?, address = ?, city = ?, zip_code = ?
               WHERE id = ?
-          `).run(firstName, lastName, phone, address, city, zipCode, user.id);
+          `).run(firstName, lastName, phone, address, city, zipCode, userId);
       } catch (e) {
           console.error('Failed to update user profile during checkout:', e);
       }
+      */
   }
 
-  // Transaction to ensure order and items are created together
+  // Transaction to ensure order and items are created together with stock validation
   const createOrderTransaction = db.transaction(() => {
-    // 1. Create Order
+    // 1. Validate stock INSIDE transaction to prevent race conditions
+    for (const item of itemsToOrder) {
+      const product = db.prepare('SELECT stock FROM products WHERE id = ?').get(item.product_id);
+      if (!product || product.stock < item.quantity) {
+        const productName = item.name || 'Unknown product';
+        const available = product ? product.stock : 0;
+        throw new Error(`STOCK_ERROR:${productName}:${available}`);
+      }
+    }
+
+    // 2. Create Order
     const orderResult = db.prepare(`
       INSERT INTO orders (
         user_id, customer_email, customer_phone, customer_name, customer_address, customer_city, customer_zip, payment_method, total_cents, discount_code, discount_amount
@@ -548,7 +733,7 @@ app.post('/api/checkout', (req, res) => {
 
     const orderId = orderResult.lastInsertRowid;
 
-    // 2. Create Order Items and Update Stock
+    // 3. Create Order Items and Update Stock
     const insertItem = db.prepare(`
       INSERT INTO order_items (order_id, product_id, quantity, price_cents, product_name)
       VALUES (?, ?, ?, ?, ?)
@@ -558,12 +743,25 @@ app.post('/api/checkout', (req, res) => {
       UPDATE products SET stock = stock - ? WHERE id = ?
     `);
 
+    // 4. Create Subscriptions
+    const insertSub = db.prepare(`
+      INSERT INTO user_subscriptions (user_id, product_id, status, next_billing_date)
+      VALUES (?, ?, 'active', datetime('now', '+1 month'))
+    `);
+
     for (const item of itemsToOrder) {
       insertItem.run(orderId, item.product_id, item.quantity, item.price_cents, item.name);
       updateStock.run(item.quantity, item.product_id);
+
+      if (item.isSubscription && userId) {
+        console.log(`[Checkout] CREATING SUBSCRIPTION for user ${userId}, product ${item.product_id}`);
+        insertSub.run(userId, item.product_id);
+      } else if (item.isSubscription && !userId) {
+        console.warn(`[Checkout] CANNOT CREATE SUBSCRIPTION - no userId! Item:`, item);
+      }
     }
 
-    // 3. Clear Cart (if using server cart)
+    // 4. Clear Cart (if using server cart)
     if (!items) {
         db.prepare('DELETE FROM cart_items WHERE cart_id = ?').run(cart.id);
     }
@@ -582,6 +780,18 @@ app.post('/api/checkout', (req, res) => {
     res.json({ ok: true, orderId, message: 'Order created successfully' });
   } catch (error) {
     console.error('Checkout failed:', error);
+    
+    // Handle stock errors from transaction
+    if (error.message && error.message.startsWith('STOCK_ERROR:')) {
+      const parts = error.message.replace('STOCK_ERROR:', '').split(':');
+      const productName = parts[0];
+      const available = parts[1] || '0';
+      return res.status(400).json({ 
+        error: `Nedostatek zboží na skladě: ${productName}. Dostupné: ${available} ks`,
+        type: 'STOCK_ERROR'
+      });
+    }
+    
     res.status(500).json({ error: 'Failed to process order' });
   }
 });
@@ -590,20 +800,35 @@ app.post('/api/checkout', (req, res) => {
 const bcrypt = require('bcryptjs');
 const DAY = 24 * 60 * 60 * 1000;
 app.post('/api/auth/register', async (req, res) => {
-  const { email, password } = req.body || {};
+  const { email, password, name } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+  }
+
+  // Parse name into first/last
+  let firstName = '';
+  let lastName = '';
+  if (name) {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length > 0) firstName = parts[0];
+    if (parts.length > 1) lastName = parts.slice(1).join(' ');
+  }
+
   const hash = await bcrypt.hash(password, 10);
   try {
-    const info = db.prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)').run(email.toLowerCase(), hash);
-    res.status(201).json({ id: info.lastInsertRowid, email });
+    const info = db.prepare('INSERT INTO users (email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?)').run(email.toLowerCase(), hash, firstName, lastName);
+    res.status(201).json({ id: info.lastInsertRowid, email, firstName, lastName });
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) return res.status(409).json({ error: 'Email already registered' });
     console.error(e);
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ error: 'Registration failed: ' + e.message });
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', rateLimiter, async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase());
@@ -627,8 +852,86 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/auth/logout', (req, res) => {
   const token = req.cookies?.auth_token;
   if (token) db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
-    res.clearCookie('auth_token');
+  
+  // Unlink user from cart session to prevent "ghost" subscriptions
+  const cartSessionId = req.cookies?.drive_session;
+  if (cartSessionId) {
+      db.prepare('UPDATE carts SET user_id = NULL WHERE session_id = ?').run(cartSessionId);
+  }
+
+  res.clearCookie('auth_token');
   res.json({ ok: true });
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
+    if (!user) {
+        return res.json({ message: 'If this email is registered, you will receive a reset link.' });
+    }
+
+    const token = uuidv4();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); 
+
+    db.prepare('DELETE FROM password_resets WHERE email = ?').run(email.toLowerCase());
+    db.prepare('INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)').run(email.toLowerCase(), token, expiresAt);
+
+    const resetLink = `${req.protocol}://${req.get('host')}/Account/reset-password.html?token=${token}`;
+    console.log('DEV RESET LINK:', resetLink);
+
+    const mailOptions = {
+        from: '"CANS.cz" <noreply@cans.cz>',
+        to: email,
+        subject: 'Obnovení hesla - CANS.cz',
+        html: `
+            <h1>Obnovení hesla</h1>
+            <p>Obdrželi jsme žádost o změnu hesla k vašemu účtu CANS.</p>
+            <p>Pro resetování hesla klikněte na následující odkaz:</p>
+            <a href="${resetLink}" style="display:inline-block;padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">Resetovat heslo</a>
+            <p>Odkaz je platný 1 hodinu.</p>
+            <p>Pokud jste o změnu nežádali, tento email ignorujte.</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Password reset email sent to ${email}`);
+    } catch (error) {
+        console.error('Error sending reset email:', error);
+        return res.status(500).json({ error: 'Failed to send email' });
+    }
+
+    res.json({ message: 'If this email is registered, you will receive a reset link.' });
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+
+    const resetRequest = db.prepare('SELECT * FROM password_resets WHERE token = ?').get(token);
+    
+    if (!resetRequest) {
+        return res.status(400).json({ error: 'Neplatný nebo expirovaný odkaz.' });
+    }
+
+    if (new Date(resetRequest.expires_at) < new Date()) {
+        db.prepare('DELETE FROM password_resets WHERE token = ?').run(token);
+        return res.status(400).json({ error: 'Odkaz vypršel. Požádejte o nový.' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    
+    try {
+        const update = db.prepare('UPDATE users SET password_hash = ? WHERE email = ?').run(hash, resetRequest.email);
+        
+        db.prepare('DELETE FROM password_resets WHERE email = ?').run(resetRequest.email);
+        res.json({ message: 'Heslo bylo úspěšně změněno.' });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Password update failed' });
+    }
 });
 
 app.get('/api/auth/me', (req, res) => {
@@ -658,19 +961,81 @@ app.put('/api/user/profile', (req, res) => {
     const user = getCurrentUser(req);
     if (!user) return res.status(401).json({ error: 'Not logged in' });
     
-    const { firstName, lastName, phone, address, city, zipCode } = req.body;
-    
     try {
+        // Fetch current data to allow partial updates
+        const current = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+        if (!current) return res.status(404).json({ error: 'User not found' });
+
+        const firstName = req.body.firstName !== undefined ? req.body.firstName : current.first_name;
+        const lastName = req.body.lastName !== undefined ? req.body.lastName : current.last_name;
+        const phone = req.body.phone !== undefined ? req.body.phone : current.phone;
+        const address = req.body.address !== undefined ? req.body.address : current.address;
+        const city = req.body.city !== undefined ? req.body.city : current.city;
+        const zipCode = req.body.zipCode !== undefined ? req.body.zipCode : current.zip_code;
+    
         db.prepare(`
             UPDATE users 
             SET first_name = ?, last_name = ?, phone = ?, address = ?, city = ?, zip_code = ?
             WHERE id = ?
         `).run(firstName, lastName, phone, address, city, zipCode, user.id);
         
-        res.json({ success: true });
+        // Return updated user object so frontend can update state
+        res.json({ 
+            success: true, 
+            firstName, lastName, phone, address, city, zipCode 
+        });
+
     } catch (e) {
         console.error('Profile update failed:', e);
         res.status(500).json({ error: 'Failed to update profile' });
+    }
+});
+
+app.delete('/api/user/delete', (req, res) => {
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Not logged in' });
+
+    try {
+        // Temporarily disable foreign keys to ensure deletion works regardless of complex dependencies
+        // We manually clean up all related data anyway
+        const wasForeignKeysOn = db.pragma('foreign_keys', { simple: true });
+        if (wasForeignKeysOn) db.pragma('foreign_keys = OFF');
+
+        const deleteUser = db.transaction(() => {
+            // 1. Remove active sessions
+            db.prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id);
+
+            // 2. Remove subscriptions
+            db.prepare('DELETE FROM user_subscriptions WHERE user_id = ?').run(user.id);
+
+            // 3. Remove cart data
+            // First delete cart items (manually, though cascade would work if carts deleted)
+            db.prepare('DELETE FROM cart_items WHERE cart_id IN (SELECT id FROM carts WHERE user_id = ?)').run(user.id);
+            db.prepare('DELETE FROM carts WHERE user_id = ?').run(user.id);
+
+            // 4. Anonymize orders
+            db.prepare('UPDATE orders SET user_id = NULL WHERE user_id = ?').run(user.id);
+            
+            // 5. Remove newsletter subscription if exists (GDPR)
+            db.prepare('DELETE FROM subscribers WHERE email = ?').run(user.email);
+
+            // 6. Finally delete the user
+            db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
+        });
+
+        try {
+            deleteUser();
+        } finally {
+            if (wasForeignKeysOn) db.pragma('foreign_keys = ON');
+        }
+        
+        res.clearCookie('auth_token');
+        res.json({ success: true });
+    } catch (e) {
+        console.error('Delete account failed:', e);
+        // Ensure FKs are back on if something crashed outside the try/finally block (unlikely but safe)
+        try { db.pragma('foreign_keys = ON'); } catch(err) {} 
+        res.status(500).json({ error: 'Database error: ' + e.message });
     }
 });
 
@@ -692,6 +1057,66 @@ app.get('/api/user/orders', (req, res) => {
     });
     
     res.json(ordersWithItems);
+});
+
+// ========== API: User Subscription (Product) ==========
+app.get('/api/user/subscription', (req, res) => {
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Not logged in' });
+
+    // Return all subscriptions (active and cancelled) with product details
+    const subs = db.prepare(`
+        SELECT s.*, p.name as product_name, p.image as product_image, p.hover_image as product_hover_image, p.price_cents 
+        FROM user_subscriptions s
+        LEFT JOIN products p ON s.product_id = p.id
+        WHERE s.user_id = ?
+        ORDER BY s.created_at DESC
+    `).all(user.id);
+
+    res.json(subs);
+});
+
+// Cancel generic subscription
+app.post('/api/user/subscription/cancel', (req, res) => {
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Not logged in' });
+    const { subscriptionId } = req.body;
+    
+    // Security check: ensure sub belongs to user
+    const result = db.prepare('UPDATE user_subscriptions SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?')
+      .run('cancelled', subscriptionId, user.id);
+
+    if (result.changes === 0) return res.status(404).json({ error: 'Subscription not found' });
+    res.json({ success: true, status: 'cancelled' });
+});
+
+// Reactivate subscription
+app.post('/api/user/subscription/reactivate', (req, res) => {
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Not logged in' });
+    const { subscriptionId } = req.body;
+
+    const result = db.prepare('UPDATE user_subscriptions SET status = ?, next_billing_date = datetime("now", "+1 month"), updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?')
+      .run('active', subscriptionId, user.id);
+
+    if (result.changes === 0) return res.status(404).json({ error: 'Subscription not found' });
+    res.json({ success: true, status: 'active' });
+});
+
+// Delete cancelled subscription
+app.delete('/api/user/subscription/:id', (req, res) => {
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Not logged in' });
+    
+    // Only allow deleting specific sub owned by user AND must be cancelled
+    const result = db.prepare("DELETE FROM user_subscriptions WHERE id = ? AND user_id = ? AND status = 'cancelled'")
+        .run(req.params.id, user.id);
+
+    if (result.changes === 0) {
+        return res.status(403).json({ error: 'Subscription not found or not cancelled' });
+    }
+    
+    res.json({ success: true });
 });
 
 // Newsletter Subscription
@@ -734,7 +1159,7 @@ app.post('/api/newsletter', async (req, res) => {
 
 // Admin: Send Newsletter
 app.post('/api/admin/send-newsletter', async (req, res) => {
-    if (req.cookies.dev_mode !== 'true') {
+    if (req.signedCookies.dev_token !== 'authorized') {
         return res.status(403).json({ error: 'Unauthorized' });
     }
 
@@ -768,13 +1193,13 @@ app.post('/api/admin/send-newsletter', async (req, res) => {
 
 // Admin: Manage Discounts
 app.get('/api/admin/discounts', (req, res) => {
-    if (req.cookies.dev_mode !== 'true') return res.status(403).json({ error: 'Unauthorized' });
+    if (req.signedCookies.dev_token !== 'authorized') return res.status(403).json({ error: 'Unauthorized' });
     const discounts = db.prepare('SELECT * FROM discounts ORDER BY created_at DESC').all();
     res.json(discounts);
 });
 
 app.post('/api/admin/discounts', (req, res) => {
-    if (req.cookies.dev_mode !== 'true') return res.status(403).json({ error: 'Unauthorized' });
+    if (req.signedCookies.dev_token !== 'authorized') return res.status(403).json({ error: 'Unauthorized' });
     const { code, discount_percent } = req.body;
     if (!code || !discount_percent) return res.status(400).json({ error: 'Code and discount percent required' });
     
@@ -788,7 +1213,7 @@ app.post('/api/admin/discounts', (req, res) => {
 });
 
 app.delete('/api/admin/discounts/:id', (req, res) => {
-    if (req.cookies.dev_mode !== 'true') return res.status(403).json({ error: 'Unauthorized' });
+    if (req.signedCookies.dev_token !== 'authorized') return res.status(403).json({ error: 'Unauthorized' });
     const { id } = req.params;
     db.prepare('DELETE FROM discounts WHERE id = ?').run(id);
     res.json({ success: true });
@@ -810,10 +1235,17 @@ app.get('/dev-enable', (req, res) => {
     `);
 });
 
-app.post('/dev-enable', express.urlencoded({ extended: true }), (req, res) => {
+app.post('/dev-enable', express.urlencoded({ extended: true }), async (req, res) => {
     const { password } = req.body;
-    if (password === 'admin') {
-        res.cookie('dev_mode', 'true', { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: false }); // httpOnly: false so JS can read it
+    // Hash for 'kO2N37Ac'
+    const DEV_HASH = '$2b$10$gymzbgQyk8jZz46QY4/0GuIOMLe5/t/8GIp42QdodTYVJUY5Ll6fi';
+    const match = password ? await bcrypt.compare(password, DEV_HASH) : false;
+
+    if (match) {
+        // UI Cookie (Insecure, just for hiding/showing elements)
+        res.cookie('dev_mode', 'true', { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: false });
+        // Security Cookie (Signed, HttpOnly, used for API checks)
+        res.cookie('dev_token', 'authorized', { signed: true, httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000 });
         res.redirect('/');
     } else {
         res.send(`
@@ -827,6 +1259,7 @@ app.post('/dev-enable', express.urlencoded({ extended: true }), (req, res) => {
 
 app.use('/dev-disable', (req, res) => {
     res.clearCookie('dev_mode');
+    res.clearCookie('dev_token');
     res.redirect('/');
 });
 
