@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AMP — Fitness aplikace</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="site">
+    <div id="api-status" class="api-status hidden">⚠️ API není dostupné na http://localhost:5000. Spusť backend (start_website.bat) a zkus to znovu.</div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">🏋️‍♂️</div>
+        <div class="title">AMP</div>
+      </div>
+      <nav>
+        <span id="user-badge" class="user-badge hidden">Přihlášen: <strong id="user-name"></strong></span>
+        <button class="btn ghost" id="btn-login-open">Přihlásit se</button>
+        <button class="btn primary" id="btn-get-access">Získat přístup</button>
+        <a href="/settings" class="btn ghost hidden" id="btn-settings">⚙️ Nastavení</a>
+        <button class="btn ghost hidden" id="btn-logout">Odhlásit se</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <h1>AMP — tvůj fitness deník a průvodce</h1>
+        <p class="lead">Plánuj tréninky, zaznamenávej progres a měj všechny své PR a poznámky na jednom místě.</p>
+        <div class="hero-actions">
+          <button class="btn primary" id="hero-get">Získat přístup</button>
+          <a class="btn ghost" href="#features">Prozkoumat funkce</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <!-- jednoduchý mockup -->
+        <div class="phone">
+          <div class="screen">
+            <div class="card">
+              <h3 id="hero-wk-title">Trénink Dnes</h3>
+              <p id="hero-wk-desc">Bench press • 3×5 • 100kg</p>
+            </div>
+            <div class="card small">
+              <p id="hero-stats">Váha: 82 kg · PR: Dřepy 160 kg</p>
+            </div>
+            <div class="card small" id="hero-note">Poznámka: Lehčí den — regenerace</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features">
+      <h2>Co AMP umí</h2>
+      <div class="grid">
+        <article class="feature">
+          <div class="icon">📋</div>
+          <h3>Tréninky</h3>
+          <p>Snadné zaznamenávání sérií, opakování a váhy. Rychlé přidání vlastního cviku.</p>
+        </article>
+
+        <article class="feature">
+          <div class="icon">📈</div>
+          <h3>Statistiky</h3>
+          <p>Osobní rekordy, historie vah a progres u každého cviku.</p>
+        </article>
+
+        <article class="feature">
+          <div class="icon">📝</div>
+          <h3>Poznámky</h3>
+          <p>Přidej poznámky k tréninku — únava, technika, důvody změn.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Dashboard viditelný po přihlášení -->
+    <section id="dashboard" class="dashboard hidden" aria-labelledby="dash-title">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <h2 id="dash-title" style="margin:0">Tvoje poslední tréninky</h2>
+        <div class="small" style="color:var(--accent)">
+          Celkem dní: <strong id="days-active-count">0</strong>
+        </div>
+      </div>
+      
+      <div id="workouts-list" class="workouts-list">
+        <!-- naplní se skriptem po přihlášení -->
+      </div>
+      <div style="margin-top:15px;text-align:center">
+         <a href="/all_workouts" class="btn ghost small">Zobrazit celou historii</a>
+      </div>
+      
+      <div id="workouts-empty" class="small hidden">Zatím žádné záznamy. Přidej trénink v aplikaci.</div>
+    </section>
+
+    <section class="purchase" aria-labelledby="purchase-title">
+      <h2 id="purchase-title">Získat přístup</h2>
+      <p>Po registraci obdržíš odkaz ke stažení desktopové aplikace a přihlašovací údaje, které použiješ v AMP aplikaci.</p>
+      <div class="purchase-actions">
+        <button class="btn primary large" id="purchase-start">Získat přístup</button>
+        <div class="note">Platba je v této verzi simulovaná (bez reálného odběru).</div>
+      </div>
+
+      <div id="download-area" class="download-area hidden">
+        <h3>Děkujeme — přístup aktivní</h3>
+        <p>Stáhni aplikaci pro Windows / Linux:</p>
+        <a class="btn primary" id="download-link" href="#" onclick="alert('Toto je demo. Soubor není připojen.'); return false;">Stáhnout aplikaci (.zip)</a>
+        <p class="small">Pokud máš instalační soubor jinak, ulož ho do složky <code>downloads</code>.</p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div>© AMP • 2025</div>
+      <div class="small">Kontakt: amp@example.com (simulace)</div>
+    </footer>
+  </main>
+
+  <!-- Modály: registrace / přihlášení -->
+  <div id="modal-overlay" class="modal-overlay hidden"></div>
+
+  <div id="modal-register" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reg-title">
+    <h3 id="reg-title">Registrace — AMP</h3>
+    <form id="form-register" class="form">
+      <label>Uživatelské jméno
+        <input id="reg-username" type="text" required />
+      </label>
+      <label>Email
+        <input id="reg-email" type="email" />
+      </label>
+      <label>Heslo
+        <input id="reg-password" type="password" required />
+      </label>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Dokončit registraci</button>
+        <button class="btn ghost" type="button" id="reg-cancel">Zrušit</button>
+      </div>
+      <div id="reg-msg" class="msg"></div>
+    </form>
+  </div>
+
+  <div id="modal-login" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <h3 id="login-title">Přihlásit se — AMP</h3>
+    <form id="form-login" class="form">
+      <label>Uživatelské jméno
+        <input id="login-username" type="text" required />
+      </label>
+      <label>Heslo
+        <input id="login-password" type="password" required />
+      </label>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Přihlásit se</button>
+        <button class="btn ghost" type="button" id="login-cancel">Zrušit</button>
+      </div>
+      <div id="login-msg" class="msg"></div>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

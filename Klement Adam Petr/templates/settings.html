@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nastavení účtu — AMP</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .settings-container { max-width: 600px; margin: 40px auto; padding: 20px; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .back-link { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .back-link:hover { color: #fff; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 14px; }
+    input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; }
+    input:focus { border-color: var(--accent); outline: none; }
+    .msg { margin-top: 10px; font-size: 14px; }
+    .msg.success { color: var(--accent); }
+    .msg.error { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="site settings-container">
+    <div class="header-row">
+      <a href="/" class="back-link">← Zpět na přehled</a>
+      <div class="logo">⚙️ Nastavení</div>
+    </div>
+
+    <div class="feature">
+      <h3>Změna údajů</h3>
+      <form id="settings-form">
+        <div class="form-group">
+          <label>Nové heslo (nechte prázdné pro zachování)</label>
+          <input type="password" id="new-password" placeholder="Nové heslo">
+        </div>
+        <div class="form-group">
+          <label>Nový email</label>
+          <input type="email" id="new-email" placeholder="email@example.com">
+        </div>
+        <button type="submit" class="btn primary">Uložit změny</button>
+        <div id="settings-msg" class="msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('settings-form');
+      const msgEl = document.getElementById('settings-msg');
+      const token = localStorage.getItem('amp_token');
+
+      if (!token) {
+        window.location.href = '/';
+        return;
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = document.getElementById('new-password').value;
+        const email = document.getElementById('new-email').value;
+        
+        if (!password && !email) {
+          msgEl.textContent = "Žádné změny k uložení.";
+          msgEl.className = 'msg';
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/update_profile', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': token 
+            },
+            body: JSON.stringify({ password, email })
+          });
+          
+          const data = await res.json();
+          if (res.ok) {
+            msgEl.textContent = "Úspěšně uloženo.";
+            msgEl.className = 'msg success';
+            document.getElementById('new-password').value = '';
+          } else {
+            msgEl.textContent = data.error || "Chyba při ukládání.";
+            msgEl.className = 'msg error';
+          }
+        } catch (err) {
+          msgEl.textContent = "Chyba připojení.";
+          msgEl.className = 'msg error';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
