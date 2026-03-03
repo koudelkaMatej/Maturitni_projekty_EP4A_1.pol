@@ -1,109 +1,51 @@
 import pygame
 import sys
-# Ponecháno, i když v tomto souboru nevidíme definici game_loop
 from main import game_loop 
 
-# Inicializace Pygame
 pygame.init()
-
-# Nastavení okna
 WIDTH, HEIGHT = 1920, 1080
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Menu s hover efektem")
+pygame.display.set_caption("Blood Dash Menu")
 
-# Barvy
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BLUE = (0, 100, 255)
-GRAY = (150, 150, 150)
-RED = (255, 0, 0)
-GREEN = (0, 200, 0) # Přidáno pro stav zvuku
-
-# Font
+# Fonty a barvy
 font = pygame.font.SysFont(None, 60)
+small_font = pygame.font.SysFont(None, 40)
+WHITE, BLACK, RED, BLUE, GRAY = (255, 255, 255), (0, 0, 0), (255, 0, 0), (0, 100, 255), (100, 100, 100)
 
-# Položky menu
+# === PROMĚNNÉ PRO JMÉNO ===
+user_name = ""  # Začínáme s prázdným jménem
+input_active = False # Je políčko aktivní (píše se do něj)?
+input_rect = pygame.Rect(WIDTH // 2 - 150, 100, 300, 50) # Pozice boxu pro jméno
+
 menu_items = ["Start", "Options", "Quit"]
 
-# Globální nastavení (musí být globální pro použití v obou funkcích)
-sound_enabled = True 
-
-# Funkce pro vykreslení menu s hover efektem
 def draw_menu(mouse_pos):
     screen.fill(BLACK)
+    
+    # 1. Vykreslení textu nad políčkem
+    label = small_font.render("Zadej jméno a potvrď Enterem:", True, WHITE)
+    screen.blit(label, (input_rect.x, input_rect.y - 40))
+
+    # 2. Vykreslení obdélníku pro vstup
+    color = BLUE if input_active else GRAY
+    pygame.draw.rect(screen, color, input_rect, 2)
+    
+    # 3. Vykreslení psaného jména
+    name_surface = font.render(user_name, True, WHITE)
+    screen.blit(name_surface, (input_rect.x + 5, input_rect.y + 5))
+
+    # 4. Vykreslení položek menu (Start, Options, Quit)
     for i, item in enumerate(menu_items):
         text = font.render(item, True, WHITE)
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 80))
         if text_rect.collidepoint(mouse_pos):
             text = font.render(item, True, RED)
         screen.blit(text, text_rect)
+    
     pygame.display.update()
 
-# --- NOVÁ FUNKCE PRO NASTAVENÍ ---
-
-def options_menu():
-    """Vstupní bod a smyčka pro obrazovku nastavení."""
-    global sound_enabled
-    options_running = True
-    
-    while options_running:
-        mouse_pos = pygame.mouse.get_pos()
-        
-        # Vykreslení nastavení
-        screen.fill(BLACK)
-        
-        # --- Položka Zvuk ---
-        sound_status = "ZAPNUTO" if sound_enabled else "VYPNUTO"
-        sound_label = font.render("Zvuk:", True, WHITE)
-        sound_label_rect = sound_label.get_rect(center=(WIDTH // 2 - 100, HEIGHT // 2 - 40))
-        
-        sound_text = font.render(sound_status, True, (GREEN if sound_enabled else RED))
-        sound_rect = sound_text.get_rect(center=(WIDTH // 2 + 100, HEIGHT // 2 - 40))
-        
-        # Hover efekt na ovládací prvky
-        is_hovering_sound = sound_label_rect.collidepoint(mouse_pos) or sound_rect.collidepoint(mouse_pos)
-        if is_hovering_sound:
-            sound_text = font.render(sound_status, True, RED)
-            
-        screen.blit(sound_label, sound_label_rect)
-        screen.blit(sound_text, sound_rect)
-        
-        # --- Položka Zpět ---
-        back_text = font.render("Zpět do menu", True, WHITE)
-        back_rect = back_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 120))
-        
-        # Hover efekt
-        if back_rect.collidepoint(mouse_pos):
-            back_text = font.render("Zpět do menu", True, BLUE)
-            
-        screen.blit(back_text, back_rect)
-        
-        pygame.display.update()
-
-        # Zpracování událostí v nastavení
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                
-                # Kontrola kliknutí na Zvuk
-                if sound_label_rect.collidepoint(mouse_pos) or sound_rect.collidepoint(mouse_pos):
-                    sound_enabled = not sound_enabled # Přepnutí stavu
-                    print(f"Zvuk přepnut na: {'ZAPNUTO' if sound_enabled else 'VYPNUTO'}")
-                
-                # Kontrola kliknutí na Zpět
-                elif back_rect.collidepoint(mouse_pos):
-                    options_running = False # Ukončí smyčku a vrátí se do main_menu
-            
-            # Návrat pomocí ESC
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                options_running = False
-                
-# --- KONEC FUNKCE PRO NASTAVENÍ ---
-
-# Hlavní smyčka menu
 def main_menu():
+    global user_name, input_active
     running = True
     while running:
         mouse_pos = pygame.mouse.get_pos()
@@ -111,25 +53,40 @@ def main_menu():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                for i, item in enumerate(menu_items):
-                    text = font.render(item, True, WHITE)
-                    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 80))
-                    if text_rect.collidepoint(mouse_pos):
-                        if item == "Quit":
-                            pygame.quit()
-                            sys.exit()
-                        elif item == "Start":
-                            while True:
-                                result = game_loop()
+                pygame.quit(); sys.exit()
+                
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Kliknutí na políčko pro jméno
+                if input_rect.collidepoint(event.pos):
+                    input_active = True
+                else:
+                    input_active = False
+                
+                # Kliknutí na tlačítka menu
+                if event.button == 1:
+                    for i, item in enumerate(menu_items):
+                        text_rect = font.render(item, True, WHITE).get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 80))
+                        if text_rect.collidepoint(mouse_pos):
+                            if item == "Quit":
+                                pygame.quit(); sys.exit()
+                            elif item == "Start":
+                                if user_name == "": user_name = "Hrac" # Pojistka
+                                
+                                # SPUŠTĚNÍ HRY SE ZADANÝM JMÉNEM
+                                while True:
+                                    result = game_loop(user_name)
+                                    if result == "restart": continue
+                                    else: break
 
-                                if result == "restart":
-                                    continue   # znovu spustí hru
-                                elif result == "menu":
-                                    break      # návrat do menu
-                                else:
-                                    break
+            elif event.type == pygame.KEYDOWN and input_active:
+                if event.key == pygame.K_RETURN:
+                    input_active = False # Enterem potvrdíš jméno
+                elif event.key == pygame.K_BACKSPACE:
+                    user_name = user_name[:-1] # Smazání znaku
+                else:
+                    # Přidání znaku (pokud není jméno moc dlouhé)
+                    if len(user_name) < 15:
+                        user_name += event.unicode
+
 if __name__ == "__main__":
     main_menu()
