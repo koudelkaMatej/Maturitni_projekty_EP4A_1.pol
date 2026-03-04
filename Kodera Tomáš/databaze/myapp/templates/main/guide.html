@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+<body>
+<div class="navbar">
+    <img class="logo" src="{% static 'pictures/DDR.png' %}" alt="Logo">
+    <div class="nav-links">
+        <a href="/">EXPLORE</a>
+        <a href="/diagram/">DIAGRAMS</a>
+         <a href="/guide/">GUIDE</a>
+    </div>
+
+    <div class="accountbutton">
+        <img class="account" src="{% static 'pictures/account.png' %}" alt="account">
+        <a class="accounttext">ACCOUNT ▼</a>
+        <div class="dropdown-content">
+            {% if user.is_authenticated %}
+                <a href="/profile/">Profile</a>
+                <a href="/logout/">Logout</a>
+            {% else %}
+                <a href="/register/">Register</a>
+                <a href="/login/">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+    <div class="content">
+        <h1>OFFICIAL GUIDE</h1>
+        <h2>THE BASICS</h2>
+        <p><strong>MOVEMENT</strong>: Use the <strong>WASD</strong> keys to navigate the map. 
+        <br><br>
+        <strong>FATAL CONTACT</strong>: Any collision with enemies results in immediate <strong>DEATH</strong>.
+    </p>
+        <h2>THE DASH</h2>
+        <p><strong>ATTACK</strong>: <strong>DASH</strong> using the <strong>Left Mouse Button (LMB)</strong>.
+        <br><br>
+        <strong>RECHARGE RATE:</strong> You need to wait <strong>1 second</strong> to dash again.
+    </p>
+        <h2>COMBOS</h2>
+        <p><strong>SLAUGHTER EFFICIENCY</strong>: Eliminating multiple targets within a single Dash increases your <strong>SCORE</strong>.
+        <br><br>
+        <strong>CHARGE GENERATION:</strong> After eliminating <strong>5 or more hostiles</strong> in one strike generates one <strong>Frenzy Charge</strong>. 
+        They are shown in upper HUD.
+    </p>
+        <h2>FRENZY MODE</h2>
+    <p>
+        <strong>ACTIVATION</strong>: After generating <strong>3 Charges</strong> triggers the FRENZY state automatically. 
+        <br><br>
+        <strong>ENHANCEMENTS</strong>: During Frenzy, player movement speed is significantly increased and enemy movement speed decreased.
+        The Dash recharge rate is reduced to <strong>0.6 seconds</strong> for the duration of the state.
+    </p>
+        <h2>DIFFICULTY</h2>
+    <p>
+        <strong>ADAPTIVE DIFFICULTY:</strong> The arena security level increases based on your kill count. 
+        Enemies will be getting increased movement speed at <strong>50</strong> and <strong>100</strong> points. 
+    </p>
+    </div>
+
+</body>
+</html>

@@ -15,6 +15,9 @@ def main(request):
 def diagram(request):
     return render(request, 'main/diagramy.html')
 
+def guide(request):
+    return render(request, 'main/guide.html')
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)

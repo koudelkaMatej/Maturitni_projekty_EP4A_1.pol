@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('api/update_score/', views.update_score, name='update_score'),
     path('update_email/', views.update_email, name='update_email'),
+    path('guide/', views.guide, name='guide'),
 ]
