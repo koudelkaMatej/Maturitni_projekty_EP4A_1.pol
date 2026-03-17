@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Color Warz – Statistiky</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1 class="logo">Color Warz</h1>
+    <nav>
+        <a href="index.html">Hra</a>
+        <a href="obrazky.html">Obrázky</a>
+        <a href="odkazy.html">Odkazy</a>
+        <a href="statistiky.html" class="active">Statistiky</a>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+        <h2>Přihlášení / Registrace</h2>
+        <p id="auth-status">Nejste přihlášen.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <input id="username" placeholder="Uživatelské jméno" style="padding:10px;border-radius:8px;border:none;width:200px">
+            <input id="password" type="password" placeholder="Heslo" style="padding:10px;border-radius:8px;border:none;width:200px">
+            <button onclick="register()">Registrovat</button>
+            <button onclick="login()">Přihlásit</button>
+            <button onclick="logout()">Odhlásit</button>
+        </div>
+    </section>
+
+    <section class="hero">
+        <h2>Moje statistiky</h2>
+        <p id="stats-summary">Zatím žádná data.</p>
+        <ul id="stats-list" style="list-style:none;padding:0"></ul>
+    </section>
+
+    <section class="hero">
+        <h2>Globální žebříček</h2>
+        <p>Top hráči podle počtu výher a průměrného počtu tahů.</p>
+        <table style="width:100%;border-collapse:collapse">
+            <thead>
+                <tr>
+                    <th style="text-align:left;padding:8px">Uživatel</th>
+                    <th style="text-align:right;padding:8px">Výher</th>
+                    <th style="text-align:right;padding:8px">Průměr tahů</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard">
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<footer>
+    <p>© 2026 Color Warz</p>
+</footer>
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+
+async function register() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const r = await fetch(`${API}/register`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({username, password})
+  });
+  const data = await r.json();
+  document.getElementById('auth-status').textContent = data.error ? `Chyba: ${data.error}` : `Registrováno: ${username}`;
+  if (!data.error) { await login(); }
+}
+
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const r = await fetch(`${API}/login`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({username, password})
+  });
+  const data = await r.json();
+  document.getElementById('auth-status').textContent = data.error ? `Chyba: ${data.error}` : `Přihlášen: ${data.username}`;
+  if (!data.error) {
+    await loadStats();
+    await loadLeaderboard();
+  }
+}
+
+async function logout() {
+  await fetch(`${API}/logout`, {method:'POST', credentials: 'include'});
+  document.getElementById('auth-status').textContent = 'Nejste přihlášen.';
+  document.getElementById('stats-summary').textContent = 'Zatím žádná data.';
+  document.getElementById('stats-list').innerHTML = '';
+}
+
+async function loadStats() {
+  const r = await fetch(`${API}/stats`, {credentials:'include'});
+  const data = await r.json();
+  if (data.error) {
+    document.getElementById('stats-summary').textContent = 'Zatím žádná data.';
+    return;
+  }
+  const avg = data.avg_turns ? data.avg_turns.toFixed(2) : '—';
+  document.getElementById('stats-summary').textContent = `Výher: ${data.wins}, Průměr tahů: ${avg}`;
+  const list = document.getElementById('stats-list');
+  list.innerHTML = '';
+  data.results.forEach((r) => {
+    const li = document.createElement('li');
+    li.textContent = `${r.turns} tahů — ${new Date(r.created_at).toLocaleString()}`;
+    list.appendChild(li);
+  });
+}
+
+async function loadLeaderboard() {
+  const r = await fetch(`${API}/leaderboard`, {credentials:'include'});
+  const data = await r.json();
+  const tbody = document.getElementById('leaderboard');
+  tbody.innerHTML = '';
+  (data.items || []).forEach((item) => {
+    const tr = document.createElement('tr');
+    const tdUser = document.createElement('td');
+    const tdWins = document.createElement('td');
+    const tdAvg = document.createElement('td');
+    tdUser.style.padding = '8px';
+    tdWins.style.padding = '8px';
+    tdAvg.style.padding = '8px';
+    tdWins.style.textAlign = 'right';
+    tdAvg.style.textAlign = 'right';
+    tdUser.textContent = item.username;
+    tdWins.textContent = item.wins;
+    tdAvg.textContent = item.avg_turns != null ? Number(item.avg_turns).toFixed(2) : '—';
+    tr.appendChild(tdUser);
+    tr.appendChild(tdWins);
+    tr.appendChild(tdAvg);
+    tbody.appendChild(tr);
+  });
+}
+
+(async function init(){
+  try {
+    const r = await fetch(`${API}/me`, {credentials:'include'});
+    const data = await r.json();
+    if (data.user && data.user.username) {
+      document.getElementById('auth-status').textContent = `Přihlášen: ${data.user.username}`;
+      await loadStats();
+    }
+  } catch {}
+  await loadLeaderboard();
+})();
+</script>
+</body>
+</html>

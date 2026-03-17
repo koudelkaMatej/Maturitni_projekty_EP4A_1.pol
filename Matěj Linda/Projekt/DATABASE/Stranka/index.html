@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Color Warz – Hra</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1 class="logo">Color Warz</h1>
+    <nav>
+        <a href="index.html" class="active">Hra</a>
+        <a href="obrazky.html">Obrázky</a>
+        <a href="odkazy.html">Odkazy</a>
+        <a href="statistiky.html">Statistiky</a>
+    </nav>
+</header>
+
+<main>
+
+    <section class="hero" id="auth">
+        <h2>Přihlášení / Registrace</h2>
+        <p id="auth-status">Nejste přihlášen.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <input id="username" placeholder="Uživatelské jméno" style="padding:10px;border-radius:8px;border:none;width:200px">
+            <input id="password" type="password" placeholder="Heslo" style="padding:10px;border-radius:8px;border:none;width:200px">
+            <button onclick="register()">Registrovat</button>
+            <button onclick="login()">Přihlásit</button>
+            <button onclick="logout()">Odhlásit</button>
+        </div>
+    </section>
+
+    <section class="hero">
+        <h2>Jednoduchá pravidla. Hluboká strategie. Nekonečné zvraty.</h2>
+        <p>
+            Color Warz je tahová strategická hra pro dva hráče, ve které
+            bojuješ o ovládnutí celé herní plochy pomocí barev a explozí.
+            Každý tah se počítá a jediná chyba může rozhodnout celou hru.
+        </p>
+        <button>Hrát nyní</button>
+    </section>
+
+    <section class="hero" id="save-result">
+        <h2>Ulož výsledek</h2>
+        <p>Zapiš, kolik tahů ti trvalo vyhrát.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <input id="turns" type="number" min="1" max="9999" placeholder="Počet tahů" style="padding:10px;border-radius:8px;border:none;width:160px">
+            <button onclick="saveScore()">Uložit</button>
+        </div>
+        <p id="save-status" style="margin-top:12px;color:#d6dbea"></p>
+    </section>
+
+    <section class="content">
+
+        <h3>🎮 Základ hry</h3>
+        <p>
+            Hra se odehrává na čtvercové mřížce o velikosti 6×6 polí.
+            Každé pole může patřit jednomu ze dvou hráčů a obsahuje určitý
+            počet bodů (teček). Barva pole vždy ukazuje, komu pole patří.
+        </p>
+
+        <h3>🚦 Start hry</h3>
+        <p>
+            Na začátku si každý hráč zvolí jednu startovní pozici.
+            Do této pozice se automaticky umístí tři body.
+            Jakmile oba hráči vyberou své pole, hra přechází do hlavní fáze.
+        </p>
+
+        <h3>🔁 Průběh hry</h3>
+        <p>
+            Hráči se střídají po tazích. Ve svém tahu můžeš kliknout pouze
+            na pole, které už patří tobě. Tím do něj přidáš jeden bod.
+            Cílem je chytře rozšiřovat své území a zároveň oslabovat soupeře.
+        </p>
+
+        <h3>💥 Exploze a řetězové reakce</h3>
+        <p>
+            Jakmile pole dosáhne čtyř bodů, exploduje.
+            Pole se vyprázdní a každý sousední čtverec
+            (nahoru, dolů, vlevo a vpravo) získá jeden bod
+            a převezme barvu hráče, který explozi způsobil.
+        </p>
+        <p>
+            Pokud sousední pole také dosáhne čtyř bodů,
+            dojde k další explozi. Tak vznikají řetězové reakce,
+            které dokážou během jediného tahu kompletně změnit
+            situaci na herní ploše.
+        </p>
+
+        <h3>🏆 Cíl hry</h3>
+        <p>
+            Hra končí ve chvíli, kdy všechna obsazená pole
+            patří pouze jednomu hráči. Ten je prohlášen vítězem
+            a získává bod do celkového skóre.
+        </p>
+
+        <h3>🧠 Proč si Color Warz zamiluješ?</h3>
+        <ul>
+            <li>Jednoduchá pravidla pochopíš během minuty</li>
+            <li>Každá hra je jiná a plná nečekaných zvratů</li>
+            <li>Silný důraz na strategii a přemýšlení dopředu</li>
+            <li>Ideální hra pro souboje jeden na jednoho</li>
+        </ul>
+
+    </section>
+
+    <section class="hero" id="stats">
+        <h2>Moje statistiky</h2>
+        <p id="stats-summary">Zatím žádná data.</p>
+        <ul id="stats-list" style="list-style:none;padding:0"></ul>
+    </section>
+
+</main>
+
+<footer>
+    <p>© 2026 Color Warz | Tahová strategická hra</p>
+</footer>
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+
+async function register() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const r = await fetch(`${API}/register`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({username, password})
+  });
+  const data = await r.json();
+  document.getElementById('auth-status').textContent = data.error ? `Chyba: ${data.error}` : `Registrováno: ${username}`;
+}
+
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const r = await fetch(`${API}/login`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({username, password})
+  });
+  const data = await r.json();
+  document.getElementById('auth-status').textContent = data.error ? `Chyba: ${data.error}` : `Přihlášen: ${data.username}`;
+  if (!data.error) loadStats();
+}
+
+async function logout() {
+  await fetch(`${API}/logout`, {method:'POST', credentials: 'include'});
+  document.getElementById('auth-status').textContent = 'Nejste přihlášen.';
+  document.getElementById('stats-summary').textContent = 'Zatím žádná data.';
+  document.getElementById('stats-list').innerHTML = '';
+}
+
+async function saveScore() {
+  const turns = parseInt(document.getElementById('turns').value, 10);
+  const r = await fetch(`${API}/score`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({turns})
+  });
+  const data = await r.json();
+  document.getElementById('save-status').textContent = data.error ? `Chyba: ${data.error}` : 'Uloženo!';
+  if (!data.error) loadStats();
+}
+
+async function loadStats() {
+  const r = await fetch(`${API}/stats`, {credentials:'include'});
+  const data = await r.json();
+  if (data.error) {
+    document.getElementById('stats-summary').textContent = 'Zatím žádná data.';
+    return;
+  }
+  const avg = data.avg_turns ? data.avg_turns.toFixed(2) : '—';
+  document.getElementById('stats-summary').textContent = `Výher: ${data.wins}, Průměr tahů: ${avg}`;
+  const list = document.getElementById('stats-list');
+  list.innerHTML = '';
+  data.results.forEach((r) => {
+    const li = document.createElement('li');
+    li.textContent = `${r.turns} tahů — ${new Date(r.created_at).toLocaleString()}`;
+    list.appendChild(li);
+  });
+}
+
+(async function init(){
+  try {
+    const r = await fetch(`${API}/me`, {credentials:'include'});
+    const data = await r.json();
+    if (data.user && data.user.username) {
+      document.getElementById('auth-status').textContent = `Přihlášen: ${data.user.username}`;
+      await loadStats();
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>
