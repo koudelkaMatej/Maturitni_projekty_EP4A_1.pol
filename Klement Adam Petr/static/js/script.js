@@ -1,9 +1,9 @@
 // Web teď používá skutečné API (Flask na 5000) pro registraci/přihlášení a uloží JWT do localStorage.
 
-const API_URL = 'http://localhost:5000';
+const API_URL = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Elements
+  // --- DOM ELEMENTY ---
   const modalOverlay = id('modal-overlay');
   const modalReg = id('modal-register');
   const modalLogin = id('modal-login');
@@ -21,14 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const workoutsList = id('workouts-list');
   const workoutsEmpty = id('workouts-empty');
 
-  // Wire UI actions
+  // --- OBSLUHA UI AKCÍ ---
   [btnGet, heroGet, purchaseStart].forEach(b => b && b.addEventListener('click', openRegister));
   btnLoginOpen && btnLoginOpen.addEventListener('click', openLogin);
   id('reg-cancel').addEventListener('click', closeModals);
   id('login-cancel').addEventListener('click', closeModals);
   btnLogout && btnLogout.addEventListener('click', logout);
 
-  // Register submit
+  // --- REGISTRACE UŽIVATELE ---
   regForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = id('reg-username').value.trim();
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const res = await fetch(`${API_URL}/register`, {
+      const res = await fetch(`/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (res.status === 201) {
         showMsg('reg-msg', 'Registrace úspěšná. Přihlašuji...');
-        // auto-login
+        // Automatické přihlášení po registraci
         const err = await loginInternal(username, password);
         if (!err) {
           closeModals();
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Login submit
+  // --- PŘIHLÁŠENÍ UŽIVATELE ---
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = id('login-username').value.trim();
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Initialize UI based on saved token
-  // nejdřív ověř API
+  // --- INICIALIZACE STAVU APLIKACE ---
+  // Kontrola, zda běží backend server
   checkApi().then((ok) => {
     toggleApiBanner(!ok);
   });
@@ -93,12 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setLoggedInUI(savedUser);
     downloadArea.classList.remove('hidden');
     fetchAndRenderWorkouts();
-    updateHeroStats(); // New: update phone mockup
+    updateHeroStats(); // Aktualizace makety telefonu daty uživatele
   } else {
     setLoggedOutUI();
   }
 
-  // Helpers
+  // --- POMOCNÉ FUNKCE (HELPERS) ---
   function id(name){ return document.getElementById(name); }
   function showMsg(elId, text){ const el = id(elId); if (el) el.innerText = text || ''; }
 
@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalLogin.classList.add('hidden');
   }
 
+  // Přepínání UI prvků pro přihlášeného uživatele
   function setLoggedInUI(username){
     userNameEl.textContent = username;
     userBadge.classList.remove('hidden');
@@ -132,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnGet) btnGet.classList.add('hidden');
     if (dashboard) dashboard.classList.remove('hidden');
   }
+
+  // Přepínání UI prvků pro nepřihlášeného návštěvníka
   function setLoggedOutUI(){
     userNameEl.textContent = '';
     userBadge.classList.add('hidden');
@@ -147,9 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (workoutsList) workoutsList.innerHTML = '';
   }
 
+  // Interní funkce pro volání login API
   async function loginInternal(username, password){
     try {
-      const res = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -183,18 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (h3) h3.innerText = `Děkujeme, ${username} — přístup aktivní`;
   }
 
+  // --- NAČÍTÁNÍ A VYKRESLOVÁNÍ TRÉNINKŮ ---
   async function fetchAndRenderWorkouts(){
     const token = localStorage.getItem('amp_token');
     if (!token) return;
     try {
-      // rychlý ping (volitelně)
-      // await fetch(`${API_URL}/ping`);
-      const res = await fetch(`${API_URL}/get_workouts`, {
+      const res = await fetch(`/get_workouts`, {
         method: 'GET',
         headers: { 'Authorization': token }
       });
       if (res.status === 401){
-        // token neplatný/expirace
+        // Relace vypršela
         logout();
         alert('Relace vypršela. Přihlas se znovu.');
         return;
@@ -203,10 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const workouts = Array.isArray(data.workouts) ? data.workouts : [];
       renderWorkouts(workouts);
     } catch(e){
-      const hint = (location.protocol === 'file:')
-        ? ' (Otevři stránku přes http://localhost:5000 — spusť run_web.ps1)'
-        : '';
-      console.warn('Chyba při načítání tréninků:', e, hint);
+      console.warn('Chyba při načítání tréninků:', e);
     }
   }
 
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     workoutsEmpty && workoutsEmpty.classList.add('hidden');
     
-    // LIMIT TO 5 on Dashboard
+    // Zobrazíme pouze posledních 5 tréninků na dashboardu
     const limitedWorkouts = workouts.slice(0, 5);
     
     limitedWorkouts.forEach(w => {
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const head = document.createElement('div');
       head.className = 'workout-head';
       
-      // Date and main info
+      // Datum a hlavní info
       const infoDiv = document.createElement('div');
       const dateEl = document.createElement('div');
       dateEl.className = 'workout-date';
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
       infoDiv.appendChild(summaryEl);
       infoDiv.appendChild(dateEl);
       
-      // Note
+      // Poznámka pod čarou
       if (w.note) {
         const noteEl = document.createElement('div');
         noteEl.className = 'workout-meta';
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         infoDiv.appendChild(noteEl);
       }
       
-      // Detail button
+      // Tlačítko pro detail
       const btnDiv = document.createElement('div');
       const btn = document.createElement('button');
       btn.className = 'btn ghost small';
@@ -268,32 +268,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Kontrola stavu API serveru
   async function checkApi(){
     try {
-      const res = await fetch(`${API_URL}/ping`, { method: 'GET' });
+      const res = await fetch(`/ping`, { method: 'GET' });
       return res.ok;
     } catch(e) {
       return false;
     }
   }
+
   function toggleApiBanner(show){
     const bar = id('api-status');
     if (!bar) return;
     bar.classList[show ? 'remove' : 'add']('hidden');
   }
 
+  // --- AKTUALIZACE MAKETY TELEFONU (HERO SECTION) ---
   async function updateHeroStats() {
     const token = localStorage.getItem('amp_token');
     if (!token) return;
     
     try {
-      const res = await fetch(`${API_URL}/get_user_stats`, {
+      const res = await fetch(`/get_user_stats`, {
         headers: { 'Authorization': token }
       });
       if (res.ok) {
         const data = await res.json();
         
-        // Update Phone Mockup
+        // Aktualizace dat v "telefonu" na hlavní stránce
         const wk = data.latest_workout;
         const stats = data.stats;
         
@@ -302,23 +305,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const noteEl = id('hero-note');
         const statsEl = id('hero-stats');
         
-        if (titleEl) titleEl.textContent = wk.title;
-        if (descEl) descEl.textContent = wk.desc;
-        if (noteEl) noteEl.textContent = `Poznámka: ${wk.note}`;
+        if (titleEl) titleEl.textContent = wk.title || 'Žádný trénink';
+        if (descEl) descEl.textContent = wk.desc || 'Zatím nic';
+        if (noteEl) noteEl.textContent = wk.note ? `Poznámka: ${wk.note}` : 'Žádná poznámka';
         
         if (statsEl) {
-          // Combine BW and PR
+          // Kombinace tělesné váhy a PR
           statsEl.textContent = `${stats.bw_text} · ${stats.pr_text}`;
         }
         
-        // Update Dashboard Counter
+        // Aktualizace čítače aktivních dní na dashboardu
         const countEl = id('days-active-count');
         if (countEl && stats.days_active !== undefined) {
           countEl.textContent = stats.days_active;
         }
       }
     } catch (e) {
-      console.warn("Failed to fetch user stats for hero", e);
+      console.warn("Nepodařilo se načíst statistiky pro maketu telefonu", e);
     }
   }
 });

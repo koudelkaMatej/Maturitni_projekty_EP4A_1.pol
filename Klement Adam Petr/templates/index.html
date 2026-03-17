@@ -17,7 +17,6 @@
       <nav>
         <span id="user-badge" class="user-badge hidden">Přihlášen: <strong id="user-name"></strong></span>
         <button class="btn ghost" id="btn-login-open">Přihlásit se</button>
-        <button class="btn primary" id="btn-get-access">Získat přístup</button>
         <a href="/settings" class="btn ghost hidden" id="btn-settings">⚙️ Nastavení</a>
         <button class="btn ghost hidden" id="btn-logout">Odhlásit se</button>
       </nav>
@@ -26,49 +25,32 @@
     <section class="hero">
       <div class="hero-inner">
         <h1>AMP — tvůj fitness deník a průvodce</h1>
-        <p class="lead">Plánuj tréninky, zaznamenávej progres a měj všechny své PR a poznámky na jednom místě.</p>
-        <div class="hero-actions">
-          <button class="btn primary" id="hero-get">Získat přístup</button>
-          <a class="btn ghost" href="#features">Prozkoumat funkce</a>
-        </div>
+        <p class="lead">Aplikace AMP (Advanced Muscle Planner) byla navržena s důrazem na jednoduchost a efektivitu. Cvičení není jen o zvedání vah, ale o disciplíně a sledování pokroku. Naše aplikace vám pomůže udržet si přehled o každém tréninku, každé sérii a každém osobním rekordu.</p>
+        <p>Pravidelný trénink zlepšuje nejen fyzickou sílu, ale i psychickou odolnost. S AMP máte svůj progres vždy po ruce — ať už v desktopové aplikaci nebo zde na webu.</p>
+        
+        <h2>Proč je sledování pokroku klíčové?</h2>
+        <p>Bez systematického záznamu se snadno ztratíte. Zapomenete, jakou váhu jste zvedali minulý týden, kolik opakování jste zvládli, nebo jaký cvik jste chtěli vyzkoušet. AMP řeší tento problém tím, že vám poskytuje nástroje pro:</p>
+        <ul>
+            <li><strong>Konzistenci:</strong> Pravidelné zaznamenávání vás motivuje k dodržování plánu.</li>
+            <li><strong>Progresivní přetížení:</strong> Jasně vidíte, kdy je čas přidat váhu nebo opakování, což je základní princip pro růst svalů a síly.</li>
+            <li><strong>Analýzu a optimalizaci:</strong> Díky grafům a statistikám snadno identifikujete, co funguje a kde máte rezervy.</li>
+        </ul>
+        <p>S AMP se váš trénink stane chytřejším, nikoli jen těžším.</p>
       </div>
       <div class="hero-visual">
         <!-- jednoduchý mockup -->
         <div class="phone">
           <div class="screen">
             <div class="card">
-              <h3 id="hero-wk-title">Trénink Dnes</h3>
-              <p id="hero-wk-desc">Bench press • 3×5 • 100kg</p>
+              <h3 id="hero-wk-title">Vítejte v AMP</h3>
+              <p id="hero-wk-desc">Přihlaste se pro zobrazení tréninku</p>
             </div>
             <div class="card small">
-              <p id="hero-stats">Váha: 82 kg · PR: Dřepy 160 kg</p>
+              <p id="hero-stats">Zde uvidíte své rekordy</p>
             </div>
-            <div class="card small" id="hero-note">Poznámka: Lehčí den — regenerace</div>
+            <div class="card small" id="hero-note">Poznámka k tréninku</div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="features" class="features">
-      <h2>Co AMP umí</h2>
-      <div class="grid">
-        <article class="feature">
-          <div class="icon">📋</div>
-          <h3>Tréninky</h3>
-          <p>Snadné zaznamenávání sérií, opakování a váhy. Rychlé přidání vlastního cviku.</p>
-        </article>
-
-        <article class="feature">
-          <div class="icon">📈</div>
-          <h3>Statistiky</h3>
-          <p>Osobní rekordy, historie vah a progres u každého cviku.</p>
-        </article>
-
-        <article class="feature">
-          <div class="icon">📝</div>
-          <h3>Poznámky</h3>
-          <p>Přidej poznámky k tréninku — únava, technika, důvody změn.</p>
-        </article>
       </div>
     </section>
 
@@ -91,19 +73,15 @@
       <div id="workouts-empty" class="small hidden">Zatím žádné záznamy. Přidej trénink v aplikaci.</div>
     </section>
 
-    <section class="purchase" aria-labelledby="purchase-title">
-      <h2 id="purchase-title">Získat přístup</h2>
-      <p>Po registraci obdržíš odkaz ke stažení desktopové aplikace a přihlašovací údaje, které použiješ v AMP aplikaci.</p>
-      <div class="purchase-actions">
-        <button class="btn primary large" id="purchase-start">Získat přístup</button>
-        <div class="note">Platba je v této verzi simulovaná (bez reálného odběru).</div>
-      </div>
-
-      <div id="download-area" class="download-area hidden">
-        <h3>Děkujeme — přístup aktivní</h3>
-        <p>Stáhni aplikaci pro Windows / Linux:</p>
-        <a class="btn primary" id="download-link" href="#" onclick="alert('Toto je demo. Soubor není připojen.'); return false;">Stáhnout aplikaci (.zip)</a>
-        <p class="small">Pokud máš instalační soubor jinak, ulož ho do složky <code>downloads</code>.</p>
+    <section id="download-section" class="purchase" aria-labelledby="purchase-title">
+      <h2 id="purchase-title">Stáhnout AMP</h2>
+      <p>Získej plnou kontrolu nad svými tréninky. Stáhni si desktopovou aplikaci a začni sledovat svůj progres ještě dnes.</p>
+      
+      <div class="download-area">
+        <h3>Aktuální verze 1.0</h3>
+        <p>Kompatibilní s Windows 10/11</p>
+        <a class="btn primary large" href="{{ url_for('static', filename='fitness_app.zip') }}" download>Stáhnout aplikaci (.zip)</a>
+        <p class="small" style="margin-top: 1rem">Po stažení rozbalte archiv a spusťte soubor <code>start_game.bat</code>.</p>
       </div>
     </section>
 
