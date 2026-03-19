@@ -1,0 +1,108 @@
+{% extends 'flux/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <h2 class="mb-4 text-primary"><i class="fas fa-user-circle"></i> My Account</h2>
+
+        <div class="card shadow-sm mb-4 border-0">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Profile Information</h5>
+          </div>
+          <div class="card-body">
+            {% if not request.user.first_name or not request.user.last_name or not request.user.email %}
+                <div class="alert alert-warning py-2 mb-4">
+                    <i class="fas fa-info-circle"></i> Your profile is incomplete! Click <strong>Edit Info</strong> below to add your details.
+                </div>
+            {% endif %}
+            <form method="POST" action="">
+              {% csrf_token %}
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label text-muted">First Name</label>
+                  <input type="text" name="first_name" class="form-control profile-input bg-light" value="{{ request.user.first_name }}" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted">Last Name</label>
+                  <input type="text" name="last_name" class="form-control profile-input bg-light" value="{{ request.user.last_name }}" readonly />
+                </div>
+                <div class="col-12">
+                  <label class="form-label text-muted">Email Address</label>
+                  <input type="email" name="email" class="form-control profile-input bg-light" value="{{ request.user.email }}" required readonly />
+                </div>
+                <div class="col-12">
+                  <label class="form-label text-muted">Address</label>
+                  <input type="text" name="address" class="form-control profile-input bg-light" value="{{ profile.address|default_if_none:"" }}" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted">Town/City</label>
+                  <input type="text" name="city" class="form-control profile-input bg-light" value="{{ profile.city|default_if_none:"" }}" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted">Country</label>
+                  <input type="text" name="country" class="form-control profile-input bg-light" value="{{ profile.country|default_if_none:"" }}" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted">Postcode/Zip</label>
+                  <input type="text" name="zip_code" class="form-control profile-input bg-light" value="{{ profile.zip_code|default_if_none:"" }}" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted">Mobile</label>
+                  <input type="tel" name="mobile" class="form-control profile-input bg-light" value="{{ profile.mobile|default_if_none:"" }}" readonly />
+                </div>
+
+                <div class="col-12 mt-4">
+                  <input type="hidden" name="action" value="update_profile" />
+
+                  <button type="button" id="edit-btn" class="btn btn-secondary px-4 py-2" onclick="enableEditing()"><i class="fas fa-edit"></i> Edit Info</button>
+
+                  <button type="submit" id="save-btn" class="btn btn-success px-4 py-2 text-uppercase" style="display: none;"><i class="fas fa-save"></i> Save Changes</button>
+
+                  <a href="{% url 'my_account' %}" id="cancel-btn" class="btn btn-outline-danger ms-2 py-2" style="display: none;">Cancel</a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <script>
+          function enableEditing() {
+            // 1. Find all inputs with the 'profile-input' class
+            let inputs = document.querySelectorAll('.profile-input')
+          
+            // 2. Loop through them and remove the 'readonly' lock
+            inputs.forEach(function (input) {
+              input.removeAttribute('readonly')
+              input.classList.remove('bg-light') // Removes the grey background
+              input.classList.add('bg-white') // Makes it look clickable
+            })
+          
+            // 3. Hide the Edit button
+            document.getElementById('edit-btn').style.display = 'none'
+          
+            // 4. Show the Save and Cancel buttons
+            document.getElementById('save-btn').style.display = 'inline-block'
+            document.getElementById('cancel-btn').style.display = 'inline-block'
+          }
+        </script>
+
+        <div class="card shadow-sm border-danger">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h5>
+          </div>
+          <div class="card-body">
+            <p class="text-muted">Once you delete your account, there is no going back. Please be certain.</p>
+            <form method="POST" action="" onsubmit="return confirm('Are you 100% sure you want to delete your account? This cannot be undone.');">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete_account" />
+              <button type="submit" class="btn btn-outline-danger">Delete My Account</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

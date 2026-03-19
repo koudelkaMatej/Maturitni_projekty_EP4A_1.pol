@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +29,7 @@ SECRET_KEY = 'django-insecure-t+z7wb%z*$*#^jz80#@6wq-t_ny(n!=c81fh)yyn^l*lm!-n8m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -62,6 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'flux.context_processors.categories',
+                'flux.context_processors.cart',
             ],
         },
     },
@@ -124,3 +130,50 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
+LOGGING = {
+    'version' : 1,
+    'disable_existing_loggers' : False,
+    'formatters' : {
+        'verbose' : {
+            'format' : '[{levelname}] {asctime} {module} - {message}',
+            'style' : '{',
+        },
+    },
+    
+    'handlers' : {
+        'file' : {
+            'level' : 'INFO',
+            'class' : 'logging.FileHandler',
+            'filename' : BASE_DIR/ 'shop_activity.log',
+            'formatter' : 'verbose',
+        },
+    },
+    'loggers' : {
+        'flux' : {
+            'handlers' : ['file'],
+            'level' : 'INFO',
+            'propagate' : True,
+        },
+    },
+}
+
+
+MY_EMAIL_USER = os.getenv('EMAIL_USER')
+MY_EMAIL_PASSWORD = os.getenv('EMAIL_PASS')
+
+if MY_EMAIL_USER and MY_EMAIL_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = MY_EMAIL_USER
+    EMAIL_HOST_PASSWORD = MY_EMAIL_PASSWORD
+    print("Gmail is online")
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = BASE_DIR/ 'sent_emails'
+    print("Gmail offline, downloading localy")

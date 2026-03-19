@@ -1,0 +1,64 @@
+{% extends "flux/base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container-fluid py-5 mt-5">
+        <div class="container py-5">
+            <div class="row g-5 align-items-center">
+                
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="bg-light rounded p-5 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
+                        <i class="fas fa-store fa-10x text-primary mb-4"></i>
+                        <h2 class="text-dark mb-0">Flux Electronics</h2>
+                        <p class="text-muted mt-2">Established 2026</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <h4 class="text-primary border-bottom border-primary border-2 d-inline-block pb-2">About Us</h4>
+                    <h1 class="display-5 mb-4">Your Trusted Electronics Destination</h1>
+                    
+                    <p class="mb-4 text-dark fs-5">
+                        Welcome to Flux! We are passionate about bringing you the latest and greatest in consumer electronics. From high-performance laptops to cutting-edge smartphones, we carefully curate our inventory to ensure you get the best quality at the most competitive prices.
+                    </p>
+                    <p class="mb-4 text-muted">
+                        Founded with a simple mission: to make technology accessible and shopping effortless. Whether you are upgrading your home office or looking for the perfect gift, our dedicated team is here to help you every step of the way. We believe in honest pricing, fast shipping, and putting the customer first.
+                    </p>
+                    
+                    <div class="row g-4 mt-2 mb-5">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle fa-2x text-primary me-3"></i>
+                                <h5 class="mb-0 text-dark">Top Quality</h5>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shipping-fast fa-2x text-primary me-3"></i>
+                                <h5 class="mb-0 text-dark">Fast Delivery</h5>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sync fa-2x text-primary me-3"></i>
+                                <h5 class="mb-0 text-dark">Easy Returns</h5>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-headset fa-2x text-primary me-3"></i>
+                                <h5 class="mb-0 text-dark">24/7 Support</h5>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'home' %}" class="btn btn-primary rounded-pill py-3 px-5 text-uppercase shadow-sm">
+                        Start Shopping
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    {% endblock %}
