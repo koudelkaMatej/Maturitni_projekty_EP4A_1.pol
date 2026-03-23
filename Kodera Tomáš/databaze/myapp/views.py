@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
 import json
+import requests
 
 def main(request):
     return render(request, 'main/hlstranka.html')
