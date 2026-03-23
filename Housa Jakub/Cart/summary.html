@@ -1,13 +1,15 @@
 ﻿<!DOCTYPE html>
 <html lang="cs">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kontrola objednávky | DRIVE.</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/cart.css">
 </head>
+
 <body>
     <div class="container">
         <div class="cart-top-nav">
@@ -91,7 +93,7 @@
                 <div class="order-items-review" id="reviewItems">
                     <!-- Items populated by JS -->
                 </div>
-                
+
                 <div class="totals-section">
                     <div class="total-row">
                         <span>Mezisoučet</span>
@@ -123,7 +125,57 @@
         </div>
     </main>
 
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
+        // Toast Notification System
+        class ToastNotification {
+            constructor() {
+                this.container = document.getElementById('toastContainer');
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+
+                const iconMap = {
+                    error: 'fas fa-exclamation-circle',
+                    success: 'fas fa-check-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+
+                toast.innerHTML = `
+                    <i class="toast-icon ${iconMap[type]}"></i>
+                    <span>${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.classList.remove('show'); setTimeout(() => this.parentElement.remove(), 300);">✕</button>
+                `;
+
+                this.container.appendChild(toast);
+
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (toast.parentElement) {
+                            toast.classList.remove('show');
+                            setTimeout(() => toast.remove(), 300);
+                        }
+                    }, duration);
+                }
+            }
+
+            error(message, duration = 5000) { this.show(message, 'error', duration); }
+            success(message) { this.show(message, 'success', 3000); }
+            warning(message) { this.show(message, 'warning', 4000); }
+            info(message) { this.show(message, 'info', 3000); }
+        }
+
+        const toast = new ToastNotification();
         const yearEl = document.getElementById('year');
         if (yearEl) {
             yearEl.textContent = new Date().getFullYear();
@@ -143,12 +195,13 @@
         document.getElementById('reviewEmail').textContent = customer.email;
         document.getElementById('reviewPhone').textContent = customer.phone;
         document.getElementById('reviewAddress').textContent = `${customer.address}, ${customer.zipCode} ${customer.city}`;
-        
+
         const paymentMap = {
             'card': 'Platba kartou',
             'applepay': 'Apple Pay',
             'googlepay': 'Google Pay',
-            'paypal': 'PayPal'
+            'paypal': 'PayPal',
+            'qr': 'QR platba / Bankovní převod'
         };
         document.getElementById('reviewPayment').textContent = paymentMap[customer.paymentMethod] || customer.paymentMethod;
 
@@ -159,19 +212,19 @@
         cart.forEach((item, index) => {
             const itemTotal = item.price * item.quantity;
             subtotal += itemTotal;
-            
+
             // Resolve image path
             let imgUrl = item.image;
             if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/') && !imgUrl.startsWith('../')) {
                 imgUrl = '../' + imgUrl;
             }
-            
+
             const div = document.createElement('div');
             div.className = 'review-item';
             // Styling pro položku bez obrázku - neaplikovat border-bottom na poslední položku
             const borderStyle = index === cart.length - 1 ? '' : 'border-bottom: 1px solid rgba(0,0,0,0.05);';
             div.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; ${borderStyle}`;
-            
+
             div.innerHTML = `
                 <div class="item-details" style="display: flex; align-items: center; gap: 0.5rem;">
                     <span class="item-name" style="font-weight: 600; font-size: 1.05rem;">${item.name}</span>
@@ -185,7 +238,7 @@
         // Calculate Totals
         let discount = 0;
         const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
-        
+
         if (discountPercent > 0) {
             discount = Math.round(subtotal * (discountPercent / 100));
             const discEl = document.getElementById('reviewDiscount');
@@ -204,13 +257,18 @@
             btn.textContent = 'Odesílám...';
 
             // Map items with both numeric ID and slug for robust backend lookup
-            const validItems = cart.filter(item => item.id).map(item => ({ 
-                id: item.id,  // This might be numeric ID or slug
-                quantity: parseInt(item.quantity, 10) || 1
-            }));
-            
+            const validItems = cart.filter(item => item.id).map(item => {
+                const mapped = {
+                    id: item.id,  // This might be numeric ID or slug
+                    quantity: parseInt(item.quantity, 10) || 1,
+                    isSubscription: !!item.isSubscription
+                };
+                console.log('[Summary] Mapping item for checkout:', mapped);
+                return mapped;
+            });
+
             if (validItems.length === 0) {
-                alert('Košík neobsahuje platné produkty.');
+                toast.error('Košík neobsahuje platné produkty.');
                 btn.disabled = false;
                 btn.textContent = 'Odeslat objednávku';
                 return;
@@ -246,51 +304,1066 @@
                     localStorage.removeItem('cart');
                     localStorage.removeItem('checkoutData');
                     localStorage.removeItem('discountCode');
-                    window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
+                    toast.success('Objednávka přijata! Přesměrovávám...');
+                    setTimeout(() => {
+                        window.location.href = '/Cart/thank-you.html?orderId=' + result.orderId;
+                    }, 800);
                 } else {
                     console.error('Order failed:', result);
-                    alert('Chyba při odesílání objednávky: ' + (result.error || 'Neznámá chyba'));
-                    btn.disabled = false;
-                    btn.textContent = 'Odeslat objednávku';
+
+                    if (result.code === 'AUTH_REQUIRED') {
+                        // Tlačítko necháme zablokované a změníme text
+                        btn.textContent = 'Přesměrovávám na přihlášení...';
+
+                        // Okamžité přesměrování
+                        window.location.href = '/Account/login.html?redirect=/Cart/summary.html&message=' + encodeURIComponent(result.error);
+                    } else {
+                        toast.error('Chyba při odesílání objednávky: ' + (result.error || 'Neznámá chyba'));
+                        // Jen v případě jiné chyby tlačítko odblokujeme
+                        btn.disabled = false;
+                        btn.textContent = 'Odeslat objednávku';
+                    }
                 }
             } catch (error) {
                 console.error('Network error:', error);
-                alert('Chyba připojení k serveru. Zkontrolujte své připojení.');
+                toast.error('Chyba připojení k serveru. Zkontrolujte své připojení.');
                 btn.disabled = false;
                 btn.textContent = 'Odeslat objednávku';
             }
         }
+    </script>
 
-        // Připojení listeneru na tlačítko
-        document.getElementById('confirmOrderBtn').addEventListener('click', async () => {
+    <!-- ============================================================
+         PAYMENT MODAL – Redesigned with brand colors
+         ============================================================ -->
+    <div id="paymentModal" class="pm-backdrop" style="display: none;">
+        <div class="pm-modal">
+            <!-- Header -->
+            <div class="pm-header">
+                <div class="pm-header-left">
+                    <i class="fas fa-lock pm-header-icon"></i>
+                    <div>
+                        <h3 class="pm-title">Platba</h3>
+                        <span class="pm-subtitle">Bezpečné platební rozhraní</span>
+                    </div>
+                </div>
+                <button class="pm-close" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Test Mode Banner -->
+            <div class="pm-test-banner">
+                <i class="fas fa-flask"></i>
+                <span>TESTOVACÍ REŽIM – žádná skutečná platba nebude provedena</span>
+            </div>
+
+            <!-- Tabs -->
+            <div class="pm-tabs">
+                <button class="pm-tab active" data-tab="card">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Karta</span>
+                </button>
+                <button class="pm-tab" data-tab="qr">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR platba</span>
+                </button>
+                <button class="pm-tab" data-tab="googlepay">
+                    <i class="fab fa-google"></i>
+                    <span>Google Pay</span>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="pm-body">
+                <!-- Card Tab -->
+                <div id="tab-card" class="pm-tab-content active">
+                    <div class="pm-card-visual" id="cardVisualEl">
+                        <div class="pm-card-inner">
+                            <div class="pm-card-front">
+                                <div class="pm-card-front-top">
+                                    <div class="pm-chip">
+                                        <div class="pm-chip-line"></div>
+                                        <div class="pm-chip-line"></div>
+                                        <div class="pm-chip-line"></div>
+                                        <div class="pm-chip-line"></div>
+                                    </div>
+                                    <div class="pm-card-brand">VISA</div>
+                                </div>
+                                <div class="pm-card-number" id="displayCardNumber">•••• •••• •••• ••••</div>
+                                <div class="pm-card-bottom">
+                                    <div class="pm-card-info-block">
+                                        <span class="pm-card-label">DRŽITEL KARTY</span>
+                                        <span class="pm-card-value" id="displayCardHolder">JMÉNO PŘÍJMENÍ</span>
+                                    </div>
+                                    <div class="pm-card-info-block" style="text-align: right;">
+                                        <span class="pm-card-label">PLATNOST</span>
+                                        <span class="pm-card-value" id="displayCardExpiry">MM/YY</span>
+                                    </div>
+                                </div>
+                                <div class="pm-card-shine"></div>
+                            </div>
+                            <div class="pm-card-back">
+                                <div class="pm-mag-strip"></div>
+                                <div class="pm-cvv-area">
+                                    <span class="pm-cvv-label">CVV</span>
+                                    <div class="pm-cvv-box" id="displayCardCvv">***</div>
+                                </div>
+                                <div class="pm-card-shine"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="cardPaymentForm" class="pm-form">
+                        <div class="pm-field">
+                            <label class="pm-label">Číslo karty</label>
+                            <div class="pm-input-wrap">
+                                <i class="fas fa-credit-card pm-input-icon"></i>
+                                <input type="text" id="cardNumber" class="pm-input has-icon"
+                                    placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" required>
+                            </div>
+                        </div>
+                        <div class="pm-field-row">
+                            <div class="pm-field">
+                                <label class="pm-label">Platnost</label>
+                                <input type="text" id="cardExpiry" class="pm-input" placeholder="MM/YY" maxlength="5"
+                                    autocomplete="cc-exp" required>
+                            </div>
+                            <div class="pm-field">
+                                <label class="pm-label">CVV</label>
+                                <div class="pm-input-wrap">
+                                    <i class="fas fa-lock pm-input-icon"></i>
+                                    <input type="password" id="cardCvv" class="pm-input has-icon" placeholder="•••"
+                                        maxlength="3" autocomplete="cc-csc" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pm-field">
+                            <label class="pm-label">Jméno na kartě</label>
+                            <input type="text" id="cardHolder" class="pm-input" placeholder="Jan Novák"
+                                autocomplete="cc-name" required>
+                        </div>
+                        <button type="submit" class="pm-pay-btn">
+                            <i class="fas fa-lock"></i>
+                            Zaplatit <span class="pay-amount-display"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- QR Tab -->
+                <div id="tab-qr" class="pm-tab-content">
+                    <div class="pm-qr-wrap">
+                        <div class="pm-qr-code-box">
+                            <div id="qrcode"></div>
+                        </div>
+                        <p class="pm-qr-hint">
+                            <i class="fas fa-mobile-alt"></i>
+                            Naskenujte QR kód ve svém mobilním bankovnictví
+                        </p>
+                        <div class="pm-qr-details">
+                            <div class="pm-qr-row">
+                                <span class="pm-qr-label">Číslo účtu</span>
+                                <span class="pm-qr-value">CZ65 0800 0000 1920 0014 5399</span>
+                            </div>
+                            <div class="pm-qr-row">
+                                <span class="pm-qr-label">Částka</span>
+                                <span class="pm-qr-value pay-amount-display" style="font-weight: 800;"></span>
+                            </div>
+                            <div class="pm-qr-row">
+                                <span class="pm-qr-label">Variabilní symbol</span>
+                                <span class="pm-qr-value" id="qrVs"></span>
+                            </div>
+                        </div>
+                        <button id="confirmQrBtn" class="pm-pay-btn">
+                            <i class="fas fa-check-circle"></i>
+                            Potvrzuji, že jsem zaplatil/a
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Google Pay Tab -->
+                <div id="tab-googlepay" class="pm-tab-content">
+                    <div class="pm-gpay-wrap">
+                        <div class="pm-gpay-icon">
+                            <i class="fab fa-google" style="font-size: 2.5rem; color: var(--text-primary);"></i>
+                        </div>
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                            Zaplaťte rychle a bezpečně pomocí Google Pay
+                        </p>
+                        <div id="gpay-button-container" style="display: flex; justify-content: center;"></div>
+                        <p id="gpay-status" class="pm-gpay-status"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="pm-footer">
+                <i class="fas fa-shield-alt"></i>
+                <span>Šifrované spojení · SSL zabezpečení</span>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* ============================================================
+           PAYMENT MODAL – Design System-consistent overlay
+           ============================================================ */
+
+        .pm-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(39, 68, 92, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            animation: pmFadeIn 0.25s ease-out;
+        }
+
+        .pm-modal {
+            background: #ffffff;
+            width: 100%;
+            max-width: 460px;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px -15px rgba(39, 68, 92, 0.35);
+            overflow: hidden;
+            position: relative;
+            animation: pmSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .pm-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .pm-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pm-header-icon {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            background: rgba(39, 68, 92, 0.08);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .pm-title {
+            font-family: 'TelkaTRIALBold', 'TelkaTRIAL', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .pm-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .pm-close {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .pm-close:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #dc2626;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Test Mode Banner */
+        .pm-test-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .pm-test-banner i {
+            font-size: 0.85rem;
+        }
+
+        /* Tabs */
+        .pm-tabs {
+            display: flex;
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .pm-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 0.5rem;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.25s ease;
+            box-shadow: none;
+        }
+
+        .pm-tab:hover {
+            background: rgba(39, 68, 92, 0.06);
+            color: var(--text-primary);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .pm-tab.active {
+            background: var(--text-primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(39, 68, 92, 0.25);
+        }
+
+        .pm-tab.active:hover {
+            background: var(--text-primary);
+            color: #fff;
+        }
+
+        .pm-tab i {
+            font-size: 0.9rem;
+        }
+
+        /* Body */
+        .pm-body {
+            padding: 1.5rem;
+        }
+
+        .pm-tab-content {
+            display: none;
+        }
+
+        .pm-tab-content.active {
+            display: block;
+            animation: pmFadeIn 0.3s ease-out;
+        }
+
+        /* =========== CARD VISUAL =========== */
+        .pm-card-visual {
+            perspective: 1200px;
+            margin-bottom: 1.5rem;
+            height: 195px;
+        }
+
+        .pm-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .pm-card-visual.flipped .pm-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .pm-card-front,
+        .pm-card-back {
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: #fff;
+            backface-visibility: hidden;
+            overflow: hidden;
+        }
+
+        .pm-card-front {
+            background: linear-gradient(135deg, #27445C 0%, #5A8DB9 60%, #A9ECFF 100%);
+            box-shadow: 0 12px 28px rgba(39, 68, 92, 0.35);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pm-card-back {
+            background: linear-gradient(135deg, #5A8DB9 0%, #27445C 100%);
+            box-shadow: 0 12px 28px rgba(39, 68, 92, 0.35);
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pm-card-shine {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.08) 42%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.08) 58%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .pm-card-front-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .pm-chip {
+            width: 46px;
+            height: 32px;
+            background: linear-gradient(135deg, #d4af37, #f9e38e, #d4af37);
+            border-radius: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center;
+            gap: 2px;
+            padding: 6px 4px;
+        }
+
+        .pm-chip-line {
+            width: 100%;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 1px;
+        }
+
+        .pm-card-brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            opacity: 0.9;
+        }
+
+        .pm-card-number {
+            font-family: 'Courier New', 'Lucida Console', monospace;
+            font-size: 1.35rem;
+            letter-spacing: 3px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            padding: 0.25rem 0;
+        }
+
+        .pm-card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .pm-card-label {
+            display: block;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.7;
+            margin-bottom: 3px;
+        }
+
+        .pm-card-value {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .pm-mag-strip {
+            background: rgba(0, 0, 0, 0.6);
+            height: 42px;
+            margin: 1.25rem -1.5rem 1rem;
+        }
+
+        .pm-cvv-area {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding-right: 0.5rem;
+        }
+
+        .pm-cvv-label {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .pm-cvv-box {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* =========== FORM FIELDS =========== */
+        .pm-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pm-field {
+            margin-bottom: 1rem;
+        }
+
+        .pm-field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .pm-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        .pm-input-wrap {
+            position: relative;
+        }
+
+        .pm-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .pm-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: #f9fafb;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .pm-input.has-icon {
+            padding-left: 2.5rem;
+        }
+
+        .pm-input:focus {
+            outline: none;
+            border-color: var(--text-primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(39, 68, 92, 0.06);
+        }
+
+        .pm-input::placeholder {
+            color: #b0b8c4;
+        }
+
+        /* =========== PAY BUTTON =========== */
+        .pm-pay-btn {
+            width: 100%;
+            height: 50px;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            background: linear-gradient(135deg, #27445C 0%, #1a2e3f 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(39, 68, 92, 0.3);
+            transition: all 0.25s ease;
+            padding: 0;
+        }
+
+        .pm-pay-btn:hover {
+            background: linear-gradient(135deg, #325673 0%, #27445C 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(39, 68, 92, 0.4);
+        }
+
+        .pm-pay-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =========== QR TAB =========== */
+        .pm-qr-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pm-qr-code-box {
+            padding: 1rem;
+            background: #fff;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1rem;
+        }
+
+        .pm-qr-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+        }
+
+        .pm-qr-details {
+            width: 100%;
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .pm-qr-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+        }
+
+        .pm-qr-row:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .pm-qr-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .pm-qr-value {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* =========== GOOGLE PAY TAB =========== */
+        .pm-gpay-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            padding: 1rem 0;
+        }
+
+        .pm-gpay-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(39, 68, 92, 0.06);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .pm-gpay-status {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .pm-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem;
+            background: #f8f9fa;
+            border-top: 1px solid #e5e7eb;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+
+        .pm-footer i {
+            color: #22c55e;
+        }
+
+        /* =========== ANIMATIONS =========== */
+        @keyframes pmFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pmSlideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* =========== RESPONSIVE =========== */
+        @media (max-width: 520px) {
+            .pm-modal {
+                max-width: 100%;
+                border-radius: 20px 20px 0 0;
+                max-height: 100vh;
+            }
+
+            .pm-backdrop {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .pm-card-number {
+                font-size: 1.1rem;
+                letter-spacing: 2px;
+            }
+
+            .pm-tab span {
+                display: none;
+            }
+
+            .pm-tab i {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+
+    <script src="/node_modules/qrcodejs/qrcode.min.js"></script>
+    <script>
+        // ============================================================
+        // PAYMENT MODAL CONTROLLER
+        // ============================================================
+        const modal = {
+            backdrop: document.getElementById('paymentModal'),
+            closeBtn: document.getElementById('closeModalBtn'),
+            tabs: document.querySelectorAll('.pm-tab'),
+            contents: document.querySelectorAll('.pm-tab-content'),
+
+            open(initialTab = 'card') {
+                this.backdrop.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                this.switchTab(initialTab);
+
+                const totalText = document.getElementById('reviewTotal').textContent;
+                document.querySelectorAll('.pay-amount-display').forEach(el => el.textContent = totalText);
+            },
+
+            close() {
+                this.backdrop.style.display = 'none';
+                document.body.style.overflow = '';
+            },
+
+            switchTab(tabName) {
+                this.tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+                this.contents.forEach(c => c.classList.toggle('active', c.id === `tab-${tabName}`));
+
+                if (tabName === 'qr') initQRCode();
+                else if (tabName === 'googlepay') initGooglePay();
+            }
+        };
+
+        modal.closeBtn.addEventListener('click', () => modal.close());
+        modal.backdrop.addEventListener('click', (e) => {
+            if (e.target === modal.backdrop) modal.close();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.backdrop.style.display === 'flex') modal.close();
+        });
+
+        modal.tabs.forEach(btn => {
+            btn.addEventListener('click', () => modal.switchTab(btn.dataset.tab));
+        });
+
+        // ============================================================
+        // INTERCEPT ORDER BUTTON
+        // ============================================================
+        const originalBtn = document.getElementById('confirmOrderBtn');
+        const newBtn = originalBtn.cloneNode(true);
+        originalBtn.parentNode.replaceChild(newBtn, originalBtn);
+
+        newBtn.addEventListener('click', async () => {
             if (customer.paymentMethod === 'paypal') {
-                // Testovací režim pro uživatele - vizuální "otevření" PayPalu a automatické dokončení
-                const confirmed = confirm("Testovací režim: Budete přesměrováni na PayPal pro simulaci platby.\n\n(V rámci testování nemusíte reálně platit - objednávka se automaticky dokončí.)");
+                const confirmed = confirm("Testovací režim: Simulace PayPal platby bez připojení k internetu.\n\nObjednávka se po potvrzení automaticky dokončí.");
                 if (!confirmed) return;
-                
-                // Otevřít PayPal v novém okně pro efekt
-                window.open('https://www.paypal.com/cz/home', '_blank');
-                
-                // Změnit stav tlačítka
-                const btn = document.getElementById('confirmOrderBtn');
-                btn.disabled = true;
-                btn.textContent = 'Ověřování platby...';
-
-                // Simulace krátkého čekání na "potvrzení" platby a poté odeslání
+                newBtn.disabled = true;
+                newBtn.textContent = 'Ověřování platby...';
                 setTimeout(() => {
-                    submitOrder({ 
-                        status: 'COMPLETED', 
+                    submitOrder({
+                        status: 'COMPLETED',
                         id: 'TEST-PAYPAL-' + Date.now(),
-                        simulation: true 
+                        simulation: true
                     });
                 }, 1500);
-
+            } else if (['card', 'googlepay', 'qr'].includes(customer.paymentMethod)) {
+                modal.open(customer.paymentMethod);
             } else {
-                // Standardní odeslání pro ostatní metody (dobírka, karta - pokud není integrována)
                 submitOrder();
             }
         });
+
+        // ============================================================
+        // CARD FORM LOGIC
+        // ============================================================
+        const cardForm = document.getElementById('cardPaymentForm');
+        const cNum = document.getElementById('cardNumber');
+        const cExp = document.getElementById('cardExpiry');
+        const cCvv = document.getElementById('cardCvv');
+        const cHolder = document.getElementById('cardHolder');
+        const cardVisual = document.getElementById('cardVisualEl');
+
+        cNum.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            val = val.replace(/(.{4})/g, '$1 ').trim();
+            e.target.value = val;
+            document.getElementById('displayCardNumber').textContent = val || '•••• •••• •••• ••••';
+        });
+
+        cExp.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length >= 2) val = val.slice(0, 2) + '/' + val.slice(2, 4);
+            e.target.value = val;
+            document.getElementById('displayCardExpiry').textContent = val || 'MM/YY';
+        });
+
+        cHolder.addEventListener('input', (e) => {
+            document.getElementById('displayCardHolder').textContent = e.target.value.toUpperCase() || 'JMÉNO PŘÍJMENÍ';
+        });
+
+        cCvv.addEventListener('focus', () => cardVisual.classList.add('flipped'));
+        cCvv.addEventListener('blur', () => cardVisual.classList.remove('flipped'));
+        cCvv.addEventListener('input', (e) => {
+            document.getElementById('displayCardCvv').textContent = e.target.value.length > 0 ? '•'.repeat(e.target.value.length) : '***';
+        });
+
+        cardForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = cardForm.querySelector('button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Zpracovávám platbu...';
+
+            setTimeout(() => {
+                modal.close();
+                submitOrder({
+                    method: 'card',
+                    simulation: true,
+                    id: 'TEST-CARD-' + Date.now()
+                });
+            }, 2000);
+        });
+
+        // ============================================================
+        // QR CODE LOGIC
+        // ============================================================
+        function initQRCode() {
+            const container = document.getElementById('qrcode');
+            container.innerHTML = '';
+
+            const vs = Math.floor(10000000 + Math.random() * 90000000);
+            document.getElementById('qrVs').textContent = vs;
+
+            const totalText = document.getElementById('reviewTotal').textContent;
+            const amount = parseFloat(totalText.replace(/\D/g, ''));
+
+            const qrString = `SPD*1.0*ACC:CZ6508000000192000145399*AM:${amount}.00*CC:CZK*MSG:DRIVE objednavka*VS:${vs}`;
+
+            new QRCode(container, {
+                text: qrString,
+                width: 180,
+                height: 180,
+                colorDark: '#27445C',
+                colorLight: '#ffffff'
+            });
+        }
+
+        document.getElementById('confirmQrBtn').addEventListener('click', function () {
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ověřuji platbu...';
+
+            setTimeout(() => {
+                modal.close();
+                submitOrder({
+                    method: 'qr',
+                    simulation: true,
+                    id: 'TEST-QR-' + Date.now()
+                });
+            }, 1500);
+        });
+
+        // ============================================================
+        // GOOGLE PAY LOGIC
+        // ============================================================
+        let paymentsClient = null;
+
+        function getGooglePaymentDataRequest() {
+            const totalText = document.getElementById('reviewTotal').textContent;
+            const amount = totalText.replace(/\D/g, '');
+
+            return {
+                apiVersion: 2,
+                apiVersionMinor: 0,
+                allowedPaymentMethods: [{
+                    type: 'CARD',
+                    parameters: {
+                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                        allowedCardNetworks: ['MASTERCARD', 'VISA']
+                    },
+                    tokenizationSpecification: {
+                        type: 'PAYMENT_GATEWAY',
+                        parameters: {
+                            'gateway': 'example',
+                            'gatewayMerchantId': 'exampleGatewayMerchantId'
+                        }
+                    }
+                }],
+                merchantInfo: {
+                    merchantId: '12345678901234567890',
+                    merchantName: 'DRIVE. Kofeinová voda'
+                },
+                transactionInfo: {
+                    totalPriceStatus: 'FINAL',
+                    totalPriceLabel: 'Total',
+                    totalPrice: amount,
+                    currencyCode: 'CZK',
+                    countryCode: 'CZ'
+                }
+            };
+        }
+
+        function initGooglePay() {
+            if (paymentsClient) return;
+
+            // Offline fallback: pokud není načtené Google Pay SDK, nabídneme simulaci.
+            if (!window.google || !google.payments || !google.payments.api) {
+                document.getElementById('gpay-button-container').innerHTML = '';
+                const fallbackBtn = document.createElement('button');
+                fallbackBtn.type = 'button';
+                fallbackBtn.className = 'btn-place-order';
+                fallbackBtn.textContent = 'Dokončit simulovanou Google Pay platbu';
+                fallbackBtn.addEventListener('click', () => {
+                    modal.close();
+                    submitOrder({
+                        method: 'googlepay',
+                        simulation: true,
+                        id: 'TEST-GPay-OFFLINE-' + Date.now()
+                    });
+                });
+                document.getElementById('gpay-button-container').appendChild(fallbackBtn);
+                document.getElementById('gpay-status').textContent = 'Google Pay SDK není offline dostupné. Aktivní je lokální testovací simulace.';
+                return;
+            }
+
+            try {
+                paymentsClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+                const isReadyToPayRequest = Object.assign({}, getGooglePaymentDataRequest());
+                isReadyToPayRequest.transactionInfo = undefined;
+
+                paymentsClient.isReadyToPay(isReadyToPayRequest)
+                    .then(function (response) {
+                        if (response.result) {
+                            addGooglePayButton();
+                        } else {
+                            document.getElementById('gpay-status').textContent = 'Google Pay není v tomto prohlížeči dostupný.';
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error(err);
+                        document.getElementById('gpay-status').textContent = 'Google Pay se nepodařilo načíst.';
+                    });
+            } catch (e) {
+                console.error('Google Pay Init Error', e);
+            }
+        }
+
+        function addGooglePayButton() {
+            const button = paymentsClient.createButton({
+                onClick: onGooglePaymentButtonClicked,
+                allowedPaymentMethods: getGooglePaymentDataRequest().allowedPaymentMethods
+            });
+            document.getElementById('gpay-button-container').innerHTML = '';
+            document.getElementById('gpay-button-container').appendChild(button);
+        }
+
+        function onGooglePaymentButtonClicked() {
+            const paymentDataRequest = getGooglePaymentDataRequest();
+            paymentsClient.loadPaymentData(paymentDataRequest)
+                .then(function (paymentData) {
+                    modal.close();
+                    submitOrder({
+                        method: 'googlepay',
+                        token: paymentData.paymentMethodData,
+                        id: 'TEST-GPay-' + Date.now()
+                    });
+                })
+                .catch(function (err) {
+                    console.error('GPay Error', err);
+                });
+        }
     </script>
 </body>
-</html>
 
+</html>

@@ -85,6 +85,40 @@
         }
     }
 
+    function renderHomeBestSellers() {
+        const homeGrid = document.querySelector('#section-best-sellers .products-grid');
+        if (!homeGrid || products.length === 0) return;
+
+        const preferredSlugs = ['cans-citrus', 'cans-berry', 'cans-mango'];
+        const selected = preferredSlugs
+            .map(slug => products.find(p => p.slug === slug))
+            .filter(Boolean);
+
+        const cards = selected.length > 0 ? selected : products.slice(0, 3);
+
+        homeGrid.innerHTML = cards.map(product => {
+            const mainImg = product.image || '/assets/img/products/test.png';
+            const hoverImg = product.hoverImage || mainImg;
+            const detailHref = `/Product-detail/index.html?product=${encodeURIComponent(product.slug || product.id)}`;
+            const safePrice = Number.isFinite(product.price) ? Math.round(product.price) : 0;
+
+            return `
+                <div class="product-card">
+                    <a href="${detailHref}" class="product-link">
+                        <div class="product-image">
+                            <img src="${mainImg}" alt="${product.name}" class="default-img" onerror="this.onerror=null; this.src='/assets/img/products/test.png';">
+                            <img src="${hoverImg}" alt="${product.name} hover" class="hover-img" onerror="this.onerror=null; this.src='${mainImg}';">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${product.name}</h3>
+                            <p class="product-price">${safePrice} Kč</p>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }).join('');
+    }
+
     // ------------------------
     // FETCH PRODUCTS FROM API
     // ------------------------
@@ -98,9 +132,11 @@
             // Map server fields (id, slug, name, price_cents, image, hover_image) to UI fields
             products = data.map(p => ({
                 id: p.id.toString(),
+                slug: p.slug,
                 name: p.name,
                 price: (p.price_cents / 100), // Convert cents to main currency unit
                 image: p.image,
+                hoverImage: p.hover_image || p.image,
                 description: p.description || '', // Fallback if description is missing
                 category: '',
                 flavor: '',
@@ -108,15 +144,17 @@
                 badge: ''
             }));
             renderProducts();
+            renderHomeBestSellers();
         } catch (error) {
             console.error("Chyba při načítání produktů:", error);
             // Fallback data if API fails (e.g. opening file directly)
             products = [
-                { id: '4', name: 'CANS Mango', price: 599, image: '/assets/img/products/test.png', badge: 'Novinka' },
-                { id: '5', name: 'CANS Citrus', price: 599, image: '/assets/img/products/test.png', badge: 'Tip' },
-                { id: '6', name: 'CANS Berry', price: 599, image: '/assets/img/products/test.png', badge: '' }
+                { id: '4', slug: 'cans-mango', name: 'CANS Mango', price: 599, image: '/assets/img/products/test.png', hoverImage: '/assets/img/products/test2.jpg', badge: 'Novinka' },
+                { id: '5', slug: 'cans-citrus', name: 'CANS Citrus', price: 599, image: '/assets/img/products/test.png', hoverImage: '/assets/img/products/test2.jpg', badge: 'Tip' },
+                { id: '6', slug: 'cans-berry', name: 'CANS Berry', price: 599, image: '/assets/img/products/test.png', hoverImage: '/assets/img/products/test2.jpg', badge: '' }
             ];
             renderProducts();
+            renderHomeBestSellers();
         }
     }
 
@@ -127,9 +165,11 @@
             const p = await res.json();
             return {
                 id: p.id.toString(),
+                slug: p.slug,
                 name: p.name,
                 price: (p.price_cents / 100),
                 image: p.image,
+                hoverImage: p.hover_image || p.image,
                 description: p.description || '',
                 category: '',
                 flavor: '',
@@ -153,19 +193,70 @@
         products.forEach(product => {
             const productCard = document.createElement('div');
             productCard.className = 'product-card';
-            productCard.innerHTML = `
-                ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-                <div class="product-image">
-                    <span>${product.image}</span>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">${product.name}</h3>
-                    <p class="product-price">${product.price} Kč</p>
-                    <button class="add-to-cart btn" data-id="${product.id}">
-                        <i class="fas fa-shopping-cart"></i> Přidat do košíku
-                    </button>
-                </div>
+            
+            // Badge
+            if (product.badge) {
+                const badge = document.createElement('span');
+                badge.className = 'product-badge';
+                badge.textContent = product.badge;
+                productCard.appendChild(badge);
+            }
+
+            // Image
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'product-image';
+            const img = document.createElement('img');
+            img.src = product.image;
+            img.alt = product.name;
+            // Basic styling to ensure it displays correctly if CSS was relying on background-image
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            
+            imgDiv.appendChild(img);
+            productCard.appendChild(imgDiv);
+
+            // Info
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'product-info';
+
+            const h3 = document.createElement('h3');
+            h3.className = 'product-title';
+            h3.textContent = product.name;
+            infoDiv.appendChild(h3);
+
+            const pPrice = document.createElement('p');
+            pPrice.className = 'product-price';
+            pPrice.textContent = `${product.price} Kč`;
+            infoDiv.appendChild(pPrice);
+
+            // Subscription Toggle
+            const subDiv = document.createElement('div');
+            subDiv.className = 'subscription-toggle';
+            subDiv.style.marginBottom = '10px';
+            subDiv.innerHTML = `
+                <label style="display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
+                    <input type="checkbox" class="sub-checkbox" data-id="${product.id}">
+                    <span>Předplatné (ušetříte 10%)</span>
+                </label>
             `;
+            infoDiv.appendChild(subDiv);
+
+            const btn = document.createElement('button');
+            btn.className = 'add-to-cart btn';
+            btn.dataset.id = product.id;
+            btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Přidat do košíku';
+            
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Stop global listener
+                const isSub = subDiv.querySelector('input').checked;
+                addToCart(product.id, isSub);
+            };
+
+            infoDiv.appendChild(btn);
+
+            productCard.appendChild(infoDiv);
             productsGrid.appendChild(productCard);
         });
 
@@ -214,7 +305,7 @@
     // ------------------------
     // ADD TO CART
     // ------------------------
-    async function addToCart(productId) {
+    async function addToCart(productId, isSubscription = false) {
         const productFromList = products.find(p => p.id === productId);
         const productToAdd = productFromList || await fetchProductById(productId);
         if (!productToAdd) return;
@@ -225,7 +316,8 @@
                     id: productToAdd.id,
                     name: productToAdd.name,
                     price: Number(productToAdd.price) || 0,
-                    image: productToAdd.image || null
+                    image: productToAdd.image || null,
+                    isSubscription: isSubscription
                 },
                 1
             );
@@ -235,14 +327,15 @@
         const existingItem = cart.find(item => item.id === productId);
         if (existingItem) {
             existingItem.quantity++;
+            existingItem.isSubscription = isSubscription;
         } else {
-            cart.push({ ...productToAdd, quantity: 1 });
+            cart.push({ ...productToAdd, quantity: 1, isSubscription: isSubscription });
         }
 
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
         renderMiniCart();
-        alert('Produkt byl přidán do košíku!');
+        alert(isSubscription ? 'Předplatné přidáno do košíku!' : 'Produkt byl přidán do košíku!');
     }
 
     document.addEventListener('click', e => {

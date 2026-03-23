@@ -17,24 +17,37 @@
 
 /* CSS Custom Properties */
 :root {
-    --primary-light: #A9ECFF;    /* Světle modrá */
-    --primary-medium: #DBF6ED;   /* Světle zeleno-modrá */
-    --primary-dark: #E2FBDE;     /* Světle zelená */
+    --primary-light: #A9ECFF;
+    /* Světle modrá */
+    --primary-medium: #DBF6ED;
+    /* Světle zeleno-modrá */
+    --primary-dark: #E2FBDE;
+    /* Světle zelená */
     --text-primary: #27445C;
     --text-secondary: #5A8DB9;
-    --background: #FFFFFF;       /* Bílá */
-    --light-bg: #f8f9fa;         /* Velmi světlé pozadí */
-    --shadow: 0 4px 12px rgba(26, 60, 52, 0.1); /* Stín s nádechem zelené */
-    --shadow-hover: 0 8px 24px rgba(26, 60, 52, 0.15); /* zvýrazněný stín pro hover/overlay */
+    --background: #FFFFFF;
+    /* Bílá */
+    --light-bg: #f8f9fa;
+    /* Velmi světlé pozadí */
+    --shadow: 0 4px 12px rgba(26, 60, 52, 0.1);
+    /* Stín s nádechem zelené */
+    --shadow-hover: 0 8px 24px rgba(26, 60, 52, 0.15);
+    /* zvýrazněný stín pro hover/overlay */
     --transition: all 0.3s ease;
     --radius: 8px;
-    --navbar-height: 72px; /* sjednocená výška navbaru napříč webem */
+    --navbar-height: 72px;
+    /* sjednocená výška navbaru napříč webem */
     /* Doplněné proměnné pro úplnou nezávislost AboutUs bez globálního CSS */
-    --surface: #FFFFFF;           /* Povrchové pozadí panelů/karet */
-    --border: #E6EEF5;            /* Jemná barva okrajů */
-    --text: #2B475F;              /* Běžný text */
-    --heading: #27445C;           /* Nadpisy */
-    --text-muted: rgba(39, 68, 92, 0.65); /* Tlumený text */
+    --surface: #FFFFFF;
+    /* Povrchové pozadí panelů/karet */
+    --border: #E6EEF5;
+    /* Jemná barva okrajů */
+    --text: #2B475F;
+    /* Běžný text */
+    --heading: #27445C;
+    /* Nadpisy */
+    --text-muted: rgba(39, 68, 92, 0.65);
+    /* Tlumený text */
 }
 
 /* (záměrně prázdné) – chování navbaru sjednocené s ostatními stránkami */
@@ -49,18 +62,25 @@
 }
 
 /* Remove gutter reservation to avoid right white strip */
-html { scrollbar-gutter: auto; }
+html {
+    scrollbar-gutter: auto;
+}
 
-body, html {
+body,
+html {
     font-family: 'TelkaTRIAL', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-primary);
     background-color: var(--background);
     line-height: 1.6;
     overflow-x: hidden;
-    overflow-y: auto; /* Use natural scrollbar to avoid duplicates */
+    overflow-y: auto;
+    /* Use natural scrollbar to avoid duplicates */
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     font-family: 'TelkaTRIAL', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-bottom: 1rem;
     line-height: 1.2;
@@ -82,7 +102,8 @@ h3 {
 
 .container {
     width: 100%;
-    max-width: 1320px; /* widen for large screens */
+    max-width: 1320px;
+    /* widen for large screens */
     margin: 0 auto;
     padding: 0 1rem;
 }
@@ -162,6 +183,7 @@ body.mini-cart-open {
     transform: translateY(0);
     opacity: 1;
 }
+
 .hamburger {
     display: none;
     cursor: pointer;
@@ -211,14 +233,21 @@ body.mini-cart-open {
 .nav-container {
     /* Grid zarovnání pro konzistentní střed nav odkazů napříč stránkami */
     display: grid;
-    grid-template-columns: auto 1fr auto; /* logo | střed (menu) | akce */
+    grid-template-columns: auto 1fr auto;
+    /* logo | střed (menu) | akce */
     align-items: center;
     padding: 0 2rem;
     min-height: var(--navbar-height);
 }
 
 /* Fontová shoda s Products – zajistí stejnou metriku textu v navbaru */
-.navbar, .nav-container, .nav-menu, .nav-actions, .nav-cta, .nav-link, .logo {
+.navbar,
+.nav-container,
+.nav-menu,
+.nav-actions,
+.nav-cta,
+.nav-link,
+.logo {
     font-family: 'TelkaTRIAL', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     /* Match Home/Products nav metrics for pixel parity */
     font-weight: 600;
@@ -252,8 +281,10 @@ body.mini-cart-open {
 
 /* ZVĚTŠENÍ A ZVÝRAZNĚNÍ TEXTU ODKAZŮ */
 .nav-link {
-    font-size: 1.1rem; /* Zvětšení písma */
-    font-weight: 600;  /* Zvýraznění (tlustší písmo) */
+    font-size: 1.1rem;
+    /* Zvětšení písma */
+    font-weight: 600;
+    /* Zvýraznění (tlustší písmo) */
     transition: var(--transition);
     position: relative;
     padding: 0.5rem 0;
@@ -275,7 +306,8 @@ body.mini-cart-open {
 }
 
 .nav-link:hover {
-    color: var(--text-primary); /* Udržet stejnou barvu textu */
+    color: var(--text-primary);
+    /* Udržet stejnou barvu textu */
 }
 
 .nav-actions {
@@ -307,7 +339,7 @@ body.mini-cart-open {
 .hero {
     padding: clamp(12rem, 15vw, 16rem) 0 clamp(5rem, 10vw, 8rem);
     /* Fresh gradient matching homepage liquid glass theme */
-    background: linear-gradient(90deg, #dcfce7 0%, #e0f2fe 100%);
+    background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);
     position: relative;
     overflow: hidden;
 }
@@ -320,7 +352,7 @@ body.mini-cart-open {
     width: 70vw;
     height: 70vw;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(169, 236, 255, 0.4), transparent 70%);
+    background: radial-gradient(circle, rgba(169, 236, 255, 0.4), rgba(169, 236, 255, 0) 70%);
     filter: blur(60px);
     pointer-events: none;
     animation: floatBlob 20s infinite alternate ease-in-out;
@@ -334,15 +366,20 @@ body.mini-cart-open {
     width: 60vw;
     height: 60vw;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(226, 251, 222, 0.4), transparent 70%);
+    background: radial-gradient(circle, rgba(226, 251, 222, 0.4), rgba(226, 251, 222, 0) 70%);
     filter: blur(60px);
     pointer-events: none;
     animation: floatBlob 25s infinite alternate-reverse ease-in-out;
 }
 
 @keyframes floatBlob {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(30px, 50px) scale(1.1); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(30px, 50px) scale(1.1);
+    }
 }
 
 .hero__layout {
@@ -542,32 +579,10 @@ body.mini-cart-open {
 }
 
 .team {
-    background: linear-gradient(180deg, rgba(226, 251, 222, 0.2), rgba(255, 255, 255, 1));
+    background: #ffffff;
     padding: clamp(5rem, 10vw, 7rem) 0;
 }
 
-/* Smooth divider between hero and team */
-.smooth-divider {
-    position: relative;
-    height: 180px;
-    background:
-        radial-gradient(100% 70% at 50% 0%, rgba(219, 246, 237, 0.65) 0%, rgba(219, 246, 237, 0) 70%) no-repeat,
-        linear-gradient(180deg, rgba(219, 246, 237, 0.5) 0%, rgba(226, 251, 222, 0.25) 55%, rgba(255, 255, 255, 1) 100%);
-}
-
-.smooth-divider .smooth-wave {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 140px;
-    display: block;
-}
-
-@media (max-width: 576px) {
-    .smooth-divider { height: 150px; }
-    .smooth-divider .smooth-wave { height: 120px; }
-}
 
 .team__header {
     text-align: center;
@@ -607,7 +622,11 @@ body.mini-cart-open {
     position: relative;
 }
 
-.founder-card::before { content: none; display: none; }
+.founder-card::before {
+    content: none;
+    display: none;
+}
+
 .founder-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 20px 40px rgba(39, 68, 92, 0.12);
@@ -637,7 +656,9 @@ body.mini-cart-open {
     }
 }
 
-.founder-card__overlay { display: none; }
+.founder-card__overlay {
+    display: none;
+}
 
 .founder-card__email {
     display: flex;
@@ -706,7 +727,7 @@ body.mini-cart-open {
 }
 
 .newsletter {
-    background: linear-gradient(135deg, rgba(169, 236, 255, 0.12), rgba(219, 246, 237, 0.08));
+    background: linear-gradient(180deg, #ffffff 0%, rgba(219, 246, 237, 0.5) 40%, rgba(219, 246, 237, 0.5) 60%, #ffffff 100%);
     padding: clamp(4rem, 8vw, 6rem) 0;
     position: relative;
     overflow: hidden;
@@ -720,7 +741,7 @@ body.mini-cart-open {
     width: 600px;
     height: 600px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(169, 236, 255, 0.2), transparent);
+    background: radial-gradient(circle, rgba(169, 236, 255, 0.2), rgba(169, 236, 255, 0) 70%);
     pointer-events: none;
 }
 
@@ -732,14 +753,14 @@ body.mini-cart-open {
     width: 500px;
     height: 500px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(226, 251, 222, 0.18), transparent);
+    background: radial-gradient(circle, rgba(226, 251, 222, 0.18), rgba(226, 251, 222, 0) 70%);
     pointer-events: none;
 }
 
 .newsletter__wrapper {
     position: relative;
     z-index: 1;
-    max-width: 720px;
+    max-width: 1000px;
     margin: 0 auto;
     background: var(--surface);
     border-radius: 32px;
@@ -825,23 +846,23 @@ body.mini-cart-open {
     align-items: center;
     gap: 0.6rem;
     padding: 1rem 2rem;
-    background: var(--primary-light);
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--text-primary) 0%, #1a2e3f 100%);
+    color: #ffffff;
     border: none;
-    border-radius: 12px;
+    border-radius: 50px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.4s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
-    box-shadow: 0 6px 20px rgba(169, 236, 255, 0.6);
+    box-shadow: 0 4px 15px rgba(39, 68, 92, 0.3);
 }
 
 .newsletter__button:hover {
-    background: #8ad5f0;
+    background: linear-gradient(135deg, #325673 0%, var(--text-primary) 100%);
     color: white;
-    transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(169, 236, 255, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(39, 68, 92, 0.4);
 }
 
 .newsletter__button i {
@@ -943,7 +964,7 @@ body.mini-cart-open {
 
 /* Footer (shoda s Products) */
 footer {
-    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--primary-medium) 20%, var(--primary-light) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--primary-medium) 20%, var(--primary-light) 100%);
     color: var(--text-primary);
     padding: 6rem 1rem 2rem;
     font-size: 0.95rem;
@@ -963,7 +984,11 @@ footer {
     border-bottom: 1px solid rgba(26, 60, 52, 0.15);
 }
 
-.footer-section { flex: 1 1 220px; margin-bottom: 1.5rem; }
+.footer-section {
+    flex: 1 1 220px;
+    margin-bottom: 1.5rem;
+}
+
 .footer-section h4 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
@@ -971,11 +996,31 @@ footer {
     text-transform: uppercase;
     font-weight: 600;
 }
-.footer-section p { color: var(--text-secondary); line-height: 1.8; }
-.footer-section ul { list-style: none; padding: 0; }
-.footer-section li { margin-bottom: 0.75rem; }
-.footer-section a { color: var(--text-primary); transition: color 0.3s ease; text-decoration: none; }
-.footer-section a:hover { color: var(--text-secondary); text-decoration: underline; }
+
+.footer-section p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-section a {
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.footer-section a:hover {
+    color: var(--text-secondary);
+    text-decoration: underline;
+}
 
 .footer-info .logo {
     display: flex;
@@ -985,7 +1030,12 @@ footer {
     font-weight: bold;
     color: var(--text-primary);
 }
-.footer-info .logo-icon { color: var(--text-primary); margin-right: 0.5rem; font-size: 2rem; }
+
+.footer-info .logo-icon {
+    color: var(--text-primary);
+    margin-right: 0.5rem;
+    font-size: 2rem;
+}
 
 /* Přepiš styl social-links jen ve footeru, aby neovlivnil jiné sekce */
 footer .social-links a {
@@ -999,7 +1049,11 @@ footer .social-links a {
     background: transparent;
     border-radius: 0;
 }
-footer .social-links a:hover { color: var(--text-secondary); transform: translateY(-5px); }
+
+footer .social-links a:hover {
+    color: var(--text-secondary);
+    transform: translateY(-5px);
+}
 
 .footer-bottom {
     text-align: center;
@@ -1042,8 +1096,11 @@ footer .social-links a:hover { color: var(--text-secondary); transform: translat
     .nav-menu.active {
         left: 0;
     }
+
     /* Shoda s Home: skrýt celý blok akcí včetně košíku na mobilu */
-    .nav-actions { display: none; }
+    .nav-actions {
+        display: none;
+    }
 
     .navbar {
         width: 100%;
@@ -1179,15 +1236,30 @@ footer .social-links a:hover { color: var(--text-secondary); transform: translat
 
 /* Shoda s Products: stejné zúžení paddingu kontejneru až pod 576px */
 @media (max-width: 576px) {
-    .nav-container { padding: 0 1rem; }
+    .nav-container {
+        padding: 0 1rem;
+    }
 }
 
 /* Utility třídy */
-.mt-1 { margin-top: 1rem; }
-.mt-2 { margin-top: 2rem; }
-.mt-3 { margin-top: 3rem; }
-.mt-4 { margin-top: 4rem; }
-.hidden { display: none; }
+.mt-1 {
+    margin-top: 1rem;
+}
+
+.mt-2 {
+    margin-top: 2rem;
+}
+
+.mt-3 {
+    margin-top: 3rem;
+}
+
+.mt-4 {
+    margin-top: 4rem;
+}
+
+.hidden {
+    display: none;
+}
+
 /* .sr-only již definováno výše */
-
-

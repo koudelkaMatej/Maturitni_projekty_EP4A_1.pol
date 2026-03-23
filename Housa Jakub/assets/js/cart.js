@@ -36,7 +36,83 @@
                 // Při server módu hned načti košík ze serveru
                 this.fetchServerCart?.();
             }
+            
+            // Check if user is logged in and sync cart with DB
+            this.checkAuthAndSyncCart();
+            
             window.dispatchEvent(new Event('cartReady'));
+        }
+
+        async checkAuthAndSyncCart() {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    // User is logged in - sync cart with DB
+                    await this.syncCartToServer();
+                }
+            } catch (e) {
+                // User not logged in or error - continue with localStorage
+            }
+        }
+
+        async syncCartToServer() {
+            // Push current localStorage cart to server for logged-in users
+            try {
+                const response = await fetch('/api/user/cart/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: this.cart.map(item => ({
+                            id: item.id,
+                            quantity: item.quantity,
+                            name: item.name,
+                            price_cents: Math.round(item.price * 100),
+                            isSubscription: item.isSubscription
+                        }))
+                    })
+                });
+                
+                if (response.ok) {
+                    // Server cart synced successfully
+                    console.log('[Cart] Synced to server');
+                }
+            } catch (e) {
+                console.error('[Cart] Sync to server failed:', e);
+            }
+        }
+
+        async loadCartFromServer() {
+            // Load cart from server for logged-in users (e.g., after login from mobile/another device)
+            try {
+                const response = await fetch('/api/user/cart');
+                if (response.ok) {
+                    const data = await response.json();
+                    // Map server cart items to localStorage format
+                    if (data.items && Array.isArray(data.items)) {
+                        this.cart = data.items.map(item => {
+                            const isSub = !!item.is_subscription;
+                            const basePrice = item.price_cents || 0;
+                            // Calculate effective price if subscription (20% off)
+                            const finalPrice = isSub ? Math.round(basePrice * 0.8) : basePrice;
+
+                            return {
+                                id: item.product_id || item.id,
+                                name: item.name,
+                                price: finalPrice / 100,
+                                quantity: item.quantity,
+                                variant: isSub ? 'Předplatné' : 'Standardní balení',
+                                image: item.image || null,
+                                isSubscription: isSub,
+                                addedAt: new Date().toISOString()
+                            };
+                        });
+                        this.persistAndRefresh();
+                        console.log('[Cart] Loaded from server');
+                    }
+                }
+            } catch (e) {
+                console.error('[Cart] Load from server failed:', e);
+            }
         }
 
         cacheDom() {
@@ -92,11 +168,17 @@
 
             event.preventDefault();
 
+            // Check for subscription checkbox in the product card
+            const card = button.closest('.product-card') || button.closest('.product-info') || button.parentElement;
+            const subCheckbox = card ? card.querySelector('.sub-checkbox') : null;
+            const isSub = subCheckbox ? subCheckbox.checked : false;
+
             const product = {
                 id: button.dataset.id,
                 name: button.dataset.name,
                 price: Number(button.dataset.price) || 0,
-                image: button.dataset.image || null
+                image: button.dataset.image || null,
+                isSubscription: isSub
             };
 
             const variant = button.dataset.variant || null;
@@ -174,23 +256,30 @@
 
         async addToCart(product, quantity = 1, variant = null) {
             const safeQuantity = Math.max(1, Number(quantity) || 1);
+            const isSub = !!product.isSubscription;
+            
             if (this.useLocalStorage) {
                 const existingItem = this.findItem(product.id, variant);
                 if (existingItem) {
                     existingItem.quantity += safeQuantity;
+                    // DŮLEŽITÉ: Aktualizovat isSubscription i u existující položky
+                    existingItem.isSubscription = isSub;
+                    existingItem.price = Number(product.price) || existingItem.price;
                 } else {
-                    this.cart.push({
+                    const newItem = {
                         id: product.id,
                         name: product.name,
                         price: Number(product.price) || 0,
                         quantity: safeQuantity,
                         variant: variant || null,
                         image: product.image || null,
+                        isSubscription: isSub,
                         addedAt: new Date().toISOString()
-                    });
+                    };
+                    this.cart.push(newItem);
                 }
                 this.persistAndRefresh();
-                this.showToast('Produkt byl přidán do košíku');
+                this.showToast(isSub ? 'Předplatné přidáno do košíku' : 'Produkt byl přidán do košíku');
                 return;
             }
 
@@ -310,6 +399,8 @@
         persistAndRefresh() {
             this.saveCart();
             this.updateCartDisplay();
+            // Also sync to server if user is logged in
+            this.syncCartToServer();
         }
 
         updateCartDisplay() {

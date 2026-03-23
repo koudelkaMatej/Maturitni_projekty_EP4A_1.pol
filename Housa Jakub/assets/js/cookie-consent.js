@@ -10,10 +10,10 @@
         banner.id = 'cookie-consent-banner';
         banner.innerHTML = `
             <div class="cookie-content">
-                <p>
+                <p style="margin: 0; line-height: 1.5; font-size: 0.95rem;">
                     Tento web používá soubory cookie k zajištění funkčnosti a vylepšení uživatelského zážitku. 
                     Používáním webu s tím souhlasíte. 
-                    <a href="/Info/privacy.html" style="color: inherit; text-decoration: underline;">Více informací</a>.
+                    <a href="/Info/privacy.html" style="color: #A9ECFF; text-decoration: underline; font-weight: 600;">Více informací</a>.
                 </p>
                 <div class="cookie-buttons">
                     <button id="cookie-accept" class="btn btn-sm">Souhlasím</button>
@@ -29,12 +29,13 @@
             width: '100%',
             backgroundColor: '#27445C', // Brand dark blue
             color: '#fff',
-            padding: '1rem',
+            padding: '1.5rem',
             zIndex: '9999',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderTop: '1px solid rgba(255,255,255,0.1)'
         });
 
         // Inner content styles
@@ -52,14 +53,27 @@
         // Button styles
         const btn = banner.querySelector('#cookie-accept');
         Object.assign(btn.style, {
-            backgroundColor: '#fff',
+            backgroundColor: '#ffffff',
+            backgroundImage: 'none', // Override CSS gradient
             color: '#27445C',
             border: 'none',
-            padding: '0.5rem 1.5rem',
-            borderRadius: '4px',
+            padding: '0.75rem 2rem',
+            borderRadius: '50px',
             cursor: 'pointer',
-            fontWeight: '600',
-            fontSize: '0.9rem'
+            fontWeight: '700',
+            fontSize: '1rem',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease'
+        });
+
+        // Add hover effect via event listeners since we can't do pseudo-classes in inline styles
+        btn.addEventListener('mouseenter', () => {
+            btn.style.transform = 'scale(1.05)';
+            btn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'scale(1)';
+            btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
         });
 
         document.body.appendChild(banner);

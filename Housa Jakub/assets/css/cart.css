@@ -442,6 +442,21 @@ body {
     color: #fff;
 }
 
+.discount-message {
+    margin-top: 1rem;
+    padding-left: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.discount-message.success {
+    font-weight: 600;
+}
+
+.discount-message.error {
+    color: #dc3545;
+}
+
 /* Login Prompt Card */
 .login-prompt-card {
     background: #ffffff;
@@ -922,6 +937,142 @@ body {
     .btn-logout-clean {
         width: 100%;
         text-align: center;
+    }
+}
+
+/* Toast Notification System */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease-out, slideOutRight 0.3s ease-out 4.7s forwards;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 44px;
+}
+
+.toast.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid #dc2626;
+}
+
+.toast.success {
+    background: #dcfce7;
+    color: #166534;
+    border-left: 4px solid #22c55e;
+}
+
+.toast.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid #f59e0b;
+}
+
+.toast.info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left: 4px solid #3b82f6;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+}
+
+.toast-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: inherit;
+    padding: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* Form Error Messages (Inline) */
+.form-group {
+    position: relative;
+}
+
+.form-error-message {
+    display: none;
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-error-message.show {
+    display: flex;
+}
+
+.form-error-message i {
+    font-size: 0.8rem;
+}
+
+.form-input.error {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+}
+
+/* Mobile responsive for toast */
+@media (max-width: 600px) {
+    .toast-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        max-width: none;
+    }
+
+    .toast {
+        min-height: 40px;
+        padding: 12px 14px;
+        font-size: 13px;
     }
 }
 

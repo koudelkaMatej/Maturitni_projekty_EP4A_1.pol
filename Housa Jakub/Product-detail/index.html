@@ -21,9 +21,12 @@
     <meta property="twitter:image" content="https://www.drive-energy.cz/assets/img/products/test.png">
 
     <title>CANS Mango 24×330ml | Prémiový energetický nápoj</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/product-detail.css">
+    <style>
+        .container.product-detail-page { transition: opacity 0.2s ease; }
+    </style>
 </head>
 <body>
    
@@ -40,6 +43,9 @@
                 <li><a href="/index.html#section-newsletter" class="nav-link">Kontakt</a></li>
             </ul>
             <div class="nav-actions">
+                <a href="/Account/index.html" class="user-icon" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="Můj účet">
+                    <i class="fas fa-user"></i>
+                </a>
                 <a href="/Products/index.html" class="btn nav-cta">Nakupovat</a>
                 <div class="cart-icon" id="cartIcon">
                     <i class="fas fa-shopping-cart"></i>
@@ -94,8 +100,8 @@
             <!-- Pravý blok - informace o produktu -->
             <div class="product-info">
                 <div class="product-title">
-                    <h1>CANS Mango</h1>
-                    <div class="flavor">Osvěžující mango příchuť</div>
+                    <h1>Načítání...</h1>
+                    <div class="flavor"></div>
                     <div class="rating">
                         <div class="stars">
                             <i class="fas fa-star"></i>
@@ -108,19 +114,11 @@
                     </div>
                 </div>
 
-                <!-- Výběr příchutí -->
+                <!-- Výběr příchutí (renderováno dynamicky z API) -->
                 <div class="flavor-selector">
-                    <h4>Vyberte příchuť: <span id="selected-flavor-name" style="font-weight: 600; color: var(--text-primary);">Mango</span></h4>
+                    <h4>Vyberte příchuť: <span id="selected-flavor-name" style="font-weight: 600; color: var(--text-primary);">Načítání...</span></h4>
                     <div class="flavor-options">
-                        <div class="flavor-option mango active" onclick="selectFlavor('mango', this)">
-                            <img src="/assets/img/products/test.png" alt="Mango příchuť">
-                        </div>
-                        <div class="flavor-option citrus" onclick="selectFlavor('citrus', this)">
-                            <img src="/assets/img/products/test.png" alt="Citrus příchuť">
-                        </div>
-                        <div class="flavor-option berry" onclick="selectFlavor('berry', this)">
-                            <img src="/assets/img/products/test.png" alt="Lesní ovoce příchuť">
-                        </div>
+                        <!-- Flavor options are rendered dynamically by product-detail.js -->
                     </div>
                 </div>
 
@@ -128,24 +126,24 @@
                 <div class="price-section">
                     <h3>Zvolte způsob nákupu:</h3>
                     <div class="purchase-options">
-                        <div class="purchase-option active" onclick="selectPurchaseOption('single', this)">
+                        <div class="purchase-option active" onclick="selectPurchaseOption('single', this)" data-type="single">
                             <div class="option-info">
                                 <div class="option-title">Jednorázový nákup</div>
                                 <div class="option-description">Zakupte si balení bez závazků</div>
                             </div>
                             <div class="option-price">
-                                <div class="current-price">599 Kč</div>
+                                <div class="current-price">... Kč</div>
                                 <div class="price-note">za 24 plechovek</div>
                             </div>
                         </div>
-                        <div class="purchase-option" onclick="selectPurchaseOption('subscription', this)">
+                        <div class="purchase-option" onclick="selectPurchaseOption('subscription', this)" data-type="subscription">
                             <div class="option-info">
                                 <div class="option-title">Předplatné</div>
                                 <div class="option-description">Pravidelné doručení se slevou</div>
                                 <div class="discount-badge">Ušetříte 20%</div>
                             </div>
                             <div class="option-price">
-                                <div class="current-price">479 Kč</div>
+                                <div class="current-price">... Kč</div>
                                 <div class="price-note">měsíčně za 24 plechovek</div>
                             </div>
                         </div>
@@ -322,6 +320,7 @@
     <script src="/assets/js/cookie-consent.js"></script>
 </body>
 </html>
+
 
 
 

@@ -26,7 +26,7 @@
             
             // Map server fields to UI fields
             products = data.map(p => ({
-                id: String(p.id),
+                id: p.slug || String(p.id), // Prefer slug
                 slug: p.slug,
                 name: p.name,
                 price: Math.round(p.price_cents / 100), // Convert cents to Kč
@@ -109,17 +109,6 @@
                     </a>
                     <div class="product-price">${product.price} Kč</div>
                     ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
-                    <button
-                        class="add-to-cart"
-                        data-add-to-cart="true"
-                        data-id="${product.id}"
-                        data-name="${product.name}"
-                        data-price="${product.price}"
-                        data-image="${imgUrl || ''}"
-                        data-quantity="1"
-                    >
-                        Přidat do košíku
-                    </button>
                 </div>
             `;
             productsGrid.appendChild(productCard);
@@ -155,7 +144,7 @@
     }
 
     // Přidání do košíku
-    function addToCart(productId) {
+    function addToCart(productId, isSubscription = false) {
         const productToAdd = products.find(p => p.id === productId);
         if (!productToAdd) return;
 
@@ -165,7 +154,8 @@
                     id: productToAdd.id,
                     name: productToAdd.name,
                     price: Number(productToAdd.price) || 0,
-                    image: productToAdd.image || null
+                    image: productToAdd.image || null,
+                    isSubscription: isSubscription
                 },
                 1
             );
@@ -175,20 +165,22 @@
         const existingItem = cart.find(item => item.id === productId);
         if (existingItem) {
             existingItem.quantity++;
+            existingItem.isSubscription = isSubscription;
         } else {
             cart.push({ 
                 id: productToAdd.id,
                 name: productToAdd.name,
                 price: productToAdd.price,
                 image: productToAdd.image,
-                quantity: 1 
+                quantity: 1,
+                isSubscription: isSubscription
             });
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
 
         // Zobrazit potvrzení
-        showNotification('Produkt byl přidán do košíku');
+        showNotification(isSubscription ? 'Předplatné přidáno do košíku' : 'Produkt byl přidán do košíku');
     }
 
     // Filtrování podle kategorie
@@ -248,15 +240,14 @@
     fetchProducts(); // Načíst produkty z API
     setupCategoryFilters();
 
-    // Event listenery
-    if (!hasCartManager) {
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.add-to-cart')) {
-                const productId = e.target.closest('.add-to-cart').dataset.id;
-                addToCart(productId);
-            }
-        });
-    }
+    // Event listener pro přidání do košíku
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.add-to-cart');
+        if (btn) {
+            const productId = btn.dataset.id;
+            addToCart(productId, false);
+        }
+    });
 
     // Newsletter
     const newsletterForm = document.querySelector('.newsletter-form');
@@ -275,42 +266,66 @@
     function animateOpen(item) {
         const content = item.querySelector('.faq-answer');
         if (!content) return;
-        // prepare
-        content.style.paddingBottom = '0px';
-        content.style.height = '0px';
-        content.style.opacity = '0';
+        
+        // Only override if not already auto (prevent jumps)
+        if (content.style.height !== 'auto') {
+             content.style.height = '0px';
+             content.style.paddingBottom = '0px';
+             content.style.opacity = '0';
+        }
+
         // force reflow
         void content.offsetHeight;
+        
         const target = content.scrollHeight;
         content.style.height = target + 'px';
         content.style.paddingBottom = '1.2rem';
         content.style.opacity = '1';
+
+        let finished = false;
         const onEnd = (e) => {
-            if (e.propertyName === 'height') {
-                content.style.height = 'auto';
-                content.removeEventListener('transitionend', onEnd);
-            }
+            if (finished) return;
+            // Only listen for height (main transition) or fallback
+            if (e && e.propertyName !== 'height') return; 
+            
+            finished = true;
+            content.style.height = 'auto'; // release height for responsiveness
+            content.removeEventListener('transitionend', onEnd);
         };
+        
         content.addEventListener('transitionend', onEnd);
+        // Safety timeout to ensure callback runs even if transition fails/interrupts
+        setTimeout(() => onEnd(), 400); 
     }
 
     function animateClose(item, cb) {
         const content = item.querySelector('.faq-answer');
         if (!content) { if (cb) cb(); return; }
+
+        // Start from current pixel height to animate down
         const current = content.scrollHeight;
         content.style.height = current + 'px';
+        
         // force reflow
         void content.offsetHeight;
+        
         content.style.height = '0px';
         content.style.paddingBottom = '0px';
         content.style.opacity = '0';
+        
+        let finished = false;
         const onEnd = (e) => {
-            if (e.propertyName === 'height') {
-                content.removeEventListener('transitionend', onEnd);
-                if (cb) cb();
-            }
-        }
+            if (finished) return;
+            if (e && e.propertyName !== 'height') return;
+            
+            finished = true;
+            content.removeEventListener('transitionend', onEnd);
+            if (cb) cb();
+        };
+
         content.addEventListener('transitionend', onEnd);
+        // Safety timeout
+        setTimeout(() => onEnd(), 400);
     }
 
     function reserveListMinHeight() {
