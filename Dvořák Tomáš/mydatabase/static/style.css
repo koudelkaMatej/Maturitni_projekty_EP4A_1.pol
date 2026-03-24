@@ -1,0 +1,612 @@
+/* =========================================
+   1. ZÁKLADNÍ NASTAVENÍ (BODY & BACKGROUND)
+   ========================================= */
+@font-face {
+    font-family: NavFont;
+    src: url(fonts/Holitter_Gothic.ttf);
+}
+
+body {
+    background-image: url(pictures/background.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    margin: 0;
+    position: relative;
+    min-height: 100vh;
+    font-family: Arial, sans-serif; /* Fallback font */
+}
+
+/* Globální ztmavující vrstva přes celé pozadí */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: -1;
+}
+
+.container {
+    width: 95%;
+    max-width: none;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* =========================================
+   2. NAVIGAČNÍ LIŠTA (NAVBAR)
+   ========================================= */
+.navbar {
+    background: rgba(10, 5, 5, 0.92); 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9), 0 2px 15px rgba(189, 39, 47, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid #3d0000;
+    padding: 10px 0;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.navLogo img {
+    height: 80px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 0 8px rgba(189, 39, 47, 0.5));
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-list a {
+    position: relative;
+    font-size: 1.3rem;
+    font-family: "NavFont", sans-serif;
+    color: #bd272f;
+    text-decoration: none;
+    font-weight: 800;
+    padding: 8px 15px;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+.nav-list a:hover {
+    color: #ff3b3b;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+}
+
+/* Animovaná linka pod odkazem */
+.nav-list a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background: linear-gradient(90deg, transparent, #ff0000, transparent);
+    transition: all 0.4s ease;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px #ff0000;
+}
+
+.nav-list a:hover::after {
+    width: 80%;
+}
+
+/* =========================================
+   3. PROFIL A DROPDOWN
+   ========================================= */
+.login {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-bottom: 10px; 
+    cursor: pointer;
+}
+
+.login img {
+    height: 45px;
+    width: 45px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.login:hover img {
+    transform: scale(1.1);
+}
+
+.dropdown-content {
+    position: absolute;
+    top: 100%; 
+    right: 0;
+    background: rgba(15, 5, 5, 0.98);
+    border: 2px solid #bd272f;
+    box-shadow: 0 0 25px rgba(189, 39, 47, 0.5);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease; 
+    min-width: 160px;
+    z-index: 999;
+}
+
+.login:hover .dropdown-content {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.dropdown-content a {
+    padding: 12px 20px;
+    color: #bd272f;
+    text-decoration: none;
+    font-family: "NavFont";
+    font-weight: bold;
+    border-bottom: 1px solid rgba(189, 39, 47, 0.2);
+}
+
+.dropdown-content a:hover {
+    background: #690205;
+    color: #fff;
+    border-radius: 5px;
+}
+
+/* =========================================
+   4. MODÁLNÍ OKNA (LOGIN / REGISTER)
+   ========================================= */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: rgba(40, 20, 20, 0.95);
+    border: 3px double #bd272f;
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 15px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(105, 2, 5, 0.6);
+    color: #fff;
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-content h2 {
+    font-family: "NavFont";
+    color: #bd272f;
+    text-align: center;
+    margin-top: 0;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #ff3b3b;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #bd272f;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.modal-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    font-family: "NavFont";
+    font-size: 18px;
+    color: #bd272f;
+    background: transparent;
+    border: 2px double #bd272f;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.modal-btn:hover {
+    background: #690205;
+    color: #fff;
+    box-shadow: 0 0 20px #ff0000;
+}
+/* =========================================
+   5. DOMOVSKÁ STRÁNKA (HOME PAGE)
+   ========================================= */
+.blok {
+    width: 80%;
+    max-width: 1200px;
+    min-height: 60vh;
+    background: rgba(40, 20, 20, 0.9); 
+    border: 4px double #bd272f; 
+    border-radius: 20px;
+    padding: 50px;
+    margin: 60px auto;
+    box-shadow: 0 0 40px rgba(189, 39, 47, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.blok h1 {
+    font-family: "NavFont", sans-serif;
+    color: #bd272f;
+    font-size: 50px;
+    text-align: left;
+    margin: 0;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+}
+
+/* PODSEKCE (např. "Latest News") */
+.section {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 25px;
+    border-left: 5px solid #bd272f; /* Rudý proužek na straně zůstává */
+    border-radius: 8px;
+    transition: all 0.4s ease;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Nadpis v sekci - bílý */
+.section h2 {
+    color: #ffffff; /* Čistě bílá */
+    font-family: "NavFont", sans-serif;
+    font-size: 28px;
+    margin-bottom: 15px;
+    transition: all 0.4s ease;
+}
+
+/* Text v sekci - bílý */
+.section p, .newspoint {
+    color: #ffffff; /* Čistě bílá */
+    line-height: 1.8;
+    font-size: 17px;
+    transition: all 0.4s ease;
+}
+
+/* HOVER EFEKT - Celý box a text se rozzáří */
+.section:hover {
+    background: rgba(60, 10, 10, 0.5); /* Lehce rudý nádech pozadí */
+    box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.2), 0 0 15px rgba(189, 39, 47, 0.4);
+}
+
+.section:hover p {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Text dostane bílou záři */
+}
+
+/* =========================================
+   6. O NÁS (ABOUT SECTION)
+   ========================================= */
+.about-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 60px;
+    flex-wrap: wrap;
+    margin: 80px auto;
+    width: 95%;
+    max-width: 1600px;
+}
+
+.about1, .about2, .about3, .about4 {
+    background: rgba(40, 20, 20, 0.95); 
+    border: 3px double #bd272f;
+    box-shadow: 0 0 25px rgba(189, 39, 47, 0.4);
+    border-radius: 15px;
+    padding: 35px;
+    width: 260px;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    text-align: left;
+}
+
+.about1:hover, .about2:hover, .about3:hover, .about4:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.7);
+    border-color: #ff0000;
+}
+
+.about1 h2, .about2 h2, .about3 h2, .about4 h2 {
+    font-family: "NavFont";
+    color: #bd272f;
+    font-size: 30px;
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+.about1 p, .about2 p, .about3 p, .about4 p {
+    color: #ddd;
+    line-height: 1.8;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Detailní box (vyskakující po kliknutí) */
+.new-block {
+    background: rgba(40, 20, 20, 0.95);
+    border: 3px double #bd272f;
+    box-shadow: 0 0 30px rgba(189, 39, 47, 0.6);
+    border-radius: 20px;
+    width: 80%;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: left;
+    color: #ddd;
+    animation: fadeInGlow 0.5s ease-in-out;
+}
+
+@keyframes fadeInGlow {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.new-block h3 {
+    font-family: "NavFont";
+    color: #bd272f;
+    font-size: 20px;
+    margin-bottom: 25px;
+}
+
+/* =========================================
+   7. PROFILOVÁ STRÁNKA (PROFILE PAGE)
+   ========================================= */
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10vh;
+    gap: 30px;
+    width: 100%;
+}
+
+/* HORNÍ ŠIROKÝ BOX */
+.profile-header-box {
+    background: rgba(40, 20, 20, 0.95);
+    border: 4px double #bd272f;
+    border-radius: 20px;
+    width: 80%;
+    max-width: 1200px; /* Zvětšeno, aby pojalo oba spodní boxy */
+    min-height: 150px;
+    box-shadow: 0 0 25px rgba(189, 39, 47, 0.4);
+    box-sizing: border-box;
+}
+
+/* OBAL PRO SPODNÍ SEKCI */
+.profile-content-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 80%;
+    max-width: 1200px;
+    align-items: stretch; /* Zajišťuje stejnou výšku obou boxů */
+}
+
+/* HLAVNÍ VELKÝ BLOK (Zůstává dominantní) */
+.profile-main {
+    flex: 3; /* Poměr šířky 3:1 */
+    display: flex;
+}
+/* ÚZKÝ SIDEBAR BOX */
+/* Kontejner pro boční panel */
+.profile-sidebar {
+    width: 250px; /* Šířka svislého boxu */
+    margin-left: 20px;
+}
+
+.stats-card {
+    background: rgba(20, 20, 20, 0.9); /* Tmavé poloprůhledné pozadí */
+    border: 2px solid #bd272f; /* Červený "pekelný" okraj */
+    border-radius: 10px;
+    padding: 30px 15px;
+    height: 80%; /* Natáhne se podle obsahu nebo wrapperu */
+    box-shadow: 0 0 15px rgba(189, 39, 47, 0.4);
+    text-align: center;
+}
+
+.stats-title {
+    font-family: 'NavFont', sans-serif;
+    color: #bd272f;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.stats-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #bd272f, transparent);
+    margin-bottom: 20px;
+}
+
+.stats-item {
+    margin-bottom: 25px;
+}
+
+.stats-label {
+    color: #bbb;
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.stats-value {
+    color: #ff3b3b;
+    font-size: 26px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+}
+
+.profile-sidebar:hover {
+    box-shadow: 0 0 35px rgba(255, 0, 0, 0.6);
+}
+
+.profile-content {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 25px;
+    line-height: 1.8;
+    border: 1px solid #3d0000;
+}
+/* Úprava hlavního boxu, aby v něm tlačítko drželo */
+.profile-block {
+    background: rgba(40, 20, 20, 0.9);
+    border: 4px double #bd272f;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(189, 39, 47, 0.5);
+    width: 100%;
+    padding: 40px;
+    padding-bottom: 70px; /* Zvětšený spodní padding pro místo na tlačítko */
+    color: #ddd;
+    box-sizing: border-box;
+    position: relative;   /* NUTNÉ pro absolutní pozici tlačítka */
+}
+
+/* Styl tlačítka uvnitř boxu */
+.back-to-home-inline {
+    position: absolute;
+    bottom: 20px;
+    left: 40px;
+    
+    text-decoration: none;
+    font-family: "NavFont", sans-serif;
+    font-size: 18px;
+    color: #bd272f;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.back-to-home-inline:hover {
+    color: #ff3b3b;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+    transform: scale(1.02);
+}
+
+.back-to-home-inline .arrow {
+    transition: transform 0.3s ease;
+}
+
+.back-to-home-inline:hover .arrow {
+    transform: translateX(-5px);
+}
+
+/* =========================================
+   8. LEADERBOARD (SÍŇ PADLÝCH)
+   ========================================= */
+
+.leaderboard-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    width: 100%;
+}
+
+/* Kontejner tabulky - černé poloprůhledné pozadí */
+.leaderboard-container-block {
+    background: rgba(10, 10, 10, 0.9); /* Tmavé "pekelné" pozadí */
+    border: 4px double #bd272f;      /* Červený dvojitý okraj */
+    border-radius: 20px;
+    width: 100%;
+    max-width: 900px;
+    padding: 30px;
+    box-shadow: 0 0 40px rgba(189, 39, 47, 0.4);
+    box-sizing: border-box;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    font-family: "NavFont", sans-serif;
+    color: #bd272f; /* Nadpisy sloupců zůstávají rudé */
+    padding: 15px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #bd272f;
+    text-align: left;
+}
+
+/* BÍLÝ TEXT V TABULCE */
+.leaderboard-table td {
+    padding: 15px;
+    color: #ffffff;      /* Čistě bílá pro jména a čísla */
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(189, 39, 47, 0.2);
+}
+
+/* Pořadí (1. 2. 3.) - může být rudé pro zvýraznění */
+.leaderboard-table td:first-child {
+    font-weight: bold;
+    color: #bd272f;
+}
+
+/* ČAS - BÍLÝ A MONOSPACE */
+.leaderboard-table td:last-child {
+    font-family: 'Courier New', Courier, monospace;
+    color: #ffffff; 
+    text-align: right;
+    font-weight: bold;
+}
+
+/* Hover efekt řádku */
+.leaderboard-table tbody tr:hover {
+    background: rgba(189, 39, 47, 0.15);
+}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Diagramy - Speed Hell{% endblock %}
+
+{% block content %}
+<div class="diagrams-header">
+  <h1>Herní Diagramy</h1>
+  <p>Vizualizace herních mechanik a postupu světem Speed Hell.</p>
+</div>
+
+<div class="about-container"> <div class="about1">
+    <h2>Mechaniky pohybu</h2>
+    <div class="diagram-wrapper">
+      <img src="/static/pictures/diagram1.png" alt="Diagram pohybu" style="width: 100%; height: auto; border-radius: 8px;">
+    </div>
+    <p>Detailní rozbor bunny-hopu a dash mechanik.</p>
+  </div>
+
+  <div class="about2">
+    <h2>Průchod dungeonem</h2>
+    <div class="diagram-wrapper">
+      <img src="/static/pictures/ERdiagram3.png" alt="Diagram postupu" style="width: 100%; height: auto; border-radius: 8px;">
+    </div>
+    <p>Schéma větvení úrovní a obtížnosti "Hell".</p>
+  </div>
+
+</div>
+
+<style>
+  .diagrams-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+  }
+  .diagram-wrapper {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 10px;
+  }
+  .about-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
+{% endblock %}
