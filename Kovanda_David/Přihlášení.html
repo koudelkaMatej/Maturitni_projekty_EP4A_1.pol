@@ -9,10 +9,21 @@
         <h1>Snake</h1> 
         <nav>
             <ul>
-                <li><a href="O hře.html">O hře</a></li>
+                <li><a href="O Projektu.html">O Projektu</a></li>
+                <li><a href="Diagramy.html">Diagramy</a></li>
+                <li class="dropdown">
+                    <button type="button" class="dropdown-toggle">Dokumentace</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="manual-pro-uzivatele.html">Manuál pro uživatele</a></li>
+                        <li><a href="Prezentace-pro-investora.html">Prezentace pro investora</a></li>
+                        <li><a href="Prehled-pro-noveho-spolupracovnika.html">Přehled pro nového spolupracovníka</a></li>
+                    </ul>
+                </li>
+                <li><a href="O-hre.html">O hře</a></li>
                 <li><a href="Herní módy.html">Herní módy</a></li>
-                <li><a href="TOP10.html">TOP10</a></li>
+                <li><a href="top10.html">TOP10</a></li>
                 <li><a class="active" href="Přihlášení.html">Přihlášení</a></li>
+                <li><a href="Můj účet.html">Můj účet</a></li>
             </ul>
         </nav>
     </header>
@@ -39,7 +50,10 @@
 
                 <div class="actions">
                     <button id="submitBtn" type="submit" class="primary">Přihlášení</button>
+                    <a class="primary" href="Registrace.html">Registrace</a>
                 </div>
+
+                <div id="msg" class="msg" aria-live="polite"></div>
 
             
             </form>
@@ -48,35 +62,64 @@
 
     <script>
     (function(){
-      const form = document.getElementById('loginForm');
-      const user = document.getElementById('user');
-      const pw = document.getElementById('password');
-      const msg = document.getElementById('msg');
-      const toggle = document.getElementById('togglePw');
+            const form = document.getElementById('loginForm');
+            const user = document.getElementById('user');
+            const pw = document.getElementById('password');
+            const msg = document.getElementById('msg');
+            const toggle = document.getElementById('togglePw');
+            const API = 'http://localhost:5000/api';
 
-      toggle.addEventListener('click', ()=> {
-        pw.type = pw.type === 'password' ? 'text' : 'password';
-        toggle.textContent = pw.type === 'password' ? '👁️' : '🙈';
-      });
+            toggle.addEventListener('click', ()=> {
+                pw.type = pw.type === 'password' ? 'text' : 'password';
+                toggle.textContent = pw.type === 'password' ? '👁️' : '🙈';
+            });
 
-      form.addEventListener('submit', (e)=> {
-        e.preventDefault();
-        msg.textContent = '';
-        if (!user.value.trim() || !pw.value.trim()) {
-          msg.textContent = 'Vyplň uživatelské jméno i heslo.';
-          msg.style.color = '#ffb3b3';
-          return;
-        }
-        if (user.value.trim().length < 3 || pw.value.trim().length < 3) {
-          msg.textContent = 'Uživatelské jméno nebo heslo je příliš krátké.';
-          msg.style.color = '#ffb3b3';
-          return;
-        }
-        msg.style.color = '#bff7c6';
-        msg.textContent = 'Přihlášení proběhlo (simulace). Přesměrování...';
-        localStorage.setItem('snake_user', user.value.trim());
-        setTimeout(()=> location.href = 'Projekt.html', 900);
-      });
+            form.addEventListener('submit', async (e)=> {
+                e.preventDefault();
+                msg.textContent = '';
+                const identifier = user.value.trim();
+                const password = pw.value.trim();
+                if (!identifier || !password) {
+                    msg.textContent = 'Vyplň uživatelské jméno / e-mail i heslo.';
+                    msg.style.color = '#ffb3b3';
+                    return;
+                }
+                msg.style.color = '#bff7c6';
+                msg.textContent = 'Přihlašuji...';
+                try {
+                    const res = await fetch(`${API}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identifier, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        msg.style.color = '#ffb3b3';
+                        msg.textContent = data.error || 'Přihlášení selhalo.';
+                        return;
+                    }
+                    localStorage.setItem('snake_token', data.token);
+                    localStorage.setItem('snake_user', data.username);
+                    msg.style.color = '#bff7c6';
+                    msg.textContent = 'Přihlášení úspěšné. Přesměrování...';
+
+                    // Získej základní údaje a přesměruj na Můj účet
+                    try {
+                        const meRes = await fetch(`${API}/me`, {
+                            headers: { 'Authorization': 'Bearer ' + data.token }
+                        });
+                        if (meRes.ok) {
+                            const me = await meRes.json();
+                            localStorage.setItem('snake_user', me.username || '');
+                        }
+                    } catch(_) { /* ignoruj, jen přesměruj */ }
+
+                    location.href = 'Můj účet.html';
+                } catch(err){
+                    msg.style.color = '#ffb3b3';
+                    msg.textContent = 'Chyba připojení k serveru.';
+                }
+            });
     })();
     </script>
 </body>

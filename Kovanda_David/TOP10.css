@@ -1,126 +1,103 @@
-:root{
-  --bg-1:#071027;
-  --bg-2:#0b2e4a;
-  --accent:#1ea7ff;
-  --muted:#9fb8d9;
-  --card-bg: rgba(255,255,255,0.02);
-  --text:#eaf6ff;
-  --max-width:1100px;
-  --header-height:64px;
-  --footer-height:56px;
+main.top10-main {
+    flex: 1;
+    width: 100%;
+    margin-top: -12px;
+    padding: 4px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
 }
 
-/* Reset */
-*{ box-sizing:border-box; margin:0; padding:0; }
-html,body{ height:100%; font-family:"Segoe UI", Roboto, Arial, sans-serif; -webkit-font-smoothing:antialiased; color:var(--text); }
-
-/* Page background & layout */
-body{
-  background: linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 60%, #043239 100%);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  overflow-x:hidden;
+.top10-intro {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
 }
 
-/* Header - sladěné se stylem O hře / Herní módy */
-header{
-  height: var(--header-height);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  padding:0 20px;
-  background: rgba(0,0,0,0.12);
-  border-bottom:1px solid rgba(255,255,255,0.03);
-  z-index:10;
-}
-header h1{
-  margin:0;
-  font-size:1.15rem; /* stejná velikost jako u Herní módy */
-  letter-spacing:0.6px; /* stejné rozestupy písmen */
-}
-header h1 a{
-  color:#ffffff;
-  text-decoration:none;
-  font-weight:700;
-}
-nav ul{
-  display:flex;
-  gap:10px;
-  list-style:none;
-  margin:0;
-  padding:0;
-  align-items:center;
-  height:100%;
-}
-nav a{
-  color:var(--muted);
-  text-decoration:none;
-  padding:6px 10px;
-  border-radius:6px;
-  display:inline-block;
-}
-nav a.active, nav a:hover{
-  background: rgba(255,255,255,0.03);
-  color:#fff;
-  transform:translateY(-1px);
-  transition:all .12s ease;
+.top10-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    width: 100%;
 }
 
-/* Main - center card between header and footer */
-main.top10-main{
-  min-height: calc(100vh - var(--header-height) - var(--footer-height));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
+.mode-card {
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.25rem;
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
-/* Card wrapper */
-.top10-card{
-  width:100%;
-  max-width:var(--max-width);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border:1px solid rgba(255,255,255,0.04);
-  border-radius:12px;
-  padding:22px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-  box-sizing:border-box;
-  color:var(--text);
+.mode-card h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #fff;
 }
 
-/* Headings */
-.top10-card h2{ margin:0 0 8px; font-size:1.4rem; color:#fff; }
-.top10-card .muted{ color:var(--muted); margin-bottom:14px; }
+.mode-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
 
-/* Table */
-.top10-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-bottom:14px;
+.mode-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
 }
-.top10-table thead th{
-  text-align:left;
-  padding:10px 12px;
-  color:#cfe7ff;
-  font-weight:700;
-  border-bottom:1px solid rgba(255,255,255,0.04);
-}
-.top10-table td{
-  padding:10px 12px;
-  color:var(--text);
-  border-bottom:1px solid rgba(255,255,255,0.02);
-}
-.top10-table tbody tr:nth-child(odd){ background: rgba(255,255,255,0.01); }
-.top10-table td:first-child{ width:48px; font-weight:700; color:var(--accent); }
 
-/* Responsive */
-@media (max-width:880px){
-  .top10-card{ padding:18px; }
+.mode-table th,
+.mode-table td {
+    padding: 6px 8px;
+    text-align: left;
 }
-@media (max-width:520px){
-  header{ padding:0 14px; }
-  .top10-card{ padding:14px; border-radius:10px; }
-  main.top10-main{ padding:16px; }
+
+.mode-table th {
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+}
+
+.mode-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.mode-table .score {
+    font-weight: 600;
+    color: #fff;
+}
+
+.refresh-button {
+    margin-top: 12px;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    background: transparent;
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.refresh-button:disabled {
+    opacity: 0.5;
+    cursor: progress;
+}
+
+.refresh-button:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 960px) {
+    main.top10-main {
+        padding: 28px 18px 32px;
+    }
 }

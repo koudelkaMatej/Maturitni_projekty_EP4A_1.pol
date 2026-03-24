@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake</title>
+    <link rel="stylesheet" type="text/css" href="Registrace.css">
+</head>
+<body>
+    <header>
+        <h1>Snake</h1> 
+        <nav>
+            <ul>
+                <li><a href="O Projektu.html">O Projektu</a></li>
+                <li><a href="Diagramy.html">Diagramy</a></li>
+                <li class="dropdown">
+              <button type="button" class="dropdown-toggle">Dokumentace</button>
+              <ul class="dropdown-menu">
+                <li><a href="manual-pro-uzivatele.html">Manuál pro uživatele</a></li>
+                <li><a href="Prezentace-pro-investora.html">Prezentace pro investora</a></li>
+                <li><a href="Prehled-pro-noveho-spolupracovnika.html">Přehled pro nového spolupracovníka</a></li>
+              </ul>
+            </li>
+                <li><a href="O-hre.html">O hře</a></li>
+                <li><a href="Herní módy.html">Herní módy</a></li>
+                <li><a href="top10.html">TOP10</a></li>
+                <li><a href="Přihlášení.html">Přihlášení</a></li>
+            <li><a href="Můj účet.html">Můj účet</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="login-center">
+            <form id="regForm" class="login-card" novalidate>
+                <h2>Registrace</h2>
+                <p class="muted">Vytvoř si účet a sleduj své skóre.</p>
+
+                <label for="regEmail">E-mail</label>
+                <input id="regEmail" name="regEmail" type="email" autocomplete="email" required>
+
+                <label for="regUser">Uživatelské jméno</label>
+                <input id="regUser" name="regUser" type="text" autocomplete="username" required>
+
+                <label for="regPassword">Heslo</label>
+                <div class="pw-wrap">
+                    <input id="regPassword" name="regPassword" type="password" autocomplete="new-password" required>
+                    <button type="button" id="togglePw" class="pw-toggle" aria-label="Zobrazit heslo">👁️</button>
+                </div>
+
+                <label for="regPassword2">Potvrzení hesla</label>
+                <div class="pw-wrap">
+                    <input id="regPassword2" name="regPassword2" type="password" autocomplete="new-password" required>
+                    <button type="button" id="togglePw2" class="pw-toggle" aria-label="Zobrazit heslo">👁️</button>
+                </div>
+
+                <div class="actions">
+                    <button id="regSubmit" type="submit" class="primary">Registrovat</button>
+                  <a class="primary" href="Přihlášení.html">Přihlásit se</a>
+                </div>
+
+                <div id="msg" class="msg" aria-live="polite"></div>
+            
+            </form>
+        </div>
+    </main>
+
+    <script>
+    (function(){
+      const form = document.getElementById('regForm');
+      const user = document.getElementById('regUser');
+      const email = document.getElementById('regEmail');
+      const pw1 = document.getElementById('regPassword');
+      const pw2 = document.getElementById('regPassword2');
+      const msg = document.getElementById('msg');
+      const toggle1 = document.getElementById('togglePw');
+      const toggle2 = document.getElementById('togglePw2');
+      const API = 'http://localhost:5000/api';
+
+      function toggleVisibility(input, btn){
+        const isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        btn.textContent = isPw ? '🙈' : '👁️';
+      }
+
+      toggle1.addEventListener('click', ()=> toggleVisibility(pw1, toggle1));
+      toggle2.addEventListener('click', ()=> toggleVisibility(pw2, toggle2));
+
+      form.addEventListener('submit', async (e)=> {
+        e.preventDefault();
+        msg.textContent = '';
+
+        const u = user.value.trim();
+        const em = email.value.trim();
+        const p1 = pw1.value.trim();
+        const p2 = pw2.value.trim();
+
+        if (!u || !em || !p1 || !p2) {
+          msg.textContent = 'Vyplň všechna pole.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+        if (u.length < 3) {
+          msg.textContent = 'Uživatelské jméno je příliš krátké.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) {
+          msg.textContent = 'Zadej platný e-mail.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+        if (p1.length < 6) {
+          msg.textContent = 'Heslo musí mít alespoň 6 znaků.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+        if (p1 !== p2) {
+          msg.textContent = 'Hesla se neshodují.';
+          msg.style.color = '#ffb3b3';
+          return;
+        }
+
+        msg.style.color = '#bff7c6';
+        msg.textContent = 'Registruji...';
+
+        try {
+          const res = await fetch(`${API}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, email: em, password: p1 })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            msg.style.color = '#ffb3b3';
+            msg.textContent = data.error || 'Registrace selhala.';
+            return;
+          }
+          msg.style.color = '#bff7c6';
+          msg.textContent = 'Registrace úspěšná. Přesměrování na přihlášení...';
+          setTimeout(()=> location.href = 'Přihlášení.html', 700);
+        } catch(err){
+          msg.style.color = '#ffb3b3';
+          msg.textContent = 'Chyba připojení k serveru.';
+        }
+      });
+    })();
+    </script>
+</body>
+</html>

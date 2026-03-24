@@ -10,7 +10,6 @@
     --max-width: 520px;
 }
 
-/* Reset a základ */
 *{ box-sizing:border-box; }
 html,body{
     height:100%;
@@ -27,7 +26,6 @@ body{
     min-height:100vh;
 }
 
-/* Header / navbar stejné jako TOP10 */
 header{
     height:var(--header-height);
     display:flex;
@@ -58,19 +56,31 @@ nav a{
     padding:0 10px;
     border-radius:6px;
 }
+nav a.active,
+nav a:hover{
+    background: rgba(255,255,255,0.03);
+    color:#fff;
+    transform:translateY(-1px);
+    transition:all .12s ease;
+}
+
+main{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+}
 nav button{
     appearance:none;
     -webkit-appearance:none;
     border:none;
     background:transparent;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100%;
     color:var(--muted);
     text-decoration:none;
-    padding:0 10px;
+    padding:6px 10px;
     border-radius:6px;
+    display:inline-block;
     transition:all .15s ease;
     cursor:pointer;
     font:inherit;
@@ -133,22 +143,6 @@ nav a.active,
 nav a:hover,
 nav button:hover,
 nav button:focus{
-    background: rgba(255,255,255,0.03);
-    color:#fff;
-    transform:translateY(-1px);
-    transition:all .12s ease;
-}
-
-/* Main - login card */
-main{
-    flex:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-}
-.login-center{
-    width:100%;
     display:flex;
     justify-content:center;
 }
@@ -183,7 +177,6 @@ main{
     box-shadow: 0 6px 18px rgba(25,98,255,0.08);
 }
 
-/* Password toggle */
 .pw-wrap{ position:relative; }
 .pw-toggle{
     position:absolute;
@@ -199,7 +192,6 @@ main{
     border-radius:6px;
 }
 
-/* Řádky a akce */
 .row{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:8px; }
 .checkbox input{ margin-right:8px; }
 .actions{ display:flex; gap:10px; margin-top:16px; align-items:center; }
@@ -228,12 +220,8 @@ main{
     cursor:pointer;
 }
 
-/* Stavové zprávy */
 .msg{ margin-top:10px; min-height:20px; font-weight:600; color:var(--text); }
 
-
-
-/* Responsivita */
 @media (max-width:520px){
     main{ padding:18px; }
     .login-card{ padding:16px; border-radius:10px; }

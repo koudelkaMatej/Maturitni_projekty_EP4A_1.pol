@@ -75,6 +75,9 @@ nav ul{
   align-items:center; 
   height:100%; 
 } 
+nav li{ 
+  position:relative; 
+} 
 nav a{ 
   color:var(--muted); 
   text-decoration:none; 
@@ -84,7 +87,80 @@ nav a{
   transition:all .15s ease; 
   cursor:pointer; 
 } 
-nav a.active, nav a:hover{ 
+nav button{ 
+  appearance:none; 
+  -webkit-appearance:none; 
+  border:none; 
+  background:transparent; 
+  color:var(--muted); 
+  text-decoration:none; 
+  padding:6px 10px; 
+  border-radius:6px; 
+  display:inline-block; 
+  transition:all .15s ease; 
+  cursor:pointer; 
+  font:inherit; 
+} 
+nav li.dropdown > a::after{ 
+  content:"▾"; 
+  display:inline-block; 
+  margin-left:6px; 
+  font-size:0.8em; 
+  transform:translateY(-1px); 
+} 
+nav li.dropdown > button::after{ 
+  content:"▾"; 
+  display:inline-block; 
+  margin-left:6px; 
+  font-size:0.8em; 
+  transform:translateY(-1px); 
+} 
+nav .dropdown-menu{ 
+  display:none; 
+  position:absolute; 
+  top:calc(100% + 6px); 
+  left:-88px; 
+  min-width:320px; 
+  padding:0; 
+  border:none; 
+  border-radius:0; 
+  background:transparent; 
+  box-shadow:none; 
+  z-index:50; 
+  flex-direction:column; 
+  gap:4px; 
+} 
+nav li.dropdown:hover > a,
+nav li.dropdown:focus-within > a,
+nav li.dropdown:hover > button,
+nav li.dropdown:focus-within > button{
+  background: rgba(255,255,255,0.03);
+  color:#fff;
+  border-radius:6px 6px 0 0;
+}
+nav li.dropdown:hover .dropdown-menu, 
+nav li.dropdown:focus-within .dropdown-menu{ 
+  display:flex; 
+} 
+nav .dropdown-menu a{ 
+  display:block; 
+  width:100%; 
+  white-space:normal; 
+  padding:10px 12px; 
+  border-radius:8px; 
+  background:rgba(255,255,255,0.05); 
+  border:1px solid rgba(255,255,255,0.06); 
+  color:var(--text); 
+  line-height:1.25; 
+}
+nav .dropdown-menu a:hover, 
+nav .dropdown-menu a:focus{ 
+  background:rgba(30,167,255,0.18); 
+  border-color:rgba(30,167,255,0.35); 
+  color:#fff; 
+  transform:none; 
+} 
+nav a.active, nav button.active, nav a:hover, nav button:hover, nav button:focus{ 
   background: rgba(255,255,255,0.03); 
   color:#fff; 
   transform:translateY(-1px); 
@@ -101,7 +177,7 @@ main{
   padding:24px 16px; 
 } 
 /* sjednocení pro všechny hlavní sekce */ 
-.modes-main, .o-hre-main, .login-main, .top10-main{ 
+.o-hre-main{ 
   min-height: calc(100vh - var(--header-height)); 
   display:flex; 
   align-items:center; 
@@ -112,7 +188,7 @@ main{
 /* ========================= */ 
 /* 🔹 KARTY (OBSAHOVÉ BLOKY) */ 
 /* ========================= */ 
-.card, .modes-card, .o-card, .login-card, .top10-card{ 
+.o-card{ 
   width:100%; 
   max-width:var(--max-width); 
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); 
@@ -122,12 +198,12 @@ main{
   box-shadow: 0 12px 30px rgba(0,0,0,0.5); 
   color:var(--text); 
 } 
-.card h2, .modes-card h2, .o-card h2, .login-card h2, .top10-card h2{ 
+.o-card h2{ 
   margin:0 0 8px; 
   font-size:1.4rem; 
   color:#fff; 
 } 
-.card .muted, .modes-card .muted, .o-card .muted, .login-card .muted, .top10-card .muted{ 
+.o-card .muted{ 
   color:var(--muted); 
   margin-bottom:14px; 
 } 
@@ -135,59 +211,27 @@ main{
 /* ========================= */ 
 /* 🔹 SEZNAMY / GRIDY */ 
 /* ========================= */ 
-.mode-list, .grid, .top10-list{ 
+.grid{ 
   display:flex; 
   flex-direction:column; 
   gap:var(--gap); 
   margin-top:8px; 
 } 
-.mode, .grid article, .top10-item{ 
+.grid article{ 
   background: var(--card-bg); 
   border:1px solid rgba(255,255,255,0.03); 
   padding:14px 16px; 
   border-radius:8px; 
 } 
-.mode h3, .grid h3{ 
+.grid h3{ 
   margin:0 0 6px; 
   color:#fff; 
   font-size:1.05rem; 
 } 
-.mode p, .grid p{ 
+.grid p{ 
   margin:6px 0; 
   color:var(--text); 
   line-height:1.45; 
-} 
-
-/* ========================= */ 
-/* 🔹 LOGIN FORM / TOP10 */ 
-/* ========================= */ 
-form{ 
-  display:flex; 
-  flex-direction:column; 
-  gap:10px; 
-} 
-input, button{ 
-  padding:10px; 
-  border-radius:8px; 
-  border:none; 
-  font-size:1rem; 
-} 
-input{ 
-  background:rgba(255,255,255,0.08); 
-  color:#fff; 
-} 
-input:focus{ 
-  outline:1px solid var(--accent); 
-} 
-button{ 
-  background:var(--accent); 
-  color:#fff; 
-  font-weight:600; 
-  cursor:pointer; 
-  transition:background .15s ease; 
-} 
-button:hover{ 
-  background:#0d8de5; 
 } 
 
 /* ========================= */ 
@@ -199,8 +243,8 @@ button:hover{
 @media (max-width:700px){ 
   :root{ --header-height:56px; --base-size:15px; } 
   header{ padding:0 14px; } 
-  .card, .modes-card, .o-card, .login-card, .top10-card{ padding:16px; border-radius:10px; } 
-  .mode, .grid article{ padding:12px; } 
+  .o-card{ padding:16px; border-radius:10px; } 
+  .grid article{ padding:12px; } 
 } 
 
 /* ========================= */ 
