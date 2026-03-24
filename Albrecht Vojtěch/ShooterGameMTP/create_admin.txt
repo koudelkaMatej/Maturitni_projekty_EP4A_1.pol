@@ -1,0 +1,28 @@
+import sqlite3
+from werkzeug.security import generate_password_hash
+import os
+
+DB_PATH = os.path.abspath("database.db")
+
+# Nastavení admin účtu
+username = "AdminSGMTP"
+email = "admin@example.com"
+password = "tajneheslo123"  # ← změň si na své
+is_admin = 1
+
+# Připojení do DB
+conn = sqlite3.connect(DB_PATH)
+c = conn.cursor()
+
+# Vytvoření admina (pokud už neexistuje)
+existing = c.execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
+if existing:
+    print(f"Uživatel '{username}' už existuje!")
+else:
+    hashed_pw = generate_password_hash(password)
+    c.execute("INSERT INTO users (username, email, password, is_admin) VALUES (?, ?, ?, ?)",
+              (username, email, hashed_pw, is_admin))
+    conn.commit()
+    print(f"Admin účet '{username}' vytvořen!")
+
+conn.close()

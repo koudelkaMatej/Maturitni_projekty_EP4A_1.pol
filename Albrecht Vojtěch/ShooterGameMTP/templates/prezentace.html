@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Prezentace – Space Shooter</title>
+    <style>@font-face { font-family: 'Audiowide'; src: url('../Audiowide-Regular.ttf') format('truetype'); }</style>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green: #4CAF50;
+            --green-bright: #76ff7a;
+            --bg: #080c08;
+            --card-bg: #0d140d;
+            --border: #1e2e1e;
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Animated star background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 75% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 20% 85%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 65% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(2px 2px at 45% 10%, rgba(76,175,80,0.5) 0%, transparent 100%),
+                radial-gradient(2px 2px at 85% 65%, rgba(76,175,80,0.4) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo-icon {
+            font-size: 64px;
+            line-height: 1;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: clamp(24px, 5vw, 48px);
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--green);
+            text-shadow: 0 0 30px rgba(76,175,80,0.6);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 32px;
+            width: 240px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--green);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--green);
+            box-shadow: 0 20px 50px rgba(76,175,80,0.15);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 48px;
+        }
+
+        .card-title {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .back-link {
+            margin-top: 50px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.3);
+            text-decoration: none;
+            letter-spacing: 2px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--green); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container { animation: fadeUp 0.7s ease both; }
+        .card:nth-child(1) { animation: fadeUp 0.7s 0.1s ease both; }
+        .card:nth-child(2) { animation: fadeUp 0.7s 0.2s ease both; }
+        .card:nth-child(3) { animation: fadeUp 0.7s 0.3s ease both; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo-icon">🚀</div>
+    <h1>SPACE SHOOTER</h1>
+    <p class="subtitle">Vyberte prezentaci</p>
+
+    <div class="cards">
+        <a href="/prezentace-novy-uzivatel" class="card">
+            <div class="card-icon">🎮</div>
+            <div class="card-title">Manuál pro uživatele</div>
+            <div class="card-desc">Jak hrát, ovládání, tipy a triky</div>
+        </a>
+        <a href="/prezentace-investor" class="card">
+            <div class="card-icon">📈</div>
+            <div class="card-title">Prezentace pro investora</div>
+            <div class="card-desc">Vize, potenciál, technologie a byznys</div>
+        </a>
+        <a href="/prezentace-kolega" class="card">
+            <div class="card-icon">💻</div>
+            <div class="card-title">Pro spolupracovníka</div>
+            <div class="card-desc">Architektura, kód, databáze, flow</div>
+        </a>
+    </div>
+
+    <a href="/" class="back-link">← Zpět na hlavní stránku</a>
+</div>
+</body>
+</html>

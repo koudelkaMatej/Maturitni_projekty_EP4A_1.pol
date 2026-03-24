@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ShooterMTP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0e0e0e;
+            color: white;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            background: #1a1a1a;
+            border-bottom: 3px solid #4CAF50;
+            position: relative; /* Pro absolutně umístěné .user-info */
+        }
+
+        header h1 {
+            font-size: 38px;
+            letter-spacing: 3px;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .user-info .btn-logout {
+            padding: 6px 14px;
+            background: #ef5350;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .user-info .btn-logout:hover {
+            background: #d43f3f;
+        }
+
+        nav {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            padding: 10px 18px;
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #45a049;
+        }
+
+        nav a.btn-prezentace {
+            background-color: #00bcd4;
+        }
+
+        nav a.btn-prezentace:hover {
+            background-color: #0097a7;
+        }
+
+        section {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        section h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        section p {
+            font-size: 20px;
+            line-height: 1.6;
+        }
+
+        .gallery img {
+            width: 250px;
+            height: auto;
+            margin: 15px;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.04);
+            border-color: #76d97a;
+        }
+
+        /* LIGHTBOX */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #lightbox.active {
+            display: flex;
+        }
+
+        #lightbox img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+        }
+
+        #lightbox-close {
+            position: fixed;
+            top: 20px;
+            right: 28px;
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        #lightbox-close:hover {
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #1a1a1a;
+            margin-top: 50px;
+            font-size: 14px;
+            opacity: 0.75;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>SPACE SHOOTER</h1>
+    <p>Prezentace hry vytvořená v Pythonu a Pygame</p>
+
+    <!-- Přihlášený uživatel a odhlášení -->
+    <div class="user-info">
+        {% if session.username %}
+            <span>Přihlášen jako: <strong>{{ session.username }}</strong></span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Odhlásit</a>
+        {% else %}
+            <a href="{{ url_for('signin') }}" class="btn-logout">Přihlásit</a>
+        {% endif %}
+    </div>
+</header>
+
+<nav>
+    <a href="#o-hre">O hře</a>
+    <a href="#galerie">Galerie</a>
+    <a href="#ovladani">Ovládání</a>
+    <a href="{{ url_for('scoreboard') }}">Tabulka nejlepších hráčů</a>
+    <a href="{{ url_for('prezentace') }}" class="btn-prezentace">Prezentace</a>
+</nav>
+
+<section id="o-hre">
+    <h2>O hře</h2>
+    <p>
+        Shooter Game je jednoduchá, ale zábavná arkádová hra, kde ovládáš letící zbraň a střílíš na nepřátele.
+        Tvým cílem je nasbírat co nejvíce bodů, než tě zasáhnou!
+    </p>
+</section>
+
+<section id="galerie">
+    <h2>Galerie</h2>
+    <div class="gallery">
+        <img src="static/login.png" alt="Screenshot 1">
+        <img src="static/menu.png" alt="Screenshot 2">
+        <img src="static/gameplay.png" alt="Screenshot 3">
+        <img src="static/gameover.png" alt="Screenshot 4">
+    </div>
+</section>
+
+<section id="ovladani">
+    <h2>Ovládání hry</h2>
+    <p>
+        🡩 Pohyb nahoru <br>
+        🡫 Pohyb dolů <br>
+        SPACE – střílení <br>
+        S - Special power <br>
+    </p>
+</section>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+    <span id="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="">
+</div>
+
+<footer>
+    © 2025 – Vytvořeno v Pythonu pomocí Pygame 🎮
+</footer>
+
+<script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.getElementById('lightbox-close');
+
+    document.querySelectorAll('.gallery img').forEach(function(img) {
+        img.addEventListener('click', function() {
+            lightboxImg.src = this.src;
+            lightboxImg.alt = this.alt;
+            lightbox.classList.add('active');
+        });
+    });
+
+    closeBtn.addEventListener('click', function() {
+        lightbox.classList.remove('active');
+    });
+
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) {
+            lightbox.classList.remove('active');
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            lightbox.classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin panel – Space Shooter</title>
+    <style>
+        @font-face {
+            font-family: 'Audiowide';
+            src: url('../static/Audiowide-Regular.ttf') format('truetype');
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --red: #ef5350;
+            --red-dim: rgba(239,83,80,0.15);
+            --green: #4CAF50;
+            --bg: #0a080a;
+            --bg2: #110f11;
+            --bg3: #1a161a;
+            --border: #2a1f2a;
+            --text: #e8e0e8;
+            --muted: #887888;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg2);
+            border-bottom: 2px solid var(--red);
+            padding: 20px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 18px;
+            color: var(--red);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+
+        .admin-badge {
+            background: var(--red-dim);
+            border: 1px solid var(--red);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 11px;
+            color: var(--red);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logged-as {
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+        .logged-as span { color: var(--text); }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+        /* MAIN */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* STATS ROW */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .stat {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px 20px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 2rem;
+            color: var(--red);
+        }
+
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 2px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        /* SECTION */
+        .section { margin-bottom: 48px; }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+
+        /* DANGER BUTTON */
+        .btn-danger {
+            background: var(--red-dim);
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 7px 18px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .btn-danger:hover { background: rgba(239,83,80,0.28); }
+
+        .btn-danger.small {
+            padding: 4px 12px;
+            font-size: 11px;
+        }
+
+        /* TABLE */
+        .table-wrap {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        th {
+            padding: 12px 18px;
+            text-align: left;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--muted);
+            text-transform: uppercase;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 11px 18px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        tr:hover td { background: var(--bg3); }
+
+        .col-id { color: var(--muted); font-size: 12px; }
+
+        .col-admin {
+            display: inline-block;
+            background: rgba(76,175,80,0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .col-score {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            color: var(--red);
+        }
+
+        /* CONFIRM DIALOG */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-overlay.active { display: flex; }
+
+        .confirm-box {
+            background: var(--bg2);
+            border: 1px solid var(--red);
+            border-radius: 12px;
+            padding: 36px 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .confirm-box h3 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 16px;
+            color: var(--red);
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .confirm-box p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 9px 24px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .btn-cancel:hover { border-color: var(--muted); }
+
+        /* empty state */
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="brand">⚠ ADMIN PANEL</a>
+    <span class="admin-badge">Správce systému</span>
+    <div class="header-right">
+        <span class="logged-as">Přihlášen jako: <span>{{ session.username }}</span></span>
+        <a href="/logout" class="btn-logout">Odhlásit</a>
+    </div>
+</header>
+
+<main>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-val">{{ users | length }}</div>
+            <div class="stat-lbl">Uživatelů</div>
+        </div>
+        <div class="stat">
+            <div class="stat-val">{{ scores | length }}</div>
+            <div class="stat-lbl">Záznamů skóre</div>
+        </div>
+        <div class="stat">
+            <div class="stat-val">{{ users | selectattr('is_admin') | list | length }}</div>
+            <div class="stat-lbl">Adminů</div>
+        </div>
+    </div>
+
+    <!-- SCORES TABLE -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-title">🏆 Skóre hráčů</span>
+            {% if scores %}
+            <form method="POST" action="/admin/delete_all_scores"
+                  onsubmit="return confirmAction(event, 'Smazat vše?', 'Opravdu chceš smazat VŠECHNA skóre? Tato akce je nevratná.')">
+                <button type="submit" class="btn-danger">🗑 Smazat všechna skóre</button>
+            </form>
+            {% endif %}
+        </div>
+
+        {% if scores %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th>Hráč</th>
+                        <th>Skóre</th>
+                        <th>Akce</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in scores %}
+                    <tr>
+                        <td class="col-id">{{ s.id }}</td>
+                        <td>{{ s.username }}</td>
+                        <td class="col-score">{{ s.score }}</td>
+                        <td>
+                            <form method="POST" action="/admin/delete_score/{{ s.id }}"
+                                  onsubmit="return confirmAction(event, 'Smazat skóre?', 'Smazat skóre {{ s.score }} hráče {{ s.username }}?')">
+                                <button type="submit" class="btn-danger small">Smazat</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="table-wrap"><div class="empty">Žádná skóre v databázi.</div></div>
+        {% endif %}
+    </div>
+
+    <!-- USERS TABLE -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-title">👥 Uživatelé</span>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th>Uživatelské jméno</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Akce</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td class="col-id">{{ u.id }}</td>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            {% if u.is_admin %}
+                            <span class="col-admin">ADMIN</span>
+                            {% else %}
+                            <span style="color:var(--muted); font-size:12px;">hráč</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.id != session.user_id %}
+                            <form method="POST" action="/admin/delete_user/{{ u.id }}"
+                                  onsubmit="return confirmAction(event, 'Smazat uživatele?', 'Smazat uživatele {{ u.username }} včetně všech jeho skóre? Tato akce je nevratná.')">
+                                <button type="submit" class="btn-danger small">Smazat</button>
+                            </form>
+                            {% else %}
+                            <span style="color:var(--muted); font-size:11px; letter-spacing:1px;">Ty sám</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <h3 id="confirmTitle">Potvrdit akci</h3>
+        <p id="confirmMsg">Opravdu chceš provést tuto akci?</p>
+        <div class="confirm-actions">
+            <button class="btn-cancel" onclick="cancelConfirm()">Zrušit</button>
+            <button class="btn-danger" id="confirmOk" onclick="doConfirm()">Potvrdit</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let pendingForm = null;
+
+    function confirmAction(event, title, msg) {
+        event.preventDefault();
+        pendingForm = event.target;
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMsg').textContent = msg;
+        document.getElementById('confirmOverlay').classList.add('active');
+        return false;
+    }
+
+    function doConfirm() {
+        if (pendingForm) {
+            pendingForm.removeEventListener('submit', confirmAction);
+            pendingForm.submit();
+        }
+        cancelConfirm();
+    }
+
+    function cancelConfirm() {
+        document.getElementById('confirmOverlay').classList.remove('active');
+        pendingForm = null;
+    }
+
+    // Zavřít kliknutím mimo dialog
+    document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+        if (e.target === this) cancelConfirm();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') cancelConfirm();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Manuál pro uživatele – Space Shooter</title>
+    <style>@font-face { font-family: 'Audiowide'; src: url('../Audiowide-Regular.ttf') format('truetype'); }</style>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green: #4CAF50;
+            --green-bright: #76ff7a;
+            --bg: #080c08;
+            --card-bg: #0d140d;
+            --border: #1e2e1e;
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        /* Stars */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 40% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(2px 2px at 55% 10%, rgba(76,175,80,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 90%, rgba(255,255,255,0.3) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 1;
+            background: #0d140d;
+            border-bottom: 2px solid var(--green);
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--green);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+
+        .tag {
+            background: rgba(76,175,80,0.12);
+            border: 1px solid rgba(76,175,80,0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: var(--green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .back-btn {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: var(--green); }
+
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .hero-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        h1 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: 900;
+            color: var(--green);
+            text-shadow: 0 0 40px rgba(76,175,80,0.5);
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        section { margin-bottom: 56px; }
+
+        h2 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--green);
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Steps */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            transition: border-color 0.2s;
+        }
+
+        .step:hover { border-color: rgba(76,175,80,0.4); }
+
+        .step-num {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--green);
+            opacity: 0.4;
+            min-width: 40px;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .step-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .control-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .control-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(76,175,80,0.4);
+        }
+
+        .key {
+            display: inline-block;
+            background: #111c11;
+            border: 2px solid rgba(76,175,80,0.4);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 12px;
+            min-width: 60px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Tips */
+        .tips {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .tip {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            border-radius: 0 12px 12px 0;
+            padding: 20px;
+        }
+
+        .tip-icon { font-size: 24px; margin-bottom: 8px; }
+        .tip-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+        .tip-text { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+        /* Enemies */
+        .enemies-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .enemy-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .enemy-card .enemy-icon { font-size: 36px; margin-bottom: 10px; }
+        .enemy-card h3 { font-family: 'Audiowide', 'Courier New', monospace; font-size: 14px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+        .enemy-card p { font-size: 13px; color: rgba(255,255,255,0.5); }
+        .badge {
+            display: inline-block;
+            background: rgba(76,175,80,0.15);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 11px;
+            color: var(--green);
+            margin-top: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .enemies-grid { grid-template-columns: 1fr; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        main > * {
+            animation: fadeUp 0.5s ease both;
+        }
+        main > *:nth-child(1) { animation-delay: 0.05s; }
+        main > *:nth-child(2) { animation-delay: 0.1s; }
+        main > *:nth-child(3) { animation-delay: 0.15s; }
+        main > *:nth-child(4) { animation-delay: 0.2s; }
+        main > *:nth-child(5) { animation-delay: 0.25s; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="brand">🚀 SPACE SHOOTER</a>
+    <span class="tag">Manuál pro uživatele</span>
+    <a href="/prezentace" class="back-btn">← Zpět</a>
+</header>
+
+<main>
+
+    <div class="hero">
+        <span class="hero-icon">🎮</span>
+        <h1>ZAČÍNÁME HRÁT</h1>
+        <p>Vše co potřebuješ vědět, abys přežil vesmír</p>
+    </div>
+
+    <section>
+        <h2>📋 Jak začít</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">01</div>
+                <div class="step-content">
+                    <h3>Spuštění hry</h3>
+                    <p>Spusť soubor <code>ShooterGameMTP.py</code> pomocí Pythonu. Ujisti se, že server <code>main.py</code> běží na pozadí.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h3>Přihlášení / Host</h3>
+                    <p>Zadej své uživatelské jméno a heslo. Pokud server neběží, hra tě automaticky přihlásí jako hosta.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">03</div>
+                <div class="step-content">
+                    <h3>Hlavní menu</h3>
+                    <p>V menu vyber "Start" pro zahájení hry, "Tabulka" pro žebříček nebo "Nastaveni" pro změnu rozlišení.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">04</div>
+                <div class="step-content">
+                    <h3>Přežij co nejdéle!</h3>
+                    <p>Střílej nepřátele, vyhýbej se jejich střelám a sbírej body. Máš 3 životy – pak je konec!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>⌨️ Ovládání</h2>
+        <div class="controls-grid">
+            <div class="control-card">
+                <div class="key">↑</div>
+                <div class="control-label">Pohyb nahoru</div>
+            </div>
+            <div class="control-card">
+                <div class="key">↓</div>
+                <div class="control-label">Pohyb dolů</div>
+            </div>
+            <div class="control-card">
+                <div class="key">SPACE</div>
+                <div class="control-label">Střelba</div>
+            </div>
+            <div class="control-card">
+                <div class="key">S</div>
+                <div class="control-label">Slow Motion</div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>👾 Nepřátelé</h2>
+        <div class="enemies-grid">
+            <div class="enemy-card">
+                <div class="enemy-icon">🔴</div>
+                <h3>NEPŘÍTEL TYP 1</h3>
+                <p>Rychlý základní nepřítel. Letí přímo na tebe z prava doleva. Za zásah dostaneš 1 bod.</p>
+                <span class="badge">+1 bod</span>
+            </div>
+            <div class="enemy-card">
+                <div class="enemy-icon">🟣</div>
+                <h3>NEPŘÍTEL TYP 2</h3>
+                <p>Pomalejší, ale nebezpečnější – střílí na tebe projektily. Za zásah dostaneš 2 body.</p>
+                <span class="badge">+2 body</span>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>💡 Tipy a triky</h2>
+        <div class="tips">
+            <div class="tip">
+                <div class="tip-icon">⚡</div>
+                <div class="tip-title">Slow Motion</div>
+                <div class="tip-text">Klávesa S aktivuje zpomalení nepřátel na 5 sekund. Cooldown je 15 sekund – šetři ho na těžké momenty!</div>
+            </div>
+            <div class="tip">
+                <div class="tip-icon">📈</div>
+                <div class="tip-title">Vzrůstající obtížnost</div>
+                <div class="tip-text">Každých 10 bodů se nepřátelé zrychlí. Čím víc bodů, tím rychlejší chaos.</div>
+            </div>
+            <div class="tip">
+                <div class="tip-icon">🎯</div>
+                <div class="tip-title">Prioritizuj Typ 2</div>
+                <div class="tip-text">Střelci (Typ 2) jsou největší hrozba. Zlikviduj je co nejdřív, než začnou pálbit.</div>
+            </div>
+            <div class="tip">
+                <div class="tip-icon">❤️</div>
+                <div class="tip-title">3 životy</div>
+                <div class="tip-text">Máš 3 šance. Každý zásah nepřítelem nebo střelou tě stojí 1 život.</div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

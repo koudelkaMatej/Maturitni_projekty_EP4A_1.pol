@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Pro spolupracovníka – Space Shooter</title>
+    <style>@font-face { font-family: 'Audiowide'; src: url('../Audiowide-Regular.ttf') format('truetype'); }</style>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cyan: #00e5ff;
+            --bg: #070b0e;
+            --card-bg: #0c1217;
+            --border: #1a2530;
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 5% 20%, rgba(0,229,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 65%, rgba(255,255,255,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 80% 30%, rgba(0,229,255,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.2) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 1;
+            background: #0c1217;
+            border-bottom: 2px solid var(--cyan);
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--cyan);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+
+        .tag {
+            background: rgba(0,229,255,0.08);
+            border: 1px solid rgba(0,229,255,0.25);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .back-btn {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: var(--cyan); }
+
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+
+        .hero { text-align: center; margin-bottom: 80px; }
+
+        h1 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: clamp(24px, 4vw, 44px);
+            font-weight: 900;
+            color: var(--cyan);
+            text-shadow: 0 0 40px rgba(0,229,255,0.4);
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.4);
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+
+        section { margin-bottom: 72px; }
+
+        h2 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Architecture */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .arch-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--cyan);
+            border-radius: 0 12px 12px 0;
+            padding: 24px;
+        }
+
+        .arch-card .file {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--cyan);
+            background: rgba(0,229,255,0.07);
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .arch-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .arch-card p { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+        /* ========================
+           VÝVOJOVÝ DIAGRAM (SVG)
+           ======================== */
+        .diagram-wrapper {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 16px;
+            overflow-x: auto;
+        }
+
+        .diagram-wrapper svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        /* ========================
+           ER DIAGRAM (SVG)
+           ======================== */
+        .er-wrapper {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 16px;
+            overflow-x: auto;
+        }
+
+        .er-wrapper svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0a0f14;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #a0cfef;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+
+        .code-block .kw { color: #569cd6; }
+        .code-block .fn { color: #dcdcaa; }
+        .code-block .str { color: #ce9178; }
+        .code-block .cm { color: #6a9955; }
+
+        /* API table */
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .api-table th {
+            background: rgba(0,229,255,0.08);
+            padding: 12px 16px;
+            text-align: left;
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--cyan);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .api-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .api-table tr:hover td { background: rgba(0,229,255,0.03); }
+
+        .method {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .get { background: rgba(76,175,80,0.15); color: #76ff7a; }
+        .post { background: rgba(0,120,255,0.15); color: #5599ff; }
+
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--cyan);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        section { animation: fadeUp 0.5s ease both; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="brand">🚀 SPACE SHOOTER</a>
+    <span class="tag">Technická dokumentace</span>
+    <a href="/prezentace" class="back-btn">← Zpět</a>
+</header>
+
+<main>
+
+    <div class="hero">
+        <h1>TECHNICKÁ DOKUMENTACE</h1>
+        <p>Architektura, kód, databáze a vývojový diagram projektu</p>
+    </div>
+
+    <!-- ARCHITEKTURA -->
+    <section>
+        <h2>🏗️ Struktura projektu</h2>
+        <div class="arch-grid">
+            <div class="arch-card">
+                <div class="file">ShooterGameMTP.py</div>
+                <h3>Herní engine</h3>
+                <p>Pygame smyčka, sprite systém, vstup hráče, kolize, slow motion, komunikace s API.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">main.py</div>
+                <h3>Flask backend</h3>
+                <p>REST API pro login, signup, submit_score a scoreboard. Thread-safe SQLite přístup.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">MTP.html</div>
+                <h3>Hlavní web stránka</h3>
+                <p>Prezentace hry, galerie screenshotů, lightbox, navigace na registraci.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">ScoreBoard.html</div>
+                <h3>Žebříček</h3>
+                <p>Jinja2 template s top 10 hráči z databáze, seřazeno podle max skóre.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">database.db</div>
+                <h3>SQLite databáze</h3>
+                <p>Tabulky <code>users</code> a <code>scores</code> s foreign key vazbou.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">sprites/ + static/</div>
+                <h3>Assets</h3>
+                <p>Obrázky postav, pozadí, video a fonty použité v Pygame i na webu.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VÝVOJOVÝ DIAGRAM -->
+    <section>
+        <h2>🔄 Vývojový diagram hry</h2>
+        <div class="diagram-wrapper">
+            <svg viewBox="0 0 760 980" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Courier New, monospace">
+                <defs>
+                    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#00e5ff" opacity="0.7"/>
+                    </marker>
+                </defs>
+
+                <!-- START -->
+                <ellipse cx="380" cy="44" rx="80" ry="28" fill="#0c2030" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="380" y="49" text-anchor="middle" fill="#00e5ff" font-size="13" font-weight="600">START</text>
+
+                <!-- Arrow -->
+                <line x1="380" y1="72" x2="380" y2="105" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+
+                <!-- Spustit hru -->
+                <rect x="270" y="108" width="220" height="44" rx="8" fill="#0c2030" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="380" y="134" text-anchor="middle" fill="white" font-size="13">Spustit hru (pygame.init)</text>
+
+                <line x1="380" y1="152" x2="380" y2="185" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+
+                <!-- LOGIN stav -->
+                <rect x="270" y="188" width="220" height="44" rx="8" fill="#0d1a0d" stroke="#4CAF50" stroke-width="1.5"/>
+                <text x="380" y="214" text-anchor="middle" fill="#76ff7a" font-size="13">Stav: LOGIN</text>
+
+                <line x1="380" y1="232" x2="380" y2="265" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+
+                <!-- Diamond: přihlášení OK? -->
+                <polygon points="380,268 470,308 380,348 290,308" fill="#0a1520" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="380" y="312" text-anchor="middle" fill="white" font-size="12">Přihlášení OK?</text>
+
+                <!-- NE branch -->
+                <line x1="290" y1="308" x2="200" y2="308" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <text x="240" y="300" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="11">NE</text>
+                <rect x="120" y="285" width="80" height="44" rx="8" fill="#200a0a" stroke="#ff5555" stroke-width="1.2"/>
+                <text x="160" y="311" text-anchor="middle" fill="#ff8888" font-size="11">Chyba /</text>
+                <text x="160" y="324" text-anchor="middle" fill="#ff8888" font-size="11">Host mode</text>
+                <line x1="200" y1="307" x2="200" y2="440" stroke="#00e5ff" stroke-width="1.2" opacity="0.4" stroke-dasharray="4 3"/>
+                <line x1="200" y1="440" x2="270" y2="440" stroke="#00e5ff" stroke-width="1.2" opacity="0.4" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+                <!-- ANO branch -->
+                <line x1="380" y1="348" x2="380" y2="408" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <text x="392" y="382" fill="rgba(255,255,255,0.5)" font-size="11">ANO</text>
+
+                <!-- MENU -->
+                <rect x="270" y="412" width="220" height="44" rx="8" fill="#0d1a0d" stroke="#4CAF50" stroke-width="1.5"/>
+                <text x="380" y="438" text-anchor="middle" fill="#76ff7a" font-size="13">Stav: MENU</text>
+
+                <line x1="380" y1="456" x2="380" y2="489" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+
+                <!-- Diamond: volba v menu -->
+                <polygon points="380,492 490,532 380,572 270,532" fill="#0a1520" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="380" y="536" text-anchor="middle" fill="white" font-size="12">Volba v menu</text>
+
+                <!-- Start -->
+                <line x1="380" y1="572" x2="380" y2="610" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <text x="392" y="594" fill="rgba(255,255,255,0.5)" font-size="11">Start</text>
+
+                <!-- GAME -->
+                <rect x="270" y="614" width="220" height="44" rx="8" fill="#0d1a0d" stroke="#4CAF50" stroke-width="1.5"/>
+                <text x="380" y="640" text-anchor="middle" fill="#76ff7a" font-size="13">Stav: GAME</text>
+
+                <!-- Tabulka -->
+                <line x1="490" y1="532" x2="600" y2="532" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <text x="535" y="524" fill="rgba(255,255,255,0.5)" font-size="11">Tabulka</text>
+                <rect x="598" y="510" width="130" height="44" rx="8" fill="#0c2030" stroke="#00e5ff" stroke-width="1.2"/>
+                <text x="663" y="536" text-anchor="middle" fill="white" font-size="12">SCOREBOARD</text>
+
+                <!-- Game loop box -->
+                <line x1="380" y1="658" x2="380" y2="690" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <rect x="230" y="693" width="300" height="60" rx="8" fill="#091409" stroke="#4CAF50" stroke-width="1.2" stroke-dasharray="5 3"/>
+                <text x="380" y="717" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12">Pohyb | Střelba | Spawn</text>
+                <text x="380" y="733" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12">Kolize | Skóre | Slow motion</text>
+
+                <line x1="380" y1="753" x2="380" y2="790" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+
+                <!-- Diamond: lives == 0? -->
+                <polygon points="380,793 470,828 380,863 290,828" fill="#0a1520" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="380" y="832" text-anchor="middle" fill="white" font-size="12">Životy = 0?</text>
+
+                <!-- NE → zpět na smyčku -->
+                <line x1="290" y1="828" x2="170" y2="828" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <text x="225" y="820" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="11">NE</text>
+                <line x1="170" y1="828" x2="170" y2="722" stroke="#00e5ff" stroke-width="1.2" opacity="0.4" stroke-dasharray="4 3"/>
+                <line x1="170" y1="722" x2="230" y2="722" stroke="#00e5ff" stroke-width="1.2" opacity="0.4" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+                <!-- ANO branch -->
+                <line x1="380" y1="863" x2="380" y2="903" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <text x="392" y="887" fill="rgba(255,255,255,0.5)" font-size="11">ANO</text>
+
+                <!-- Submit score + GAME OVER -->
+                <rect x="270" y="906" width="220" height="44" rx="8" fill="#200a0a" stroke="#ff5555" stroke-width="1.5"/>
+                <text x="380" y="932" text-anchor="middle" fill="#ff8888" font-size="13">Submit score → GAME OVER</text>
+
+                <!-- END -->
+                <line x1="380" y1="950" x2="380" y2="966" stroke="#00e5ff" stroke-width="1.2" opacity="0.6" marker-end="url(#arr)"/>
+                <ellipse cx="380" cy="972" rx="60" ry="18" fill="#0c2030" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="380" y="977" text-anchor="middle" fill="#00e5ff" font-size="12" font-weight="600">KONEC / MENU</text>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ER DIAGRAM / DB SCHEMA -->
+    <section>
+        <h2>🗄️ Struktura databáze</h2>
+        <div class="er-wrapper">
+            <svg viewBox="0 0 740 480" width="740" xmlns="http://www.w3.org/2000/svg" font-family="Courier New, monospace">
+                <defs>
+                    <marker id="arr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#00e5ff" opacity="0.7"/>
+                    </marker>
+                </defs>
+
+                <!-- === USERS TABLE === -->
+                <!-- Header -->
+                <rect x="40" y="40" width="280" height="40" rx="6 6 0 0" fill="#0d1a28" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="180" y="65" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="700" letter-spacing="2">USERS</text>
+
+                <!-- Rows -->
+                <rect x="40" y="80" width="280" height="36" fill="#0a1520" stroke="#1a2530" stroke-width="1"/>
+                <text x="60" y="103" fill="#f5c842" font-size="12">id</text>
+                <text x="140" y="103" fill="rgba(255,255,255,0.6)" font-size="12">INTEGER</text>
+                <text x="240" y="103" fill="rgba(0,229,255,0.7)" font-size="10">PK • AUTOINCREMENT</text>
+
+                <rect x="40" y="116" width="280" height="36" fill="#0c1620" stroke="#1a2530" stroke-width="1"/>
+                <text x="60" y="139" fill="white" font-size="12">username</text>
+                <text x="140" y="139" fill="rgba(255,255,255,0.6)" font-size="12">TEXT</text>
+                <text x="240" y="139" fill="rgba(255,255,255,0.4)" font-size="10">UNIQUE NOT NULL</text>
+
+                <rect x="40" y="152" width="280" height="36" fill="#0a1520" stroke="#1a2530" stroke-width="1"/>
+                <text x="60" y="175" fill="white" font-size="12">email</text>
+                <text x="140" y="175" fill="rgba(255,255,255,0.6)" font-size="12">TEXT</text>
+                <text x="240" y="175" fill="rgba(255,255,255,0.4)" font-size="10">NOT NULL</text>
+
+                <rect x="40" y="188" width="280" height="36" rx="0 0 6 6" fill="#0c1620" stroke="#1a2530" stroke-width="1"/>
+                <text x="60" y="211" fill="white" font-size="12">password</text>
+                <text x="140" y="211" fill="rgba(255,255,255,0.6)" font-size="12">TEXT</text>
+                <text x="240" y="211" fill="rgba(255,255,255,0.4)" font-size="10">NOT NULL (hash)</text>
+
+                <!-- Border bottom -->
+                <rect x="40" y="40" width="280" height="184" rx="6" fill="none" stroke="#00e5ff" stroke-width="1.5"/>
+
+                <!-- === SCORES TABLE === -->
+                <rect x="420" y="40" width="280" height="40" rx="6 6 0 0" fill="#0d1a28" stroke="#00e5ff" stroke-width="1.5"/>
+                <text x="560" y="65" text-anchor="middle" fill="#00e5ff" font-size="14" font-weight="700" letter-spacing="2">SCORES</text>
+
+                <rect x="420" y="80" width="280" height="36" fill="#0a1520" stroke="#1a2530" stroke-width="1"/>
+                <text x="440" y="103" fill="#f5c842" font-size="12">id</text>
+                <text x="520" y="103" fill="rgba(255,255,255,0.6)" font-size="12">INTEGER</text>
+                <text x="620" y="103" fill="rgba(0,229,255,0.7)" font-size="10">PK • AUTOINCREMENT</text>
+
+                <rect x="420" y="116" width="280" height="36" fill="#0c1620" stroke="#1a2530" stroke-width="1"/>
+                <text x="440" y="139" fill="#ff8888" font-size="12">user_id</text>
+                <text x="520" y="139" fill="rgba(255,255,255,0.6)" font-size="12">INTEGER</text>
+                <text x="620" y="139" fill="rgba(255,120,120,0.7)" font-size="10">FK → users.id</text>
+
+                <rect x="420" y="152" width="280" height="36" rx="0 0 6 6" fill="#0a1520" stroke="#1a2530" stroke-width="1"/>
+                <text x="440" y="175" fill="white" font-size="12">score</text>
+                <text x="520" y="175" fill="rgba(255,255,255,0.6)" font-size="12">INTEGER</text>
+                <text x="620" y="175" fill="rgba(255,255,255,0.4)" font-size="10">NOT NULL</text>
+
+                <rect x="420" y="40" width="280" height="148" rx="6" fill="none" stroke="#00e5ff" stroke-width="1.5"/>
+
+                <!-- RELATION LINE: users.id → scores.user_id -->
+                <line x1="320" y1="98" x2="420" y2="134" stroke="#ff8888" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.7" marker-end="url(#arr2)"/>
+                <text x="345" y="108" fill="#ff8888" font-size="11" opacity="0.7">1</text>
+                <text x="390" y="130" fill="#ff8888" font-size="11" opacity="0.7">N</text>
+
+                <!-- API query legend -->
+                <rect x="40" y="310" width="660" height="130" rx="10" fill="#091218" stroke="#1a2530" stroke-width="1"/>
+                <text x="60" y="338" fill="#00e5ff" font-size="12" font-weight="700" letter-spacing="1">POUŽITÉ DOTAZY</text>
+
+                <text x="60" y="366" fill="rgba(255,255,255,0.7)" font-size="12">SELECT u.username, MAX(s.score) as score</text>
+                <text x="60" y="384" fill="rgba(255,255,255,0.7)" font-size="12">FROM scores s JOIN users u ON s.user_id = u.id</text>
+                <text x="60" y="402" fill="rgba(255,255,255,0.7)" font-size="12">GROUP BY u.id ORDER BY score DESC LIMIT 10</text>
+                <text x="500" y="366" fill="rgba(0,229,255,0.5)" font-size="11">→ Scoreboard (top 10)</text>
+                <text x="60" y="428" fill="rgba(255,255,255,0.5)" font-size="11">INSERT INTO scores (user_id, score) VALUES (?, ?)</text>
+                <text x="500" y="428" fill="rgba(0,229,255,0.5)" font-size="11">→ Uložení skóre po hře</text>
+            </svg>
+        </div>
+    </section>
+
+    <!-- API ENDPOINTS -->
+    <section>
+        <h2>🔌 REST API Endpointy</h2>
+        <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+            <table class="api-table">
+                <thead>
+                    <tr>
+                        <th>Metoda</th>
+                        <th>Endpoint</th>
+                        <th>Popis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method post">POST</span></td>
+                        <td class="endpoint">/api/signup</td>
+                        <td>Registrace nového uživatele</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method post">POST</span></td>
+                        <td class="endpoint">/api/login</td>
+                        <td>Přihlášení, vrací user_id</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method post">POST</span></td>
+                        <td class="endpoint">/api/submit_score</td>
+                        <td>Uloží skóre pro daného hráče</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method get">GET</span></td>
+                        <td class="endpoint">/api/scoreboard</td>
+                        <td>Vrátí top 10 hráčů jako JSON</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method get">GET</span></td>
+                        <td class="endpoint">/scoreboard</td>
+                        <td>HTML stránka žebříčku (Jinja2)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- KEY CLASSES -->
+    <section>
+        <h2>🧩 Klíčové třídy (Pygame)</h2>
+        <div class="arch-grid">
+            <div class="arch-card">
+                <div class="file">class Hrac</div>
+                <h3>Hráč</h3>
+                <p>Sprite hráče, pohyb (↑↓), 3 životy, skóre, metoda <code>lose_life()</code> s odesláním skóre.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">class Enemy1</div>
+                <h3>Základní nepřítel</h3>
+                <p>Letí zleva, rychlost 3–4 + speed multiplier. Za zásah +1 bod.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">class Enemy2</div>
+                <h3>Střílecí nepřítel</h3>
+                <p>Pomalejší, ale generuje <code>EnemyStrela</code>. Za zásah +2 body.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">class Strela</div>
+                <h3>Střela hráče</h3>
+                <p>Rychlost 12, spawn z pravé strany hráče. Ničí nepřátele při kolizi.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">class EnemyStrela</div>
+                <h3>Střela nepřítele</h3>
+                <p>Rychlost 8 (zpomalena slow motionem). Letí doleva, ničí hráče.</p>
+            </div>
+            <div class="arch-card">
+                <div class="file">class GameObject</div>
+                <h3>Základní třída</h3>
+                <p>Dědí <code>pg.sprite.Sprite</code>. Načítá sprite z image_path nebo výchozí barevný obdélník.</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>
