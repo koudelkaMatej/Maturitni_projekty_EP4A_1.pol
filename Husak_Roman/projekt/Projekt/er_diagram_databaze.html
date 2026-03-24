@@ -1,0 +1,124 @@
+<div class="diagram-container">
+  <div id="erd"></div>
+
+  <div class="image-box">
+    <img src="vyvojovy_diagram_hra.svg" alt="Vývojový diagram hry">
+  </div>
+</div>
+
+<style>
+/* 🔥 černé pozadí stránky */
+body {
+  background-color: #000;
+  color: #fff;
+}
+
+.diagram-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* ER diagram */
+#erd {
+  flex: 1;
+}
+
+#erd svg {
+  width: 100%;
+}
+
+/* 🔥 FIX čitelnosti */
+#erd svg text {
+  fill: #ffffff !important;
+}
+
+#erd svg .node rect {
+  fill: #111 !important;
+  stroke: #8b5cf6 !important;
+}
+
+/* řádky */
+#erd svg .row-rect-odd rect {
+  fill: #111 !important;
+}
+#erd svg .row-rect-even rect {
+  fill: #1a1a1a !important;
+}
+
+/* linky */
+#erd svg path {
+  stroke: #9ca3af !important;
+}
+
+/* obrázek */
+.image-box {
+  width: 600px;
+  max-width: 100%;
+}
+
+.image-box img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+/* 📱 mobil */
+@media (max-width: 900px) {
+  .diagram-container {
+    flex-direction: column;
+  }
+
+  .image-box {
+    width: 100%;
+  }
+}
+</style>
+
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+
+await document.fonts.ready;
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  themeVariables: {
+    darkMode: true,
+
+    primaryColor: '#111111',
+    secondaryColor: '#1a1a1a',
+    tertiaryColor: '#0f0f0f',
+
+    primaryTextColor: '#ffffff',
+    secondaryTextColor: '#e5e5e5',
+
+    primaryBorderColor: '#8b5cf6',
+    lineColor: '#9ca3af',
+
+    mainBkg: '#111111',
+    secondBkg: '#1a1a1a',
+
+    fontSize: '13px',
+  },
+});
+
+const { svg } = await mermaid.render('erd-svg', `erDiagram
+  USERS {
+    INTEGER id PK "AUTO INCREMENT"
+    TEXT jmeno UK "Unikátní přezdívka"
+    TEXT heslo "SHA-256 hash"
+    INTEGER max_body "Nejlepší skóre (výchozí 0)"
+  }
+
+  USERS ||--o{ GAME_SESSION : "má skóre"
+
+  GAME_SESSION {
+    INTEGER id PK
+    TEXT jmeno FK "Odkaz na USERS.jmeno"
+    INTEGER skore "Dosažené skóre"
+    TIMESTAMP cas "Čas záznamu"
+  }
+`);
+
+document.getElementById('erd').innerHTML = svg;
+</script>
