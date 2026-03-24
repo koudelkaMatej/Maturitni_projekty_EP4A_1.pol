@@ -118,3 +118,7 @@ pip freeze > requirements.txt
 8	Aktivovat venv	PowerShell
 9	Instalovat balíčky	PowerShell (s aktivním venv)
 10	Uložit závislosti	
+
+
+
+git : Romean972
