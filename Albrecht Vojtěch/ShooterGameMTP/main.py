@@ -1,238 +1,304 @@
-import random
-import pygame as pg
+import sqlite3
+import os
+import threading
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
-pg.init()
+app = Flask(__name__)
+app.secret_key = "zmen_toto_na_nejaky_tajny_klic_123!"  # ← ZMĚŇ před nasazením!
+DB_PATH = os.path.abspath("database.db")
 
+# Lock pro zápis do DB (thread-safe)
+db_lock = threading.Lock()
 
-OKNO_SIRKA = 800
-OKNO_VYSKA = 600
+# --------------------------
+# Připojení k DB
+# --------------------------
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-BILA = (255, 255, 255)
-CERNA = (0, 0, 0)
+# --------------------------
+# Vytvoření tabulek
+# --------------------------
+def create_tables():
+    conn = get_db_connection()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT NOT NULL,
+            password TEXT NOT NULL,
+            is_admin INTEGER DEFAULT 0
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS scores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            score INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    """)
+    # Přidej is_admin sloupec pokud DB už existuje bez něj
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass  # Sloupec už existuje, to je OK
+    conn.commit()
+    conn.close()
 
-okno = pg.display.set_mode((OKNO_SIRKA, OKNO_VYSKA))
-pg.display.set_caption("Shooter")
+create_tables()
 
-hodiny = pg.time.Clock()
-FPS = 60
+# --------------------------
+# Dekorátory pro ochranu rout
+# --------------------------
+def login_required(f):
+    """Přesměruje na /signin pokud uživatel není přihlášen."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("signin"))
+        return f(*args, **kwargs)
+    return decorated
 
-score_font = pg.font.Font("freesansbold.ttf", 32)
-button_font = pg.font.Font("freesansbold.ttf", 40)
+def admin_required(f):
+    """Vrátí 403 pokud přihlášený uživatel není admin."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("signin"))
+        if not session.get("is_admin"):
+            return "Nemáš oprávnění!", 403
+        return f(*args, **kwargs)
+    return decorated
 
-# Herní stavy
-MENU = "menu"
-GAME = "game"
-SCOREBOARD = "scoreboard"
-SETTINGS = "settings"
+# --------------------------
+# Webové routy
+# --------------------------
+@app.route("/")
+def home():
+    return render_template("MTP.html")
 
-current_state = MENU
+@app.route("/aktivniuzivatele")
+def aktivniuzivatele():
+    conn = get_db_connection()
+    users = conn.execute("SELECT username FROM users").fetchall()
+    conn.close()
+    return render_template("ActiveUsers.html", users=users)
 
-# Event pro spawn nepřátel
-SPAWN_ENEMY_EVENT = pg.USEREVENT + 1
-pg.time.set_timer(SPAWN_ENEMY_EVENT, 2000)
+@app.route("/scoreboard")
+def scoreboard():
+    conn = get_db_connection()
+    scores = conn.execute("""
+        SELECT u.username, MAX(s.score) as score
+        FROM scores s JOIN users u ON s.user_id = u.id
+        GROUP BY u.id
+        ORDER BY score DESC
+        LIMIT 10
+    """).fetchall()
+    conn.close()
+    return render_template("ScoreBoard.html", scores=scores)
 
+# --------------------------
+# Web registrace/login
+# --------------------------
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = generate_password_hash(request.form.get("password"))
 
-class GameObject(pg.sprite.Sprite):
-    def __init__(self, x, y, rychlost, obrazek=None, scale=1, color=None, size=(50,50)):
-        super().__init__()
-        # Pokud není obrázek, použij barevný obdélník
-        if obrazek:
-            image_surface = pg.image.load(obrazek).convert_alpha()
-            w = int(image_surface.get_width() * scale)
-            h = int(image_surface.get_height() * scale)
-            self.image = pg.transform.scale(image_surface, (w, h))
+        with db_lock:
+            conn = get_db_connection()
+            try:
+                conn.execute(
+                    "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+                    (username, email, password)
+                )
+                conn.commit()
+            except sqlite3.IntegrityError:
+                conn.close()
+                return "Uživatel již existuje!"
+            conn.close()
+        return redirect(url_for("signin"))
+
+    return render_template("SignUp.html")
+
+@app.route("/signin", methods=["GET", "POST"])
+def signin():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        conn = get_db_connection()
+        user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        conn.close()
+
+        if user and check_password_hash(user["password"], password):
+            # Uložení do session
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            session["is_admin"] = bool(user["is_admin"])
+
+            if user["is_admin"]:
+                return redirect(url_for("admin"))
+            return redirect(url_for("aktivniuzivatele"))
         else:
-            self.image = pg.Surface(size)
-            self.image.fill(color if color else (255,0,0))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.rychlost = rychlost
+            return "Špatné přihlašovací údaje!"
 
-class Hrac(GameObject):
-    def __init__(self, x, y, rychlost, obrazek=None, scale=1):
-        super().__init__(x, y, rychlost, obrazek, scale, color=(0,0,255))
-        self.skore = 0
+    return render_template("SignIn.html")
 
-    def update(self):
-        self.pohyb()
-        self.zkontroluj_hranice()
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("home"))
 
-    def pohyb(self):
-        keys = pg.key.get_pressed()
-        if keys[pg.K_UP]:
-            self.rect.y -= self.rychlost
-        if keys[pg.K_DOWN]:
-            self.rect.y += self.rychlost
+@app.route("/prezentace")
+def prezentace():
+    return render_template("prezentace.html")
 
-    def zkontroluj_hranice(self):
-        self.rect.y = max(0, min(self.rect.y, OKNO_VYSKA - self.rect.height))
+@app.route("/prezentace-investor")
+def prezentace_investor():
+    return render_template("prezentace-investor.html")
 
-class Enemy(GameObject):
-    def __init__(self, x, y, obrazek=None, scale=1):
-        super().__init__(x, y, 0, obrazek, scale, color=(255,0,0))
+@app.route("/prezentace-kolega")
+def prezentace_kolega():
+    return render_template("prezentace-kolega.html")
 
-    def update(self, speed=5):
-        self.rect.x -= speed
-        if self.rect.right < 0:
-            self.rect.left = OKNO_SIRKA
+@app.route("/prezentace-novy-uzivatel")
+def prezentace_novy_uzivatel():
+    return render_template("prezentace-novyuzivatel.html")
 
-class Strela(GameObject):
-    def __init__(self, x, y, obrazek=None, scale=1):
-        super().__init__(x, y, 0, obrazek, scale, color=(0,255,0), size=(20,10))
+# --------------------------
+# ADMIN PANEL
+# --------------------------
+@app.route("/admin")
+@admin_required
+def admin():
+    conn = get_db_connection()
+    users = conn.execute(
+        "SELECT id, username, email, is_admin FROM users ORDER BY id"
+    ).fetchall()
+    scores = conn.execute("""
+        SELECT s.id, u.username, s.score
+        FROM scores s
+        JOIN users u ON s.user_id = u.id
+        ORDER BY s.score DESC
+    """).fetchall()
+    conn.close()
+    return render_template("admin.html", users=users, scores=scores)
 
-    def update(self, speed=40):
-        self.rect.x += speed
-        if self.rect.left > OKNO_SIRKA:
-            self.kill()
+@app.route("/admin/delete_score/<int:score_id>", methods=["POST"])
+@admin_required
+def admin_delete_score(score_id):
+    with db_lock:
+        conn = get_db_connection()
+        conn.execute("DELETE FROM scores WHERE id = ?", (score_id,))
+        conn.commit()
+        conn.close()
+    return redirect(url_for("admin"))
 
+@app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
+@admin_required
+def admin_delete_user(user_id):
+    # Zabraň smazání sebe sama
+    if user_id == session.get("user_id"):
+        return "Nemůžeš smazat sám sebe!", 400
+    with db_lock:
+        conn = get_db_connection()
+        # Smaž i skóre tohoto uživatele
+        conn.execute("DELETE FROM scores WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        conn.close()
+    return redirect(url_for("admin"))
 
-def restart_game():
-    player = Hrac(50, OKNO_VYSKA // 2, 5, "sprites/zbran.png", 0.25)
-    hrac_group = pg.sprite.Group(player)
-    enemy_group = pg.sprite.Group()
-    strela_group = pg.sprite.Group()
-    return player, hrac_group, enemy_group, strela_group
+@app.route("/admin/delete_all_scores", methods=["POST"])
+@admin_required
+def admin_delete_all_scores():
+    with db_lock:
+        conn = get_db_connection()
+        conn.execute("DELETE FROM scores")
+        conn.commit()
+        conn.close()
+    return redirect(url_for("admin"))
 
-# Menu tlačítka
-buttons = [
-    {"text": "Start", "state": GAME},
-    {"text": "Tabulka skóre", "state": SCOREBOARD},
-    {"text": "Nastavení", "state": SETTINGS},
-    {"text": "Konec", "state": "quit"}
-]
+# --------------------------
+# API pro Pygame
+# --------------------------
+@app.route("/api/signup", methods=["POST"])
+def api_signup():
+    data = request.get_json()
+    username = data["username"]
+    email = data["email"]
+    password = generate_password_hash(data["password"])
 
-BACK_BUTTON = {"text": "Zpět", "state": MENU, "rect": None}
+    with db_lock:
+        conn = get_db_connection()
+        try:
+            conn.execute(
+                "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+                (username, email, password)
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            conn.close()
+            return jsonify({"success": False, "message": "Uživatel již existuje!"})
+        conn.close()
+    return jsonify({"success": True})
 
-def draw_menu():
-    okno.fill(BILA)
-    title = pg.font.Font("freesansbold.ttf", 70).render("SHOOTER", True, CERNA)
-    okno.blit(title, (OKNO_SIRKA // 2 - title.get_width() // 2, 80))
+@app.route("/api/login", methods=["POST"])
+def api_login():
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
 
-    mouse_pos = pg.mouse.get_pos()
-    y = 200
-    for btn in buttons:
-        rect = pg.Rect(OKNO_SIRKA//2 - 175, y, 350, 60)
-        color = (180, 180, 180) if rect.collidepoint(mouse_pos) else (220, 220, 220)
-        pg.draw.rect(okno, color, rect, border_radius=15)
+    conn = get_db_connection()
+    user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    conn.close()
 
-        text = button_font.render(btn["text"], True, CERNA)
-        okno.blit(text, (rect.centerx - text.get_width()//2,
-                         rect.centery - text.get_height()//2))
+    if user and check_password_hash(user["password"], password):
+        return jsonify({
+            "success": True,
+            "user_id": user["id"],
+            "is_admin": bool(user["is_admin"])
+        })
+    else:
+        return jsonify({"success": False})
 
-        btn["rect"] = rect
-        y += 100
+@app.route("/api/submit_score", methods=["POST"])
+def api_submit_score():
+    data = request.get_json()
+    user_id = data["user_id"]
+    score = data["score"]
 
-def draw_scoreboard():
-    okno.fill(BILA)
-    text = button_font.render("Zatím žádná skóre", True, CERNA)
-    okno.blit(text, (100, 250))
+    with db_lock:
+        conn = get_db_connection()
+        conn.execute("INSERT INTO scores (user_id, score) VALUES (?, ?)", (user_id, score))
+        conn.commit()
+        conn.close()
+    return jsonify({"success": True})
 
-    # Draw back button
-    mouse_pos = pg.mouse.get_pos()
-    rect = pg.Rect(OKNO_SIRKA//2 - 100, 500, 200, 50)
-    color = (180, 180, 180) if rect.collidepoint(mouse_pos) else (220, 220, 220)
-    pg.draw.rect(okno, color, rect, border_radius=10)
-    text_surface = button_font.render(BACK_BUTTON["text"], True, CERNA)
-    okno.blit(text_surface, (rect.centerx - text_surface.get_width()//2,
-                             rect.centery - text_surface.get_height()//2))
-    BACK_BUTTON["rect"] = rect
+@app.route("/api/scoreboard", methods=["GET"])
+def api_scoreboard():
+    conn = get_db_connection()
+    rows = conn.execute("""
+        SELECT u.username, MAX(s.score) as score
+        FROM scores s JOIN users u ON s.user_id = u.id
+        GROUP BY u.id
+        ORDER BY score DESC
+        LIMIT 10
+    """).fetchall()
+    conn.close()
+    data = [{"username": row["username"], "score": row["score"]} for row in rows]
+    return jsonify(data)
 
-def draw_settings():
-    okno.fill(BILA)
-    text = button_font.render("Nastavení - ve vývoji", True, CERNA)
-    okno.blit(text, (130, 250))
+print(app.url_map)
 
-    # Draw back button
-    mouse_pos = pg.mouse.get_pos()
-    rect = pg.Rect(OKNO_SIRKA//2 - 100, 500, 200, 50)
-    color = (180, 180, 180) if rect.collidepoint(mouse_pos) else (220, 220, 220)
-    pg.draw.rect(okno, color, rect, border_radius=10)
-    text_surface = button_font.render(BACK_BUTTON["text"], True, CERNA)
-    okno.blit(text_surface, (rect.centerx - text_surface.get_width()//2,
-                             rect.centery - text_surface.get_height()//2))
-    BACK_BUTTON["rect"] = rect
-
-def game_over_screen(skore):
-    okno.fill(BILA)
-    game_over_font = pg.font.Font("freesansbold.ttf", 50)
-    game_over_text = game_over_font.render("Game Over", True, CERNA)
-    score_text = score_font.render(f"Skóre: {skore}", True, CERNA)
-
-    okno.blit(game_over_text, (OKNO_SIRKA // 2 - game_over_text.get_width() // 2, OKNO_VYSKA // 3))
-    okno.blit(score_text, (OKNO_SIRKA // 2 - score_text.get_width() // 2, OKNO_VYSKA // 2))
-    pg.display.flip()
-    pg.time.wait(2000)
-
-# =HRA=
-player, hrac_group, enemy_group, strela_group = restart_game()
-current_state = MENU
-running = True
-
-while running:
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
-
-        # Click menu buttons
-        if current_state == MENU:
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                for btn in buttons:
-                    if btn["rect"] and btn["rect"].collidepoint(pg.mouse.get_pos()):
-                        if btn["state"] == "quit":
-                            running = False
-                        elif btn["state"] == GAME:
-                            player, hrac_group, enemy_group, strela_group = restart_game()
-                            current_state = GAME
-                        else:
-                            current_state = btn["state"]
-
-        # Back button for Settings and Scoreboard
-        if current_state in [SCOREBOARD, SETTINGS]:
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                if BACK_BUTTON["rect"] and BACK_BUTTON["rect"].collidepoint(pg.mouse.get_pos()):
-                    current_state = MENU
-
-        # Game logic
-        if current_state == GAME:
-            if event.type == SPAWN_ENEMY_EVENT:
-                enemy = Enemy(OKNO_SIRKA, random.randint(0, OKNO_VYSKA-50),
-                              "sprites/enemy.png", 0.25)
-                enemy_group.add(enemy)
-
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    strela = Strela(player.rect.x, player.rect.y, "sprites/strela.png", 0.05)
-                    strela_group.add(strela)
-
-
-    if current_state == MENU:
-        draw_menu()
-    elif current_state == SCOREBOARD:
-        draw_scoreboard()
-    elif current_state == SETTINGS:
-        draw_settings()
-    elif current_state == GAME:
-        hrac_group.update()
-        enemy_group.update()
-        strela_group.update()
-
-        if pg.sprite.spritecollide(player, enemy_group, True):
-            game_over_screen(player.skore)
-            current_state = MENU
-
-        collisions = pg.sprite.groupcollide(strela_group, enemy_group, True, True)
-        if collisions:
-            player.skore += 1
-
-        okno.fill(BILA)
-        hrac_group.draw(okno)
-        enemy_group.draw(okno)
-        strela_group.draw(okno)
-        skore_text = score_font.render(f"Skóre: {player.skore}", True, CERNA)
-        okno.blit(skore_text, (10, 10))
-
-    pg.display.flip()
-    hodiny.tick(FPS)
-
-pg.quit()
+# --------------------------
+if __name__ == "__main__":
+    app.run(debug=True, threaded=True, use_reloader=False)

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Prezentace pro investora – Space Shooter</title>
+    <style>@font-face { font-family: 'Audiowide'; src: url('../Audiowide-Regular.ttf') format('truetype'); }</style>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green: #4CAF50;
+            --gold: #f5c842;
+            --bg: #08080c;
+            --card-bg: #0d0d14;
+            --border: #1e1e2e;
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 80% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(2px 2px at 35% 5%, rgba(245,200,66,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 65% 90%, rgba(255,255,255,0.3) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 1;
+            background: #0d0d14;
+            border-bottom: 2px solid var(--gold);
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+
+        .tag {
+            background: rgba(245,200,66,0.1);
+            border: 1px solid rgba(245,200,66,0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .back-btn {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: var(--gold); }
+
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        h1 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: clamp(24px, 5vw, 50px);
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 40px rgba(245,200,66,0.4);
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.45);
+            font-size: 16px;
+            letter-spacing: 1px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        section { margin-bottom: 64px; }
+
+        h2 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Stat cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 20px;
+            text-align: center;
+            border-top: 3px solid var(--gold);
+        }
+
+        .stat-value {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .card p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .feature {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .feature-icon { font-size: 32px; margin-bottom: 12px; }
+        .feature h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .feature p { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold), transparent);
+        }
+
+        .tl-item {
+            position: relative;
+            margin-bottom: 28px;
+        }
+
+        .tl-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 10px rgba(245,200,66,0.5);
+        }
+
+        .tl-phase {
+            font-size: 11px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .tl-title {
+            font-family: 'Audiowide', 'Courier New', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .tl-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Tech stack */
+        .tech-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pill {
+            background: rgba(245,200,66,0.08);
+            border: 1px solid rgba(245,200,66,0.2);
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        /* Screenshot placeholder */
+        .screenshot {
+            background: var(--card-bg);
+            border: 1px solid rgba(245,200,66,0.25);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .screenshot img {
+            max-width: 90%;
+            height: auto;
+            border-radius: 12px;
+            display: block;
+        }
+
+        .screenshot .ph-icon { display: none; }
+        .screenshot div:last-child { display: none; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        section { animation: fadeUp 0.5s ease both; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="brand">🚀 SPACE SHOOTER</a>
+    <span class="tag">Prezentace pro investora</span>
+    <a href="/prezentace" class="back-btn">← Zpět</a>
+</header>
+
+<main>
+
+    <div class="hero">
+        <h1>PŘÍLEŽITOST NA TRHU</h1>
+        <p>Arkádová hra nové generace s plnou infrastrukturou pro online leaderboard a uživatelský management</p>
+    </div>
+
+    <section>
+        <h2>📊 Klíčová čísla</h2>
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">2</div>
+                <div class="stat-label">Typy nepřátel</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Obtížnost (škálovatelná)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">REST</div>
+                <div class="stat-label">API architektura</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">60</div>
+                <div class="stat-label">FPS stabilní výkon</div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>🎯 O projektu</h2>
+        <div class="card">
+            <h3>Vize produktu</h3>
+            <p>Space Shooter je plně funkční arkádová hra postavená na Pythonu a Pygame, doplněná o webový backend (Flask + SQLite). Hra není jen technickým cvičením – demonstruje kompletní produkt: od herního enginu přes REST API až po webové rozhraní s žebříčkem.</p>
+        </div>
+        <div class="card">
+            <h3>Proč to zajímá trh</h3>
+            <p>Trh s casual indie hrami roste každý rok. Space Shooter má připravenou základní infrastrukturu pro multiplayer žebříčky, uživatelský management a škálovatelnou obtížnost – klíčové prvky pro udržení hráčů a monetizaci.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>🚀 Funkce produktu</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <div class="feature-icon">🔐</div>
+                <h3>Uživatelský systém</h3>
+                <p>Registrace, přihlášení s hashovaným heslem, host mode pro okamžité hraní.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🏆</div>
+                <h3>Online Leaderboard</h3>
+                <p>Globální žebříček top 10 hráčů s automatickým odesíláním skóre po konci hry.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Dynamická obtížnost</h3>
+                <p>Nepřátelé se zrychlují každých 10 bodů – přirozená progression curve bez statických levelů.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎬</div>
+                <h3>Video menu</h3>
+                <p>Animované video pozadí v menu pro profesionální first impression.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🖥️</div>
+                <h3>Web rozhraní</h3>
+                <p>Kompletní webová prezentace hry přístupná z prohlížeče s galerií a žebříčkem.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📐</div>
+                <h3>Responzivní okno</h3>
+                <p>Podpora více rozlišení (800×600 až 1280×960) se zachováním poměru stran.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>🛠️ Technologický stack</h2>
+        <div class="tech-pills">
+            <span class="pill">Python 3</span>
+            <span class="pill">Pygame</span>
+            <span class="pill">Flask</span>
+            <span class="pill">SQLite</span>
+            <span class="pill">REST API</span>
+            <span class="pill">Werkzeug</span>
+            <span class="pill">Threading</span>
+            <span class="pill">pyvidplayer2</span>
+            <span class="pill">HTML/CSS/JS</span>
+            <span class="pill">Jinja2</span>
+        </div>
+    </section>
+
+    <section>
+        <h2>🗓️ Roadmapa</h2>
+        <div class="timeline">
+            <div class="tl-item">
+                <div class="tl-phase">Fáze 1 – Dokončeno</div>
+                <div class="tl-title">MVP – Funkční hra s backendem</div>
+                <div class="tl-desc">Herní engine, REST API, uživatelský systém, leaderboard, webová prezentace.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-phase">Fáze 2 – Plánováno</div>
+                <div class="tl-title">Rozšíření obsahu</div>
+                <div class="tl-desc">Nové typy nepřátel, power-upy, levely, soundtrack.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-phase">Fáze 3 – Výhled</div>
+                <div class="tl-title">Distribuce & monetizace</div>
+                <div class="tl-desc">Steam / itch.io release, kosmetický obchod, prémiové účty pro rozšířené statistiky.</div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>🖼️ Ukázka hry</h2>
+        <div class="screenshot">
+            <img src="static/gameplay.png" alt="Screenshot 3">
+            <div class="ph-icon">🎮</div>
+            <div>Sem vložte screenshot herního prostředí</div>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>
