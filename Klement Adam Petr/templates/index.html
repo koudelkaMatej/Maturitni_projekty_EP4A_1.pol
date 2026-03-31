@@ -26,9 +26,33 @@
       <div class="hero-inner">
         <h1>AMP — tvůj fitness deník a průvodce</h1>
         <p class="lead">Aplikace AMP (Advanced Muscle Planner) byla navržena s důrazem na jednoduchost a efektivitu. Cvičení není jen o zvedání vah, ale o disciplíně a sledování pokroku. Naše aplikace vám pomůže udržet si přehled o každém tréninku, každé sérii a každém osobním rekordu.</p>
-        <p>Pravidelný trénink zlepšuje nejen fyzickou sílu, ale i psychickou odolnost. S AMP máte svůj progres vždy po ruce — ať už v desktopové aplikaci nebo zde na webu.</p>
         
-        <h2>Proč je sledování pokroku klíčové?</h2>
+        <div class="academic-info" style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <h2 style="margin-top:0">O projektu (Maturitní práce)</h2>
+          <p><strong>Autor:</strong> Student (Maturitní ročník 2026)</p>
+          <p><strong>Použité technologie:</strong></p>
+          <ul>
+            <li><strong>Python 3.12</strong> — Jádro aplikace a logika.</li>
+            <li><strong>Kivy Framework</strong> — Grafické uživatelské rozhraní (GUI) pro desktop.</li>
+            <li><strong>Flask</strong> — Backendový webový framework a REST API.</li>
+            <li><strong>SQLite 3</strong> — Relační databáze (vztahy 1:N, M:N).</li>
+            <li><strong>HTML5 / CSS3 / JavaScript</strong> — Moderní webová prezentace.</li>
+          </ul>
+          
+          <h3>Klíčové algoritmy</h3>
+          <p><strong>1. Výpočet osobního rekordu (PR):</strong></p>
+          <pre style="font-size: 0.8rem; background: #000; padding: 10px; border-radius: 4px; overflow-x: auto;">
+SELECT e.name, MAX(wi.weight) 
+FROM workout_items wi
+JOIN exercises e ON wi.exercise_id = e.id
+GROUP BY e.name</pre>
+          <p><strong>2. Kaskádové mazání (Hard Delete):</strong> Při smazání uživatele nebo cviku dochází k automatickému odstranění všech souvisejících záznamů v databázi díky <code>ON DELETE CASCADE</code>.</p>
+          
+          <h3>Zdrojový kód</h3>
+          <p>Projekt je spravován v systému Git. <a href="https://github.com/example/fitness_app" style="color:var(--accent)">Odkaz na repozitář (simulace)</a></p>
+        </div>
+
+        <h2 style="margin-top: 2rem">Proč je sledování pokroku klíčové?</h2>
         <p>Bez systematického záznamu se snadno ztratíte. Zapomenete, jakou váhu jste zvedali minulý týden, kolik opakování jste zvládli, nebo jaký cvik jste chtěli vyzkoušet. AMP řeší tento problém tím, že vám poskytuje nástroje pro:</p>
         <ul>
             <li><strong>Konzistenci:</strong> Pravidelné zaznamenávání vás motivuje k dodržování plánu.</li>

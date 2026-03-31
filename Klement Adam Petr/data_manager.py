@@ -1,485 +1,423 @@
-import json
+import sqlite3
 import os
+import json
 from datetime import datetime
 
 # Cesty k datovým souborům
-DATA_FILE = os.path.join("data", "users.json")
+DB_FILE = os.path.join("data", "fitness.db")
 CONFIG_FILE = os.path.join("data", "config.json")
 
 class DataManager:
     """
-    Třída pro správu všech dat aplikace (uživatelé, cviky, tréninky, konfigurace).
-    Zajišťuje čtení a zápis do JSON souborů.
+    Třída pro správu všech dat aplikace pomocí SQLite databáze.
+    Splňuje požadavky na relační databázi (vztahy 1:N, M:N, JOINy).
     """
-    def __init__(self, data_file=DATA_FILE):
-        self.data_file = data_file
+    def __init__(self, db_file=DB_FILE):
+        self.db_file = db_file
         self._ensure_data_dir()
-        self.audit_file = os.path.join(os.path.dirname(self.data_file), "audit.log")
+        self._init_db()
+        self.audit_file = os.path.join(os.path.dirname(self.db_file), "audit.log")
 
     def _ensure_data_dir(self):
         """Zajistí existenci složek pro data."""
-        os.makedirs(os.path.dirname(self.data_file), exist_ok=True)
+        os.makedirs(os.path.dirname(self.db_file), exist_ok=True)
         os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
 
-    def load_data(self):
-        """Načte data ze souboru users.json. Pokud neexistuje, vytvoří prázdnou strukturu."""
-        if os.path.exists(self.data_file):
-            try:
-                with open(self.data_file, "r") as f:
-                    data = json.load(f)
-                    if "__central" not in data:
-                        data["__central"] = {
-                            "exercises": [],
-                            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        }
-                    return data
-            except json.JSONDecodeError:
-                return {"__central": {"exercises": [], "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-        return {}
+    def _get_connection(self):
+        """Vytvoří a vrátí připojení k SQLite databázi."""
+        conn = sqlite3.connect(self.db_file)
+        conn.row_factory = sqlite3.Row  # Umožňuje přístup k výsledkům přes názvy sloupců
+        conn.execute("PRAGMA foreign_keys = ON")
+        return conn
 
-    def save_data(self, data):
-        """Uloží data do souboru users.json."""
-        with open(self.data_file, "w") as f:
-            json.dump(data, f, indent=4)
+    def _init_db(self):
+        """Inicializuje schéma databáze, pokud neexistuje."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        
+        # Povolení cizích klíčů (Foreign Keys)
+        cursor.execute("PRAGMA foreign_keys = ON;")
+
+        # Tabulka UŽIVATELŮ
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                email TEXT,
+                role TEXT DEFAULT 'user',
+                is_banned INTEGER DEFAULT 0,
+                bodyweight REAL DEFAULT 0
+            );
+        """.replace("AUTO_INCREMENT", "AUTOINCREMENT")) # SQLite používá AUTOINCREMENT
+
+        # Tabulka CVIKŮ (Globální seznam)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS exercises (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+
+        # Tabulka TRÉNINKŮ (Vztah 1:N s uživatelem)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS workouts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                note TEXT,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+        """)
+
+        # Tabulka POLOŽEK TRÉNINKU (Vztah M:N mezi tréninkem a cvikem)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS workout_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                workout_id INTEGER NOT NULL,
+                exercise_id INTEGER NOT NULL,
+                sets INTEGER NOT NULL,
+                reps INTEGER NOT NULL,
+                weight REAL NOT NULL,
+                FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE,
+                FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE
+            );
+        """)
+
+        # Tabulka HISTORIE VÁHY (Vztah 1:N s uživatelem)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS bodyweight_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                weight REAL NOT NULL,
+                date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+        """)
+
+        # Výchozí admin (convenience) – aby validate_login nevyžadoval speciální fallback
+        cursor.execute("""
+            INSERT OR IGNORE INTO users (username, password, role)
+            VALUES ('admin', '1234', 'admin')
+        """)
+
+        conn.commit()
+        conn.close()
 
     # --- Správa uživatelů ---
 
-    def get_user_data(self, username):
-        """Vrátí data konkrétního uživatele nebo výchozí strukturu."""
-        data = self.load_data()
-        return data.get(username, {
-            "workouts": [],
-            "personal_records": {},
-            "progress_data": {},
-            "password": "",
-            "email": "",
-            "role": "user",
-            "is_banned": False,
-            "bodyweight": 0,
-            "bodyweight_history": []
-        })
-
     def add_user(self, username, password, email):
-        """Zaregistruje nového uživatele do systému."""
-        data = self.load_data()
-        if username in data:
+        """Zaregistruje nového uživatele do SQL databáze."""
+        conn = self._get_connection()
+        try:
+            conn.execute(
+                "INSERT INTO users (username, password, email) VALUES (?, ?, ?)",
+                (username, password, email)
+            )
+            conn.commit()
+            return True, "Registrace úspěšná"
+        except sqlite3.IntegrityError:
             return False, "Uživatel již existuje"
-        
-        data[username] = {
-            "workouts": [],
-            "personal_records": {},
-            "progress_data": {},
-            "password": password,
-            "email": email,
-            "role": "user",
-            "is_banned": False,
-            "bodyweight": 0,
-            "bodyweight_history": []
-        }
-        self.save_data(data)
-        return True, "Registrace úspěšná"
+        finally:
+            conn.close()
 
     def validate_login(self, username, password):
-        """
-        Ověří přihlašovací údaje uživatele.
-        POZNÁMKA: V produkční verzi by se hesla měla hašovat (např. pomocí bcrypt).
-        """
-        data = self.load_data()
-        if username not in data:
-            return False
-        
-        # Kontrola, zda uživatel nemá zakázaný přístup
-        if data[username].get("is_banned", False):
-            return False
-            
-        stored_password = data[username].get("password", "")
-        return stored_password == password
+        """Ověří přihlašovací údaje pomocí SQL SELECT."""
+        conn = self._get_connection()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ? AND password = ? AND is_banned = 0",
+            (username, password)
+        ).fetchone()
+        conn.close()
+        return user is not None
 
-    def update_user_profile(self, username, new_password=None, new_email=None):
-        """Aktualizuje citlivé údaje v profilu uživatele (heslo nebo email)."""
-        data = self.load_data()
-        if username not in data:
-            return False, "Uživatel nenalezen"
-        
-        if new_password:
-            data[username]["password"] = new_password
-        if new_email:
-            data[username]["email"] = new_email
-            
-        self.save_data(data)
-        return True, "Profil aktualizován"
+    def get_user_role(self, username):
+        """Vrátí roli uživatele."""
+        conn = self._get_connection()
+        user = conn.execute("SELECT role FROM users WHERE username = ?", (username,)).fetchone()
+        conn.close()
+        return user['role'] if user else 'user'
 
-    # --- Záznamy tréninků a tělesné váhy ---
+    def get_user_data(self, username):
+        """
+        Simuluje původní strukturu dat pro zpětnou kompatibilitu.
+        Využívá JOINy pro sesbírání všech informací.
+        """
+        conn = self._get_connection()
+        user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        if not user:
+            conn.close()
+            return None
+        
+        user_id = user['id']
+        
+        # Načtení tréninků (1:N)
+        workouts_rows = conn.execute("SELECT * FROM workouts WHERE user_id = ? ORDER BY date DESC", (user_id,)).fetchall()
+        workouts = []
+        for w in workouts_rows:
+            # Načtení položek tréninku přes JOIN s tabulkou cviků (M:N)
+            items = conn.execute("""
+                SELECT e.name, wi.sets, wi.reps, wi.weight 
+                FROM workout_items wi
+                JOIN exercises e ON wi.exercise_id = e.id
+                WHERE wi.workout_id = ?
+            """, (w['id'],)).fetchall()
+            
+            ex_list = [[i['name'], i['sets'], i['reps'], i['weight']] for i in items]
+            summary = "\n".join([f"{i[0]} - {i[1]}x{i[2]}, {i[3]}kg" for i in ex_list])
+            
+            workouts.append({
+                "id": w['id'],
+                "date": w['date'],
+                "note": w['note'],
+                "exercises": ex_list,
+                "summary": summary
+            })
+
+        # Osobní rekordy (Výpočet přes MAX a GROUP BY)
+        pr_rows = conn.execute("""
+            SELECT e.name, MAX(wi.weight) as max_weight
+            FROM workout_items wi
+            JOIN exercises e ON wi.exercise_id = e.id
+            JOIN workouts w ON wi.workout_id = w.id
+            WHERE w.user_id = ?
+            GROUP BY e.name
+        """, (user_id,)).fetchall()
+        personal_records = {r['name']: r['max_weight'] for r in pr_rows}
+
+        # Data pro grafy (Progres)
+        progress_rows = conn.execute("""
+            SELECT e.name, w.date, wi.sets, wi.reps, wi.weight, (wi.sets * wi.reps * wi.weight) as volume
+            FROM workout_items wi
+            JOIN exercises e ON wi.exercise_id = e.id
+            JOIN workouts w ON wi.workout_id = w.id
+            WHERE w.user_id = ?
+            ORDER BY w.date ASC
+        """, (user_id,)).fetchall()
+        
+        progress_data = {}
+        for r in progress_rows:
+            if r['name'] not in progress_data:
+                progress_data[r['name']] = []
+            progress_data[r['name']].append({
+                'date': r['date'], 'sets': r['sets'], 'reps': r['reps'], 'weight': r['weight'], 'volume': r['volume']
+            })
+
+        # Historie váhy
+        bw_rows = conn.execute("SELECT weight, date FROM bodyweight_history WHERE user_id = ? ORDER BY date ASC", (user_id,)).fetchall()
+        bodyweight_history = [{'weight': r['weight'], 'date': r['date']} for r in bw_rows]
+
+        conn.close()
+        return {
+            "username": user['username'],
+            "email": user['email'],
+            "role": user['role'],
+            "is_banned": bool(user['is_banned']),
+            "bodyweight": user['bodyweight'],
+            "workouts": workouts,
+            "personal_records": personal_records,
+            "progress_data": progress_data,
+            "bodyweight_history": bodyweight_history
+        }
+
+    # --- Záznamy tréninků a váhy ---
 
     def save_workout(self, username, workout_data, note, summary):
-        """
-        Uloží kompletní záznam o tréninku.
-        Zároveň aktualizuje osobní rekordy a data pro grafy progresu.
-        """
-        data = self.load_data()
+        """Uloží trénink do SQL tabulek (workouts a workout_items)."""
+        conn = self._get_connection()
+        user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+        if not user:
+            conn.close()
+            return None
         
-        if username not in data:
-            # Automatické vytvoření profilu, pokud náhodou neexistuje
-            data[username] = self.get_user_data(username)
+        user_id = user['id']
+        cursor = conn.cursor()
         
-        user_data = data[username]
+        # 1. Vytvoření záznamu tréninku
+        cursor.execute(
+            "INSERT INTO workouts (user_id, note) VALUES (?, ?)",
+            (user_id, note)
+        )
+        workout_id = cursor.lastrowid
         
-        # Vytvoření objektu tréninku s časovým razítkem
-        workout_entry = {
-            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "exercises": workout_data,
-            "note": note,
-            "summary": summary
-        }
-        user_data["workouts"].append(workout_entry)
-        
-        # Zpracování jednotlivých cviků z tréninku
-        current_date = datetime.now().strftime("%Y-%m-%d")
-        for exercise, sets, reps, weight in workout_data:
-            # Aktualizace osobních rekordů (PR)
-            if exercise not in user_data["personal_records"] or weight > user_data["personal_records"][exercise]:
-                user_data["personal_records"][exercise] = weight
+        # 2. Vložení jednotlivých cviků (položek)
+        for exercise_name, sets, reps, weight in workout_data:
+            # Získání nebo vytvoření ID cviku
+            ex = conn.execute("SELECT id FROM exercises WHERE name = ?", (exercise_name,)).fetchone()
+            if not ex:
+                cursor.execute("INSERT INTO exercises (name) VALUES (?)", (exercise_name,))
+                ex_id = cursor.lastrowid
+            else:
+                ex_id = ex['id']
             
-            # Příprava dat pro vykreslování grafů (historie váhy u cviku)
-            if exercise not in user_data["progress_data"]:
-                user_data["progress_data"][exercise] = []
+            cursor.execute(
+                "INSERT INTO workout_items (workout_id, exercise_id, sets, reps, weight) VALUES (?, ?, ?, ?, ?)",
+                (workout_id, ex_id, sets, reps, weight)
+            )
             
-            user_data["progress_data"][exercise].append({
-                'date': current_date,
-                'sets': sets,
-                'reps': reps,
-                'weight': weight,
-                'volume': sets * reps * weight
-            })
-            
-            # Automatická synchronizace s centrálním seznamem cviků
-            central = data.get("__central", {"exercises": []})
-            if exercise not in central["exercises"]:
-                central["exercises"].append(exercise)
-                central["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                data["__central"] = central
-                # Zápis do auditního logu o automatickém přidání cviku
-                self._audit("system", "add_exercise_auto", exercise, {"by_user": username})
-            
-        self.save_data(data)
-        return user_data
+        conn.commit()
+        conn.close()
+        return self.get_user_data(username)
 
     def log_bodyweight(self, username, weight):
-        """Uloží aktuální tělesnou váhu uživatele a uchová ji v historii pro grafy."""
-        data = self.load_data()
-        if username not in data:
+        """Uloží váhu do historie pomocí SQL INSERT a aktualizuje profil."""
+        conn = self._get_connection()
+        user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+        if not user:
+            conn.close()
             return False, "Uživatel nenalezen"
-            
-        data[username]["bodyweight"] = weight
         
-        if "bodyweight_history" not in data[username]:
-            data[username]["bodyweight_history"] = []
-            
-        current_date = datetime.now().strftime("%Y-%m-%d")
-        data[username]["bodyweight_history"].append({
-            "date": current_date,
-            "weight": weight
-        })
-        
-        self.save_data(data)
+        user_id = user['id']
+        conn.execute("INSERT INTO bodyweight_history (user_id, weight) VALUES (?, ?)", (user_id, weight))
+        conn.execute("UPDATE users SET bodyweight = ? WHERE id = ?", (weight, user_id))
+        conn.commit()
+        conn.close()
         return True, "Váha uložena"
 
     # --- Správa centrálního seznamu cviků ---
 
     def get_central_exercises(self):
-        """Vrátí seřazený seznam všech dostupných cviků v aplikaci."""
-        data = self.load_data()
-        central = data.get("__central", {"exercises": []})
-        return list(sorted(set(central.get("exercises", []))))
+        """Vrátí seznam všech cviků z SQL tabulky exercises."""
+        conn = self._get_connection()
+        rows = conn.execute("SELECT name FROM exercises ORDER BY name ASC").fetchall()
+        conn.close()
+        return [r['name'] for r in rows]
 
     def add_central_exercise(self, exercise_name, created_by):
-        """
-        Přidá nový cvik do globální databáze.
-        Provádí normalizaci názvu a kontrolu duplicit.
-        """
+        """Přidá nový cvik do tabulky exercises."""
         name = self._normalize_exercise_name(exercise_name)
-        if not name:
-            return False, "Název cviku je prázdný"
-        data = self.load_data()
-        central = data.get("__central", {"exercises": [], "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        if not name: return False, "Prázdný název"
         
-        # Kontrola existence bez ohledu na velikost písmen (case-insensitive)
-        lower_set = {e.lower(): e for e in central.get("exercises", [])}
-        if name.lower() in lower_set:
+        conn = self._get_connection()
+        try:
+            conn.execute("INSERT INTO exercises (name) VALUES (?)", (name,))
+            conn.commit()
+            self._audit(created_by, "add_exercise", name, {})
+            return True, "Cvik přidán"
+        except sqlite3.IntegrityError:
             return False, "Cvik již existuje"
-            
-        central["exercises"].append(name)
-        central["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        data["__central"] = central
-        self.save_data(data)
-        # Zápis do auditního logu o manuálním přidání cviku
-        self._audit(created_by, "add_exercise", name, {})
-        return True, "Cvik přidán"
+        finally:
+            conn.close()
 
     def delete_central_exercise(self, exercise_name, actor):
-        """
-        TRVALÉ SMAZÁNÍ: Odstraní cvik z centrálního seznamu 
-        a okamžitě ho vymaže ze všech tréninkových historií všech uživatelů.
-        """
-        data = self.load_data()
-        central = data.get("__central", {"exercises": []})
-        if exercise_name not in central.get("exercises", []):
-            return False, "Cvik nenalezen"
-            
-        central["exercises"] = [e for e in central["exercises"] if e != exercise_name]
-        central["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        data["__central"] = central
-        
-        # Procházení všech uživatelů a čištění jejich tréninků
-        for user, udata in list(data.items()):
-            if user == "__central":
-                continue
-            workouts = udata.get("workouts", [])
-            for w in workouts:
-                ex_list = w.get("exercises", [])
-                new_ex_list = []
-                for ex in ex_list:
-                    try:
-                        name = ex[0]
-                        if name != exercise_name:
-                            new_ex_list.append(ex)
-                    except Exception:
-                        new_ex_list.append(ex)
-                w["exercises"] = new_ex_list
-        
-        self.save_data(data)
-        self._audit(actor, "delete_exercise_hard", exercise_name, {})
-        return True, "Cvik trvale odstraněn"
+        """Smaže cvik z globálního seznamu (díky ON DELETE CASCADE smaže i položky v trénincích)."""
+        conn = self._get_connection()
+        res = conn.execute("DELETE FROM exercises WHERE name = ?", (exercise_name,))
+        conn.commit()
+        success = res.rowcount > 0
+        conn.close()
+        if success:
+            self._audit(actor, "delete_exercise_sql", exercise_name, {})
+            return True, "Cvik smazán z celé databáze"
+        return False, "Cvik nenalezen"
 
-    def clear_central_exercises_and_cleanup(self, actor):
-        """
-        ÚPLNÁ ČISTKA: Vymaže celý globální seznam cviků 
-        a vyčistí historii od všech záznamů, které neexistují.
-        """
-        data = self.load_data()
-        
-        data["__central"] = {
-            "exercises": [],
-            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        
-        for user, udata in data.items():
-            if user == "__central":
-                continue
-            workouts = udata.get("workouts", [])
-            for w in workouts:
-                ex_list = w.get("exercises", [])
-                new_ex_list = []
-                for ex in ex_list:
-                    try:
-                        name = ex[0]
-                        # Zachováme pouze platné názvy, které nezačínají starým prefixem 'DELETED:'
-                        if isinstance(name, str) and not name.startswith("DELETED:"):
-                            new_ex_list.append(ex)
-                        elif not isinstance(name, str):
-                            new_ex_list.append(ex)
-                    except Exception:
-                        new_ex_list.append(ex)
-                w["exercises"] = new_ex_list
-        
-        self.save_data(data)
-        self._audit(actor, "clear_central_cleanup", "all", {})
-        return True, "Centrální seznam vyčištěn a 'DELETED:' záznamy smazány."
+    # --- Administrace uživatelů ---
 
-    def reset_central_to_defaults(self, actor):
-        """Obnoví centrální seznam cviků na základní sadu (pro testovací účely)."""
-        data = self.load_data()
-        defaults = ["Bench press", "Dřepy", "Mrtvý tah", "Biceps curl", "Kliky"]
-        central = data.get("__central", {"exercises": [], "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-        central["exercises"] = defaults
-        central["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        data["__central"] = central
-        self.save_data(data)
-        self._audit(actor, "reset_central_defaults", ",".join(defaults), {})
-        return True, f"Nastaveno {len(defaults)} výchozích cviků"
+    def list_users(self):
+        """Vrátí seznam uživatelů se statistikami pomocí SQL JOIN a COUNT."""
+        conn = self._get_connection()
+        rows = conn.execute("""
+            SELECT u.username, u.email, u.role, u.is_banned, COUNT(w.id) as workouts_count
+            FROM users u
+            LEFT JOIN workouts w ON u.id = w.user_id
+            GROUP BY u.id
+        """).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
 
-    # --- Pomocné funkce pro administraci ---
+    def ban_user(self, target_username, actor):
+        """Zablokuje uživatele v DB."""
+        if target_username == "admin": return False, "Nelze zabanovat admina"
+        conn = self._get_connection()
+        conn.execute("UPDATE users SET is_banned = 1 WHERE username = ?", (target_username,))
+        conn.commit()
+        conn.close()
+        self._audit(actor, "ban_user", target_username, {})
+        return True, "Uživatel zabanován"
 
-    def _collect_all_exercises(self, data):
-        """Sesbírá všechny názvy cviků, které se vyskytují v trénincích uživatelů."""
-        names = set()
-        for user, udata in data.items():
-            if user == "__central":
-                continue
-            for w in udata.get("workouts", []):
-                for ex in w.get("exercises", []):
-                    try:
-                        n = ex[0]
-                        if isinstance(n, str):
-                            names.add(n)
-                    except Exception:
-                        continue
-        return names
+    def unban_user(self, target_username, actor):
+        """Odblokuje uživatele v DB."""
+        conn = self._get_connection()
+        conn.execute("UPDATE users SET is_banned = 0 WHERE username = ?", (target_username,))
+        conn.commit()
+        conn.close()
+        self._audit(actor, "unban_user", target_username, {})
+        return True, "Ban zrušen"
 
-    def _sync_central(self, data):
-        """Synchronizuje centrální seznam s cviky nalezenými v trénincích."""
-        if "__central" not in data:
-            data["__central"] = {"exercises": [], "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-        central = data["__central"]
-        existing_list = central.get("exercises", [])
-        existing_map = {e.lower(): e for e in existing_list}
-        discovered = {self._normalize_exercise_name(n).lower(): self._normalize_exercise_name(n) for n in self._collect_all_exercises(data)}
-        
-        merged = {}
-        for k, v in existing_map.items():
-            merged[k] = v
-        for k, v in discovered.items():
-            if k not in merged:
-                merged[k] = v
-        union = sorted(merged.values())
-        if existing_list != union:
-            central["exercises"] = union
-            central["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            data["__central"] = central
-            return True
-        return False
+    def delete_user(self, target_username, actor):
+        """Smaže uživatele (díky ON DELETE CASCADE se smaže i celá jeho historie)."""
+        if target_username == "admin": return False, "Nelze smazat admina"
+        conn = self._get_connection()
+        conn.execute("DELETE FROM users WHERE username = ?", (target_username,))
+        conn.commit()
+        conn.close()
+        self._audit(actor, "delete_user", target_username, {})
+        return True, "Uživatel i jeho historie smazána"
 
-    # --- Konfigurace a Automatické přihlášení ---
+    # --- Pomocné funkce (Zůstávají stejné) ---
+
+    def _normalize_exercise_name(self, name):
+        try: return " ".join(name.strip().split()).title()
+        except: return name
+
+    def _audit(self, actor, action, target, details):
+        entry = {"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "actor": actor, "action": action, "target": target, "details": details}
+        try:
+            with open(self.audit_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except: pass
 
     def get_config(self):
-        """Načte konfigurační soubor."""
-        try:
-            if os.path.exists(CONFIG_FILE):
-                with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                    return json.load(f)
-        except json.JSONDecodeError:
-            pass
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f: return json.load(f)
         return {}
 
     def set_autologin(self, username, password, enabled=True):
-        """Uloží nebo zruší údaje pro automatické přihlášení."""
         cfg = self.get_config()
-        if enabled:
-            cfg["autologin"] = {"username": username, "password": password, "enabled": True}
-        else:
-            cfg["autologin"] = {"enabled": False}
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, indent=4)
-        return True
+        cfg["autologin"] = {"username": username, "password": password, "enabled": enabled}
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f: json.dump(cfg, f, indent=4)
 
     def get_autologin(self):
-        """Vrátí údaje pro automatické přihlášení, pokud je aktivní."""
         cfg = self.get_config()
         al = cfg.get("autologin", {})
-        if al.get("enabled"):
-            return al.get("username", ""), al.get("password", "")
+        if al.get("enabled"): return al.get("username", ""), al.get("password", "")
         return None
 
-    # --- Audit a Export ---
-
     def export_audit_csv(self, out_path=os.path.join("data", "audit.csv")):
-        """Exportuje auditní záznamy do CSV souboru."""
+        import csv
         rows = []
         if os.path.exists(self.audit_file):
             with open(self.audit_file, "r", encoding="utf-8") as f:
                 for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        obj = json.loads(line)
-                        rows.append(obj)
-                    except Exception:
-                        continue
-        
-        import csv
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+                    try: rows.append(json.loads(line.strip()))
+                    except: continue
         headers = ["timestamp", "actor", "action", "target", "details"]
         with open(out_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=headers)
             writer.writeheader()
             for r in rows:
-                writer.writerow({
-                    "timestamp": r.get("timestamp", ""),
-                    "actor": r.get("actor", ""),
-                    "action": r.get("action", ""),
-                    "target": r.get("target", ""),
-                    "details": json.dumps(r.get("details", {}), ensure_ascii=False)
-                })
+                writer.writerow({k: (json.dumps(r.get(k, {}), ensure_ascii=False) if k == "details" else r.get(k, "")) for k in headers})
         return True, out_path
 
-    def _audit(self, actor, action, target, details):
-        """Zapíše akci do auditního logu."""
-        entry = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "actor": actor,
-            "action": action,
-            "target": target,
-            "details": details
-        }
-        try:
-            with open(self.audit_file, "a", encoding="utf-8") as f:
-                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
+    def clear_central_exercises_and_cleanup(self, actor):
+        """Vymaže všechny cviky a tréninky (SQL TRUNCATE simulace)."""
+        conn = self._get_connection()
+        conn.execute("DELETE FROM exercises")
+        conn.execute("DELETE FROM workouts")
+        conn.commit()
+        conn.close()
+        self._audit(actor, "clear_all_sql", "all", {})
+        return True, "Celá databáze byla vyčištěna."
 
-    # --- Správa uživatelů pro admina ---
-
-    def list_users(self):
-        """Vrátí seznam všech uživatelů a jejich základní statistiky."""
-        data = self.load_data()
-        users = []
-        for user, udata in data.items():
-            if user == "__central":
-                continue
-            users.append({
-                "username": user,
-                "email": udata.get("email", ""),
-                "role": udata.get("role", "user"),
-                "is_banned": udata.get("is_banned", False),
-                "workouts_count": len(udata.get("workouts", []))
-            })
-        return users
-
-    def get_user_role(self, username):
-        """Vrátí roli uživatele (admin/user)."""
-        data = self.load_data()
-        if username in data:
-            return data[username].get("role", "user")
-        return "user"
-
-    def ban_user(self, target_username, actor):
-        """Zablokuje uživatele."""
-        data = self.load_data()
-        if target_username not in data:
-            return False, "Uživatel nenalezen"
-        if target_username == "admin":
-            return False, "Nelze zabanovat administrátora"
-        data[target_username]["is_banned"] = True
-        self.save_data(data)
-        self._audit(actor, "ban_user", target_username, {})
-        return True, "Uživatel zabanován"
-
-    def unban_user(self, target_username, actor):
-        """Odblokuje uživatele."""
-        data = self.load_data()
-        if target_username not in data:
-            return False, "Uživatel nenalezen"
-        data[target_username]["is_banned"] = False
-        self.save_data(data)
-        self._audit(actor, "unban_user", target_username, {})
-        return True, "Ban zrušen"
-
-    def delete_user(self, target_username, actor):
-        """Smaže uživatelský účet."""
-        data = self.load_data()
-        if target_username not in data:
-            return False, "Uživatel nenalezen"
-        if target_username == "admin":
-            return False, "Nelze smazat administrátora"
-        del data[target_username]
-        self.save_data(data)
-        self._audit(actor, "delete_user", target_username, {})
-        return True, "Uživatel smazán"
-
-    def _normalize_exercise_name(self, name):
-        """Normalizuje název cviku (odstraní mezery, nastaví Title Case)."""
-        try:
-            return " ".join(name.strip().split()).title()
-        except Exception:
-            return name
+    def update_user_profile(self, username, new_password=None, new_email=None):
+        conn = self._get_connection()
+        if new_password and new_email:
+            conn.execute("UPDATE users SET password = ?, email = ? WHERE username = ?", (new_password, new_email, username))
+        elif new_password:
+            conn.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+        elif new_email:
+            conn.execute("UPDATE users SET email = ? WHERE username = ?", (new_email, username))
+        conn.commit()
+        conn.close()
+        return True, "Profil aktualizován"

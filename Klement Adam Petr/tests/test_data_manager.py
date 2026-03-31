@@ -1,64 +1,81 @@
 import unittest
 import os
-import json
-import shutil
+import sqlite3
 from data_manager import DataManager
 
-TEST_DATA_DIR = "tests/data"
-TEST_DATA_FILE = os.path.join(TEST_DATA_DIR, "test_users.json")
+TEST_DB_FILE = "tests/test_fitness.db"
 
 class TestDataManager(unittest.TestCase):
     def setUp(self):
-        # Create a clean test environment
-        os.makedirs(TEST_DATA_DIR, exist_ok=True)
-        self.dm = DataManager(data_file=TEST_DATA_FILE)
+        # Inicializace čistého testovacího prostředí s dočasnou DB
+        if os.path.exists(TEST_DB_FILE):
+            os.remove(TEST_DB_FILE)
+        self.dm = DataManager(db_file=TEST_DB_FILE)
 
     def tearDown(self):
-        # Clean up
-        if os.path.exists(TEST_DATA_DIR):
-            shutil.rmtree(TEST_DATA_DIR)
+        # Úklid po testech
+        if os.path.exists(TEST_DB_FILE):
+            os.remove(TEST_DB_FILE)
 
-    def test_save_and_load_workout(self):
-        username = "testuser"
+    def test_add_user_and_login(self):
+        """Testuje registraci a následné přihlášení uživatele."""
+        username = "test_gym_rat"
+        password = "secret_password"
+        email = "test@gym.cz"
+
+        # 1. Registrace
+        success, msg = self.dm.add_user(username, password, email)
+        self.assertTrue(success)
+        self.assertEqual(msg, "Registrace úspěšná")
+
+        # 2. Ověření duplicity
+        success, msg = self.dm.add_user(username, password, email)
+        self.assertFalse(success)
+        self.assertEqual(msg, "Uživatel již existuje")
+
+        # 3. Přihlášení (správné)
+        self.assertTrue(self.dm.validate_login(username, password))
+
+        # 4. Přihlášení (špatné heslo)
+        self.assertFalse(self.dm.validate_login(username, "wrong_password"))
+
+    def test_workout_persistence(self):
+        """Testuje uložení tréninku a jeho správné načtení z DB přes JOINy."""
+        username = "alex"
+        self.dm.add_user(username, "1234", "alex@seznam.cz")
+        
         workout_data = [
             ("Bench press", 3, 10, 60),
-            ("Squat", 3, 8, 80)
+            ("Dřepy", 3, 8, 100)
         ]
-        note = "Great workout"
-        summary = "Bench press - 3x10, 60kg\nSquat - 3x8, 80kg"
+        note = "Dneska to šlo skvěle!"
+        
+        # Uložení tréninku
+        user_data = self.dm.save_workout(username, workout_data, note, "Summary text")
+        
+        # Ověření, že se trénink uložil
+        self.assertEqual(len(user_data["workouts"]), 1)
+        self.assertEqual(user_data["workouts"][0]["note"], note)
+        
+        # Ověření M:N vztahu (položky tréninku)
+        exercises = user_data["workouts"][0]["exercises"]
+        self.assertEqual(len(exercises), 2)
+        self.assertEqual(exercises[0][0], "Bench press")
+        self.assertEqual(exercises[1][3], 100)
 
-        # Save workout
-        updated_data = self.dm.save_workout(username, workout_data, note, summary)
-
-        # Verify returned data
-        self.assertIn("personal_records", updated_data)
-        self.assertEqual(updated_data["personal_records"]["Bench press"], 60)
-        self.assertEqual(updated_data["personal_records"]["Squat"], 80)
-
-        # Verify file content
-        loaded_data = self.dm.get_user_data(username)
-        self.assertEqual(len(loaded_data["workouts"]), 1)
-        self.assertEqual(loaded_data["workouts"][0]["note"], note)
-        self.assertEqual(loaded_data["workouts"][0]["exercises"], [list(w) for w in workout_data])
-
-    def test_progress_update(self):
-        username = "testuser"
-        # First workout
-        workout1 = [("Bench press", 3, 10, 60)]
-        self.dm.save_workout(username, workout1, "", "")
-
-        # Second workout (progress)
-        workout2 = [("Bench press", 3, 10, 65)]
-        updated_data = self.dm.save_workout(username, workout2, "", "")
-
-        # Verify PR update
-        self.assertEqual(updated_data["personal_records"]["Bench press"], 65)
-
-        # Verify progress history
-        progress = updated_data["progress_data"]["Bench press"]
-        self.assertEqual(len(progress), 2)
-        self.assertEqual(progress[0]["weight"], 60)
-        self.assertEqual(progress[1]["weight"], 65)
+    def test_personal_records(self):
+        """Testuje automatický výpočet PR (MAX weight) v SQL."""
+        username = "powerlifter"
+        self.dm.add_user(username, "pass", "p@p.cz")
+        
+        # První trénink (60kg)
+        self.dm.save_workout(username, [("Dřepy", 3, 5, 60)], "", "")
+        
+        # Druhý trénink (zlepšení na 80kg)
+        user_data = self.dm.save_workout(username, [("Dřepy", 3, 5, 80)], "", "")
+        
+        # Ověření PR v načtených datech
+        self.assertEqual(user_data["personal_records"]["Dřepy"], 80)
 
 if __name__ == '__main__':
     unittest.main()

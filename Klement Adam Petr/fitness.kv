@@ -143,11 +143,8 @@
                 background_color: (0, 0.78, 0.32, 1) if sm_content.current == "admin" else (0.2, 0.2, 0.2, 1)
                 on_release: sm_content.current = "admin"
                 disabled: not root.is_admin
-                opacity: 1 if root.is_admin else 0
-
-            Widget:
-                size_hint_y: 1
-
+                    size_hint_y: None
+                    height: 48 if root.is_admin else 0
             Button:
                 text: "⬅️ Odhlásit se"
                 background_color: 1, 0.25, 0.25, 1
@@ -208,7 +205,7 @@
                     TextInput:
                         id: weight
                         hint_text: "Váha (kg)"
-                        input_filter: "int"
+                        input_filter: "float"
 
             Button:
                 text: "✅ Přidat do tréninku"

@@ -450,7 +450,7 @@ class StatsScreen(Screen):
         container.clear_widgets()
         for exercise in value:
             btn = Button(text=exercise, size_hint_y=None, height=44, background_color=(0.2, 0.2, 0.2, 1))
-            btn.bind(on_release=lambda b: self.show_exercise_stats(b.text))
+            btn.bind(on_release=lambda b, ex=exercise: self.show_exercise_stats(ex))
             container.add_widget(btn)
 
     def toggle_stat_exercise_list(self):
