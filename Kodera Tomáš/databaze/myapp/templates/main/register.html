@@ -14,7 +14,38 @@
     <h1>Register</h1>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div>
+        <label>Uživatelské jméno:</label><br>
+        {{ form.username }}
+        {% if form.username.errors %}
+            <div style="color: red;">{{ form.username.errors.0 }}</div>
+        {% endif %}
+    </div>
+    <div>
+    <label>E-mail:</label><br>
+    <input type="email" name="email" required>
+    </div>
+
+    <div>
+        <label>Heslo:</label><br>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+            <div style="color: red;">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label>Heslo znovu:</label><br>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+            <div style="color: red;">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+    </div>
+    {% if form.non_field_errors %}
+        <div style="color: red; margin-top: 10px; font-weight: bold;">
+            {{ form.non_field_errors.0 }}
+        </div>
+    {% endif %}
         <button type="submit">Register</button>
     </form>
 </div>

@@ -5,6 +5,7 @@ from django.db import models
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)  # store Pygame score
+    email = models.EmailField(max_length=254, blank=True)
 
     def __str__(self):
         return self.user.username

@@ -1,0 +1,1 @@
+Projekt je slozka DATABASE
