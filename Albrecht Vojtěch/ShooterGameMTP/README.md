@@ -10,7 +10,7 @@ Windows: venv\Scripts\activate
 macOS / Linux: source venv/bin/activate
 
 3. Instalace závislostí
-bashpip install flask werkzeug pygame requests pyvidplayer2 static-ffmpeg
+bash: pip install flask werkzeug pygame requests pyvidplayer2 static-ffmpeg
 ```
 
 ---
@@ -57,7 +57,7 @@ bashpython ShooterGameMTP.py
 Pokud server neběží, hra tě automaticky přihlásí jako hosta (skóre se neukládá).
 
 🌐 Webové rozhraní
-StránkaURLHlavní stránkahttp://127.0.0.1:5000/Registracehttp://127.0.0.1:5000/signupPřihlášeníhttp://127.0.0.1:5000/signinŽebříčekhttp://127.0.0.1:5000/scoreboardPrezentacehttp://127.0.0.1:5000/prezentaceAdmin panel http://127.0.0.1:5000/admin
+StránkaURLHlavní stránka http://127.0.0.1:5000/Registracehttp://127.0.0.1:5000/signupPřihlášeníhttp://127.0.0.1:5000/signinŽebříčekhttp://127.0.0.1:5000/scoreboardPrezentacehttp://127.0.0.1:5000/prezentaceAdmin panel http://127.0.0.1:5000/admin
 
 🎮 Ovládání hry
 KlávesaAkce↑Pohyb nahoru↓Pohyb dolůSPACEStřelbaSSlow Motion (5 s aktivní, cooldown 15 s)
