@@ -7,7 +7,6 @@
 </div>
 
 <style>
-/* 🔥 černé pozadí stránky */
 body {
   background-color: #000;
   color: #fff;
@@ -19,7 +18,6 @@ body {
   gap: 20px;
 }
 
-/* ER diagram */
 #erd {
   flex: 1;
 }
@@ -28,30 +26,28 @@ body {
   width: 100%;
 }
 
-/* 🔥 FIX čitelnosti */
+/* 🔥 černý text v ER diagramu */
 #erd svg text {
-  fill: #ffffff !important;
+  fill: #000000 !important;
 }
 
+/* světlé boxy kvůli černému textu */
 #erd svg .node rect {
-  fill: #111 !important;
+  fill: #ffffff !important;
   stroke: #8b5cf6 !important;
 }
 
-/* řádky */
 #erd svg .row-rect-odd rect {
-  fill: #111 !important;
+  fill: #f9fafb !important;
 }
 #erd svg .row-rect-even rect {
-  fill: #1a1a1a !important;
+  fill: #e5e7eb !important;
 }
 
-/* linky */
 #erd svg path {
-  stroke: #9ca3af !important;
+  stroke: #4b5563 !important;
 }
 
-/* obrázek */
 .image-box {
   width: 600px;
   max-width: 100%;
@@ -62,7 +58,6 @@ body {
   border-radius: 10px;
 }
 
-/* 📱 mobil */
 @media (max-width: 900px) {
   .diagram-container {
     flex-direction: column;
@@ -83,20 +78,19 @@ mermaid.initialize({
   startOnLoad: false,
   theme: 'base',
   themeVariables: {
-    darkMode: true,
+    darkMode: false,              // ❗ vypnuto
+    primaryColor: '#ffffff',
+    secondaryColor: '#f9fafb',
+    tertiaryColor: '#e5e7eb',
 
-    primaryColor: '#111111',
-    secondaryColor: '#1a1a1a',
-    tertiaryColor: '#0f0f0f',
-
-    primaryTextColor: '#ffffff',
-    secondaryTextColor: '#e5e5e5',
+    primaryTextColor: '#000000',  // ❗ černý text
+    secondaryTextColor: '#000000',
 
     primaryBorderColor: '#8b5cf6',
-    lineColor: '#9ca3af',
+    lineColor: '#4b5563',
 
-    mainBkg: '#111111',
-    secondBkg: '#1a1a1a',
+    mainBkg: '#ffffff',
+    secondBkg: '#f9fafb',
 
     fontSize: '13px',
   },
