@@ -1,4 +1,10 @@
 # Snake projekt
+1.Venv
+& "G:\win32app\Portable Python-3.13.3 x64\python.exe" -m venv .venv
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+pip install pygame
+ pip install -r requirements.txt
+ pip install api_client
 
 ## Požadavky
 - Python 3.10+
@@ -15,7 +21,8 @@ pip install -r requirements.txt
 ## Backend (Flask)
 ```bash
 cd backend
-python app.py
+python backend/app.py
+V NOVÉM TERMINÁLU SPUSTÍM HRU
 ```
 Server běží na `http://localhost:5000`.
 
