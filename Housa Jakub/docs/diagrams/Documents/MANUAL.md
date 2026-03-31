@@ -26,6 +26,10 @@
 15. [Nasazení (deployment)](#15-nasazení-deployment)
 16. [Struktura souborů](#16-struktura-souborů)
 17. [Časté úpravy — jak a kde](#17-časté-úpravy--jak-a-kde)
+18. [Řešení problémů (Troubleshooting)](#18-řešení-problémů-troubleshooting)
+19. [Logování](#19-logování)
+20. [Jak rozšířit projekt](#20-jak-rozšířit-projekt)
+21. [Datový tok předplatného](#21-datový-tok-předplatného)
 
 ---
 
@@ -939,3 +943,277 @@ V Render dashboardu nastavte:
 ---
 
 > **Tip:** Pro úplný reset databáze smažte soubor `data/site.db` a restartujte server příkazem `node server.js`. Všechna data se znovu zaseedují.
+
+---
+
+## 18. Řešení problémů (Troubleshooting)
+
+### 18.1 Server se nespouští
+
+| Chyba | Příčina | Řešení |
+|---|---|---|
+| `Cannot find module 'express'` | Chybí závislosti | `npm install` |
+| `EADDRINUSE: address already in use :::3000` | Port 3000 je obsazený | Ukonči jiný proces nebo nastav `PORT=3001` v `.env` |
+| `Cannot open database` | Chybí složka `data/` nebo práva | Server ji vytvoří automaticky; zkontroluj oprávnění |
+| `SyntaxError` v server.js | Chyba v kódu | Zkontroluj poslední změny v editoru |
+| `Cannot find module './src/db'` | Spouštíš z jiné složky | Spouštěj z `Housa Jakub/`: `cd "Housa Jakub" && node server.js` |
+
+### 18.2 API vrací neočekávané odpovědi
+
+| Kód | Příčina | Řešení |
+|---|---|---|
+| 400 Bad Request | Chybí povinné pole v body | Zkontroluj co endpoint vyžaduje (viz sekce 5) |
+| 401 Unauthorized | Session token expiroval nebo chybí | Přihlas se znovu |
+| 403 Forbidden | Přistupuješ na admin endpoint bez dev tokenu | Aktivuj dev mód na `/dev-enable` |
+| 404 Not Found | URL neexistuje | Zkontroluj překlep v URL |
+| 409 Conflict | Email/slug již existuje (`UNIQUE constraint`) | Použij jiný e-mail nebo slug |
+| 429 Too Many Requests | Rate limit (5 přihlášení / 15 min) | Počkej 15 minut nebo restartuj server |
+| 500 Internal Server Error | Chyba v kódu nebo DB | Podívej se do `logs/error.log` |
+
+### 18.3 Frontend problémy
+
+| Problém | Příčina | Řešení |
+|---|---|---|
+| Styly se nezobrazují / staré styly | Cache prohlížeče | `Ctrl+Shift+R` (hard refresh) |
+| JavaScript nefunguje | Chyba v JS | `F12` → Console → hledej červené chyby |
+| Obrázky chybí (broken icon) | Špatná cesta k souboru | Zkontroluj `image`/`hover_image` cestu v `src/seed.js` a existenci souboru v `assets/img/products/` |
+| Košík se neaktualizuje | LocalStorage je prázdný nebo corrupted | DevTools → Application → Local Storage → smaž `drive_cart` |
+| Formulář se neodešle | Validace selhává | `F12` → Console → hledej chybové hlášky validace |
+| Stránka se nezobrazuje správně | Špatná cesta k CSS | Zkontroluj `<link>` v `<head>` HTML souboru |
+
+### 18.4 Databázové problémy
+
+| Problém | Příčina | Řešení |
+|---|---|---|
+| `UNIQUE constraint failed: products.slug` | Duplikovaný slug | Použij unikátní slug v `src/seed.js` |
+| `UNIQUE constraint failed: users.email` | Email už existuje | Registrace s jiným emailem |
+| Chybí sloupec | Migrace neproběhla | Restartuj server — migrace běží při každém startu |
+| Stará data po změně sedu | DB nebyla smazána | `del data\site.db` (Windows) nebo `rm data/site.db` (Linux/Mac), pak restart |
+| Data zmizela | Restart na free-tier hostingu | Na Render.com free tier je DB dočasná; pro trvalá data použij PostgreSQL |
+
+### 18.5 E-mailové problémy
+
+| Problém | Příčina | Řešení |
+|---|---|---|
+| E-mail se neposílá | SMTP nenastaven | Nastav `.env` nebo hledej `[MOCK EMAIL]` v konzoli |
+| Authentication error | Špatné SMTP přihlašovací údaje | Zkontroluj `SMTP_USER` a `SMTP_PASS` v `.env` |
+| Connection refused | Špatný `SMTP_HOST` nebo `SMTP_PORT` | Zkontroluj hodnoty v `.env` |
+| Gmail blokuje | Gmail vyžaduje App Password | Použij Google App Password (ne přihlašovací heslo účtu) |
+
+---
+
+## 19. Logování
+
+### 19.1 Soubory logů
+
+Logy se zapisují do složky `logs/` (automaticky vytvořena):
+
+| Soubor | Obsah |
+|---|---|
+| `logs/combined.log` | Vše — HTTP requesty, aplikační logy (info, warn, error) |
+| `logs/error.log` | Jen chyby (level `error`) |
+| `logs/orders.log` | Checkout a objednávkové operace (context `checkout` nebo `order`) |
+
+### 19.2 Formát záznamu
+
+Každý řádek je JSON objekt:
+
+```json
+{"ts":"2026-03-31T10:15:30.123Z","lvl":"INFO","ctx":"checkout","msg":"Order created","data":{"orderId":42}}
+{"ts":"2026-03-31T10:15:31.456Z","lvl":"ERROR","ctx":"email","msg":"Error sending email","data":{"to":"user@example.com","message":"Connection refused"}}
+{"ts":"2026-03-31T10:15:32.789Z","lvl":"HTTP","msg":"POST /api/checkout 201 245ms"}
+```
+
+Pole:
+- `ts` — timestamp ISO 8601
+- `lvl` — úroveň (DEBUG, INFO, WARN, ERROR, HTTP)
+- `ctx` — kontext (kdo logguje: `server`, `checkout`, `email`, `auth`, `seed`...)
+- `msg` — zpráva
+- `data` — volitelná extra data (objekt)
+
+### 19.3 Úrovně logování
+
+```
+debug < info < warn < error
+```
+
+Výchozí úroveň: `info` (debug logy se nezobrazují).  
+Pro zapnutí debug logů: přidej `LOG_LEVEL=debug` do `.env`.
+
+### 19.4 Jak logovat ve vlastním kódu
+
+```javascript
+// Použití loggeru z src/logger.js
+const logger = require('./src/logger');
+
+// Informační log
+logger.info('checkout', 'Order created', { orderId: 42, total: 599 });
+
+// Varování
+logger.warn('auth', 'Invalid login attempt', { email: 'user@example.com', ip: req.ip });
+
+// Chyba
+logger.error('api', 'Database error', { message: err.message, stack: err.stack });
+
+// Child logger (vázaný na kontext)
+const log = logger.child('muj-modul');
+log.info('Inicializace dokončena');
+log.error('Chyba', { message: err.message });
+```
+
+### 19.5 HTTP logy (Morgan)
+
+Morgan automaticky loguje každý HTTP request do `logs/combined.log`:
+
+```
+POST /api/checkout 201 245 ms - 23
+GET /api/products 200 12 ms - 1847
+POST /api/auth/login 401 8 ms - 28
+```
+
+Formát: `METHOD URL STATUS RESPONSE_TIME - RESPONSE_SIZE`
+
+---
+
+## 20. Jak rozšířit projekt
+
+### 20.1 Přidání nového API endpointu (šablona)
+
+Přidej **před řádek 1292** v `server.js` (před `app.use` 404 handler):
+
+```javascript
+// Popis endpointu — co dělá
+// Autentizace: ano/ne
+app.get('/api/nova-funkce', (req, res) => {
+    // 1. Volitelná autentizace
+    const user = getCurrentUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    try {
+        // 2. DB operace
+        const data = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
+        if (!data) return res.status(404).json({ error: 'Nenalezeno' });
+
+        // 3. Odpověď
+        res.json(data);
+    } catch (e) {
+        logger.error('api', 'Chyba endpointu', { message: e.message });
+        res.status(500).json({ error: 'Chyba serveru' });
+    }
+});
+```
+
+### 20.2 Přidání nové databázové tabulky
+
+**Krok 1:** Přidej `CREATE TABLE` do `db.exec(...)` v `src/db.js`:
+
+```javascript
+CREATE TABLE IF NOT EXISTS reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  product_id INTEGER NOT NULL,
+  user_id INTEGER,
+  rating INTEGER NOT NULL,
+  comment TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id);
+```
+
+**Krok 2:** Restartuj server — tabulka se vytvoří automaticky.
+
+### 20.3 Přidání nového pole k produktu (end-to-end)
+
+1. **Migrace** (`src/db.js`, ~řádek 260):
+   ```javascript
+   const cols = db.pragma("table_info(products)").map(c => c.name);
+   if (!cols.includes('nova_vlastnost')) {
+       db.exec("ALTER TABLE products ADD COLUMN nova_vlastnost TEXT DEFAULT ''");
+   }
+   ```
+
+2. **Seed data** (`src/seed.js`) — přidej pole do každého produktového objektu:
+   ```javascript
+   { slug: 'cans-mango', ..., nova_vlastnost: 'hodnota' }
+   ```
+
+3. **API** (`server.js`) — `SELECT *` automaticky vrátí nový sloupec. Pokud potřebuješ explicitní sloupce, uprav SELECT.
+
+4. **Frontend** (`assets/js/product-detail.js`) — přidej zobrazení nového pole v render funkci.
+
+5. **Smaž DB a restartuj** — `del data\site.db && node server.js`
+
+### 20.4 Přidání nové stránky (end-to-end)
+
+1. **Vytvoř soubory:**
+   ```
+   NovaSekce/
+   └── index.html    ← zkopíruj z AboutUs/index.html, uprav obsah
+   ```
+
+2. **CSS** (volitelné): `assets/css/nova-sekce.css` + nalinkuj v HTML
+
+3. **JS** (volitelné): `assets/js/nova-sekce.js` + nalinkuj v HTML
+
+4. **Navigace** — přidej odkaz do navbaru ve **všech HTML souborech** (hledej `<ul class="nav-links">`):
+   ```html
+   <li><a href="/NovaSekce" class="nav-link">Název</a></li>
+   ```
+
+5. **Footer** — přidej odkaz do patičky ve všech HTML souborech.
+
+6. Express automaticky stránku naservíruje přes `express.static()`.
+
+---
+
+## 21. Datový tok předplatného
+
+### 21.1 Vytvoření předplatného (při checkoutu)
+
+```
+Uživatel vybere "Předplatné" variant na detail stránce
+    → cart.js uloží { isSubscription: true } do localStorage
+    → Při checkoutu POST /api/checkout obsahuje { isSubscription: true }
+    → server.js (~řádek 750):
+        - Nastaví cenu na 80 % (20% sleva pro předplatné)
+        - Vyžaduje přihlášeného uživatele (user_id)
+        - V transakci vytvoří order + order_items
+        - Vytvoří záznam v user_subscriptions:
+          { user_id, product_id, status: 'active', next_billing_date: now+1month }
+```
+
+### 21.2 Správa předplatného (Account dashboard)
+
+```
+GET /api/user/subscription
+    → Vrátí všechna předplatná uživatele (active i cancelled)
+    → Zobrazí se na Account/index.html
+
+POST /api/user/subscription/cancel
+    → body: { subscriptionId }
+    → UPDATE user_subscriptions SET status = 'cancelled'
+
+POST /api/user/subscription/reactivate
+    → body: { subscriptionId }
+    → UPDATE user_subscriptions SET status = 'active', next_billing_date = now+1month
+
+DELETE /api/user/subscription/:id
+    → Trvale smaže zrušené předplatné
+    → Funguje jen pro status = 'cancelled'
+```
+
+### 21.3 Databázová struktura předplatného
+
+Tabulka `user_subscriptions`:
+
+| Sloupec | Popis |
+|---|---|
+| `user_id` | FK → users.id |
+| `product_id` | FK → products.id |
+| `product_name` | Název v době vytvoření (zachování i po smazání produktu) |
+| `product_slug` | Slug produktu |
+| `price_cents` | Cena s 20% slevou |
+| `status` | `active` nebo `cancelled` |
+| `next_billing_date` | Datum dalšího odečtu (datetime SQL) |
+
+> **Poznámka:** Automatické účtování (cron job) není implementováno — `next_billing_date` slouží jako reference pro budoucí implementaci.
