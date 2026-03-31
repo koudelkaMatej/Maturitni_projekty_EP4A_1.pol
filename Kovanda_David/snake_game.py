@@ -575,9 +575,12 @@ def draw_game(delta_time):
     global snake, dx, dy, food, score, snake_timer
     WIN.blit(background_img, (0, 0))
 
-    score_rect = pygame.Rect(10, 10, 320, 40)
-    pygame.draw.rect(WIN, (255, 255, 255), score_rect, 2)
-    draw_text(WIN, f"Skóre: {score} | {mode_config[current_mode]['label']}", score_rect.center, FONT)
+    # Výraznější červený panel se skóre
+    score_rect = pygame.Rect(12, 12, 210, 54)
+    pygame.draw.rect(WIN, BORDER_COLOR, score_rect, border_radius=12)
+    inner_rect = score_rect.inflate(-6, -6)
+    pygame.draw.rect(WIN, BG_COLOR, inner_rect, border_radius=10)
+    draw_text(WIN, f"Skóre: {score}", inner_rect.center, FONT, TEXT_COLOR)
 
     border = BORDER_THICKNESS
     pygame.draw.rect(WIN, BORDER_COLOR, (PLAY_AREA.left - border, PLAY_AREA.top - border, PLAY_AREA.width + border * 2, border))
