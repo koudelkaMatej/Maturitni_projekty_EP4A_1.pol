@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Detail tréninku — AMP</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .detail-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .table-responsive { overflow-x: auto; margin-top: 20px; background: var(--panel); border-radius: 12px; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { color: var(--muted); font-weight: 600; font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+    .back-link { color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+    .back-link:hover { color: #fff; }
+    .meta-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    .meta-label { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
+    .meta-value { font-size: 16px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="site detail-container">
+    <div class="header-row">
+      <a href="/" class="back-link">← Zpět na přehled</a>
+      <div class="logo">🏋️‍♂️ AMP</div>
+    </div>
+
+    <div id="loading">Načítám detail...</div>
+    <div id="error" class="hidden" style="color: var(--danger)"></div>
+
+    <div id="content" class="hidden">
+      <h1 id="wk-date">Detail tréninku</h1>
+      
+      <div class="meta-box" id="meta-box">
+        <div class="meta-label">Poznámka</div>
+        <div class="meta-value" id="wk-note">-</div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Cvik</th>
+              <th>Série</th>
+              <th>Opakování</th>
+              <th>Váha (kg)</th>
+            </tr>
+          </thead>
+          <tbody id="exercises-body">
+            <!-- Rows here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      const token = localStorage.getItem('amp_token');
+
+      if (!id || !token) {
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/get_workout_detail/${id}`, {
+          headers: { 'Authorization': token }
+        });
+        
+        if (!res.ok) throw new Error('Trénink nenalezen');
+        
+        const data = await res.json();
+        renderDetail(data);
+      } catch (e) {
+        document.getElementById('loading').classList.add('hidden');
+        const err = document.getElementById('error');
+        err.textContent = 'Chyba: ' + e.message;
+        err.classList.remove('hidden');
+      }
+    });
+
+    function renderDetail(data) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('content').classList.remove('hidden');
+
+      const dateStr = data.date ? new Date(data.date).toLocaleString() : 'Neznámé datum';
+      document.getElementById('wk-date').textContent = dateStr;
+      
+      if (data.note) {
+        document.getElementById('wk-note').textContent = data.note;
+      } else {
+        document.getElementById('meta-box').style.display = 'none';
+      }
+
+      const tbody = document.getElementById('exercises-body');
+      tbody.innerHTML = '';
+      
+      const exercises = data.exercises || [];
+      if (exercises.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted)">Žádné cviky</td></tr>';
+        return;
+      }
+
+      exercises.forEach(row => {
+        // row: [name, sets, reps, weight]
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${row[0]}</strong></td>
+          <td>${row[1]}</td>
+          <td>${row[2]}</td>
+          <td>${row[3]}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>

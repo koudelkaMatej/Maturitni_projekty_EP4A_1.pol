@@ -1,2 +1,2 @@
-kivy>=2.3.0
-flask>=3.0.0
+kivy[base]==2.3.0
+flask==3.0.0

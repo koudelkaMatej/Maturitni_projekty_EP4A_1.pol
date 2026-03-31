@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AMP — Fitness aplikace</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="site">
+    <div id="api-status" class="api-status hidden">⚠️ API není dostupné na http://localhost:5000. Spusť backend (start_website.bat) a zkus to znovu.</div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">🏋️‍♂️</div>
+        <div class="title">AMP</div>
+      </div>
+      <nav>
+        <span id="user-badge" class="user-badge hidden">Přihlášen: <strong id="user-name"></strong></span>
+        <button class="btn ghost" id="btn-login-open">Přihlásit se</button>
+        <a href="/settings" class="btn ghost hidden" id="btn-settings">⚙️ Nastavení</a>
+        <button class="btn ghost hidden" id="btn-logout">Odhlásit se</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <h1>AMP — tvůj fitness deník a průvodce</h1>
+        <p class="lead">Aplikace AMP (Advanced Muscle Planner) byla navržena s důrazem na jednoduchost a efektivitu. Cvičení není jen o zvedání vah, ale o disciplíně a sledování pokroku. Naše aplikace vám pomůže udržet si přehled o každém tréninku, každé sérii a každém osobním rekordu.</p>
+        
+        <div class="academic-info" style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <h2 style="margin-top:0">O projektu (Maturitní práce)</h2>
+          <p><strong>Autor:</strong> Student (Maturitní ročník 2026)</p>
+          <p><strong>Použité technologie:</strong></p>
+          <ul>
+            <li><strong>Python 3.12</strong> — Jádro aplikace a logika.</li>
+            <li><strong>Kivy Framework</strong> — Grafické uživatelské rozhraní (GUI) pro desktop.</li>
+            <li><strong>Flask</strong> — Backendový webový framework a REST API.</li>
+            <li><strong>SQLite 3</strong> — Relační databáze (vztahy 1:N, M:N).</li>
+            <li><strong>HTML5 / CSS3 / JavaScript</strong> — Moderní webová prezentace.</li>
+          </ul>
+          
+          <h3>Klíčové algoritmy</h3>
+          <p><strong>1. Výpočet osobního rekordu (PR):</strong></p>
+          <pre style="font-size: 0.8rem; background: #000; padding: 10px; border-radius: 4px; overflow-x: auto;">
+SELECT e.name, MAX(wi.weight) 
+FROM workout_items wi
+JOIN exercises e ON wi.exercise_id = e.id
+GROUP BY e.name</pre>
+          <p><strong>2. Kaskádové mazání (Hard Delete):</strong> Při smazání uživatele nebo cviku dochází k automatickému odstranění všech souvisejících záznamů v databázi díky <code>ON DELETE CASCADE</code>.</p>
+          
+          <h3>Zdrojový kód</h3>
+          <p>Projekt je spravován v systému Git. <a href="https://github.com/example/fitness_app" style="color:var(--accent)">Odkaz na repozitář (simulace)</a></p>
+        </div>
+
+        <h2 style="margin-top: 2rem">Proč je sledování pokroku klíčové?</h2>
+        <p>Bez systematického záznamu se snadno ztratíte. Zapomenete, jakou váhu jste zvedali minulý týden, kolik opakování jste zvládli, nebo jaký cvik jste chtěli vyzkoušet. AMP řeší tento problém tím, že vám poskytuje nástroje pro:</p>
+        <ul>
+            <li><strong>Konzistenci:</strong> Pravidelné zaznamenávání vás motivuje k dodržování plánu.</li>
+            <li><strong>Progresivní přetížení:</strong> Jasně vidíte, kdy je čas přidat váhu nebo opakování, což je základní princip pro růst svalů a síly.</li>
+            <li><strong>Analýzu a optimalizaci:</strong> Díky grafům a statistikám snadno identifikujete, co funguje a kde máte rezervy.</li>
+        </ul>
+        <p>S AMP se váš trénink stane chytřejším, nikoli jen těžším.</p>
+      </div>
+      <div class="hero-visual">
+        <!-- jednoduchý mockup -->
+        <div class="phone">
+          <div class="screen">
+            <div class="card">
+              <h3 id="hero-wk-title">Vítejte v AMP</h3>
+              <p id="hero-wk-desc">Přihlaste se pro zobrazení tréninku</p>
+            </div>
+            <div class="card small">
+              <p id="hero-stats">Zde uvidíte své rekordy</p>
+            </div>
+            <div class="card small" id="hero-note">Poznámka k tréninku</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard viditelný po přihlášení -->
+    <section id="dashboard" class="dashboard hidden" aria-labelledby="dash-title">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <h2 id="dash-title" style="margin:0">Tvoje poslední tréninky</h2>
+        <div class="small" style="color:var(--accent)">
+          Celkem dní: <strong id="days-active-count">0</strong>
+        </div>
+      </div>
+      
+      <div id="workouts-list" class="workouts-list">
+        <!-- naplní se skriptem po přihlášení -->
+      </div>
+      <div style="margin-top:15px;text-align:center">
+         <a href="/all_workouts" class="btn ghost small">Zobrazit celou historii</a>
+      </div>
+      
+      <div id="workouts-empty" class="small hidden">Zatím žádné záznamy. Přidej trénink v aplikaci.</div>
+    </section>
+
+    <section id="download-section" class="purchase" aria-labelledby="purchase-title">
+      <h2 id="purchase-title">Stáhnout AMP</h2>
+      <p>Získej plnou kontrolu nad svými tréninky. Stáhni si desktopovou aplikaci a začni sledovat svůj progres ještě dnes.</p>
+      
+      <div class="download-area">
+        <h3>Aktuální verze 1.0</h3>
+        <p>Kompatibilní s Windows 10/11</p>
+        <a class="btn primary large" href="{{ url_for('static', filename='fitness_app.zip') }}" download>Stáhnout aplikaci (.zip)</a>
+        <p class="small" style="margin-top: 1rem">Po stažení rozbalte archiv a spusťte soubor <code>start_game.bat</code>.</p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div>© AMP • 2025</div>
+      <div class="small">Kontakt: amp@example.com (simulace)</div>
+    </footer>
+  </main>
+
+  <!-- Modály: registrace / přihlášení -->
+  <div id="modal-overlay" class="modal-overlay hidden"></div>
+
+  <div id="modal-register" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reg-title">
+    <h3 id="reg-title">Registrace — AMP</h3>
+    <form id="form-register" class="form">
+      <label>Uživatelské jméno
+        <input id="reg-username" type="text" required />
+      </label>
+      <label>Email
+        <input id="reg-email" type="email" />
+      </label>
+      <label>Heslo
+        <input id="reg-password" type="password" required />
+      </label>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Dokončit registraci</button>
+        <button class="btn ghost" type="button" id="reg-cancel">Zrušit</button>
+      </div>
+      <div id="reg-msg" class="msg"></div>
+    </form>
+  </div>
+
+  <div id="modal-login" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <h3 id="login-title">Přihlásit se — AMP</h3>
+    <form id="form-login" class="form">
+      <label>Uživatelské jméno
+        <input id="login-username" type="text" required />
+      </label>
+      <label>Heslo
+        <input id="login-password" type="password" required />
+      </label>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Přihlásit se</button>
+        <button class="btn ghost" type="button" id="login-cancel">Zrušit</button>
+      </div>
+      <div id="login-msg" class="msg"></div>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
