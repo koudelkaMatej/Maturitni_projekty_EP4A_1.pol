@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro spolupracovníka | DRIVE.</title>
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        :root { --brand: #27445C; --accent: #A9ECFF; --code-bg: #1e1e2e; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; display: flex; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: white;
+            border-right: 1px solid #eee;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+        }
+        .sidebar-top { padding: 24px 20px; border-bottom: 1px solid #f0f0f0; }
+        .sidebar-logo { font-size: 1.3rem; font-weight: 900; color: var(--brand); }
+        .sidebar-tag { font-size: 0.75rem; color: #888; margin-top: 4px; }
+        .sidebar-nav { padding: 16px 10px; flex: 1; overflow-y: auto; }
+        .nav-section { font-size: 0.7rem; text-transform: uppercase; color: #aaa; letter-spacing: 1px; padding: 12px 10px 6px; font-weight: 700; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px; border-radius: 7px;
+            text-decoration: none; color: #555;
+            font-size: 0.88rem; font-weight: 500;
+            margin-bottom: 2px; transition: all 0.15s;
+        }
+        .nav-item:hover { background: #f0f4f8; color: var(--brand); }
+        .nav-item i { width: 18px; font-size: 0.85rem; color: #aaa; }
+        .sidebar-footer { padding: 16px; border-top: 1px solid #f0f0f0; }
+
+        /* Main */
+        .main { margin-left: 260px; flex: 1; padding: 40px 50px; max-width: 1100px; }
+
+        h1 { font-size: 2rem; color: var(--brand); margin-bottom: 8px; }
+        .subtitle { color: #888; margin-bottom: 40px; }
+
+        section { margin-bottom: 60px; }
+        h2 { font-size: 1.4rem; color: var(--brand); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        h2 i { background: var(--brand); color: var(--accent); padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; }
+
+        /* Cards */
+        .card { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; margin-bottom: 16px; }
+        .card h3 { color: var(--brand); margin-bottom: 10px; font-size: 1rem; }
+        .card p, .card li { font-size: 0.9rem; color: #555; line-height: 1.7; }
+        .card ul { padding-left: 20px; }
+
+        /* Code block */
+        .code-block {
+            background: var(--code-bg);
+            color: #cdd6f4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.82rem;
+            border-radius: 8px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+        .code-block .comment { color: #6c7086; }
+        .code-block .keyword { color: #cba6f7; }
+        .code-block .string { color: #a6e3a1; }
+        .code-block .func { color: #89b4fa; }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+        /* API table */
+        .api-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .api-table th { background: var(--brand); color: white; padding: 10px 14px; text-align: left; }
+        .api-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        .api-table tr:hover td { background: #fafafa; }
+        .method { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700; font-family: monospace; }
+        .get { background: #d1fae5; color: #065f46; }
+        .post { background: #dbeafe; color: #1e40af; }
+        .put { background: #fef3c7; color: #92400e; }
+        .delete { background: #fee2e2; color: #991b1b; }
+        .patch { background: #ede9fe; color: #5b21b6; }
+
+        /* File tree */
+        .tree { font-family: monospace; font-size: 0.85rem; line-height: 2; background: white; padding: 20px 24px; border-radius: 8px; border: 1px solid #eee; }
+        .tree .dir { color: var(--brand); font-weight: 700; }
+        .tree .file { color: #555; }
+        .tree .comment { color: #aaa; font-style: italic; }
+
+        /* Badge */
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; margin: 2px; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+
+        /* Alert */
+        .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
+        .alert-blue { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; }
+        .alert-yellow { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
+        .alert-green { background: #f0fdf4; border-left: 4px solid #22c55e; color: #15803d; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; min-height: auto; position: relative; }
+            .main { margin-left: 0; padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-logo">DRIVE. <span style="font-size:0.7rem;background:#eee;padding:2px 6px;border-radius:4px;color:#666;margin-left:4px;">DEV</span></div>
+        <div class="sidebar-tag">Průvodce pro spolupracovníka</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Architektura</div>
+        <a href="#overview" class="nav-item"><i class="fas fa-sitemap"></i> Přehled</a>
+        <a href="#structure" class="nav-item"><i class="fas fa-folder-tree"></i> Struktura souborů</a>
+        <a href="#database" class="nav-item"><i class="fas fa-database"></i> Databáze</a>
+
+        <div class="nav-section">Backend</div>
+        <a href="#api" class="nav-item"><i class="fas fa-plug"></i> API endpointy</a>
+        <a href="#auth" class="nav-item"><i class="fas fa-lock"></i> Autentizace</a>
+        <a href="#patterns" class="nav-item"><i class="fas fa-code"></i> Vzory & konvence</a>
+
+        <div class="nav-section">Frontend</div>
+        <a href="#frontend" class="nav-item"><i class="fas fa-desktop"></i> Frontend architektura</a>
+        <a href="#cart" class="nav-item"><i class="fas fa-shopping-cart"></i> Košík (dual-mode)</a>
+
+        <div class="nav-section">Workflow</div>
+        <a href="#setup" class="nav-item"><i class="fas fa-wrench"></i> Setup & spuštění</a>
+        <a href="#contribute" class="nav-item"><i class="fas fa-code-branch"></i> Jak přispívat</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="/docs/index.html" style="display:block;text-align:center;background:var(--brand);color:white;padding:10px;border-radius:6px;text-decoration:none;font-size:0.85rem;font-weight:600;">
+            <i class="fas fa-arrow-left"></i> Dev konzole
+        </a>
+    </div>
+</aside>
+
+<main class="main">
+    <h1>Průvodce pro spolupracovníka</h1>
+    <p class="subtitle">Technická dokumentace architektury, kódu a vývojového workflow projektu DRIVE.</p>
+
+    <!-- PŘEHLED ARCHITEKTURY -->
+    <section id="overview">
+        <h2><i class="fas fa-sitemap"></i> Přehled architektury</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>🖥️ Backend (Node.js + Express 5)</h3>
+                <ul>
+                    <li>Jeden soubor <code>server.js</code> (~1 300 řádků)</li>
+                    <li>REST API pro produkty, košík, objednávky, auth</li>
+                    <li>Synchronní SQLite přes <code>better-sqlite3</code></li>
+                    <li>PDF faktury přes <code>pdfkit</code></li>
+                    <li>E-maily přes <code>nodemailer</code></li>
+                    <li>Strukturované logování do souborů (<code>src/logger.js</code>)</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>🌐 Frontend (Vanilla JS)</h3>
+                <ul>
+                    <li>Statické HTML stránky servírované Expressem</li>
+                    <li>Žádný framework (React/Vue/Angular)</li>
+                    <li>CSS custom properties, žádný Tailwind/Bootstrap</li>
+                    <li>Moduly: <code>cart.js</code>, <code>products.js</code>, <code>dev-mode.js</code></li>
+                    <li>Fonts: TelkaTRIAL (Medium + Bold, otf)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="alert alert-blue" style="margin-top:16px;">
+            <strong>Architekturní rozhodnutí:</strong> MPA (Multi-Page Application) místo SPA. Každá stránka je samostatný HTML soubor. Navigace = normální HTTP redirect.
+        </div>
+    </section>
+
+    <!-- STRUKTURA SOUBORŮ -->
+    <section id="structure">
+        <h2><i class="fas fa-folder-tree"></i> Struktura souborů</h2>
+        <div class="tree">
+            <span class="dir">DRIVE./</span><br>
+            ├── <span class="file">server.js</span>          <span class="comment"># Celý backend (Express, API, auth)</span><br>
+            ├── <span class="file">package.json</span><br>
+            ├── <span class="file">.env</span>               <span class="comment"># SMTP_HOST, COOKIE_SECRET, PORT</span><br>
+            ├── <span class="dir">src/</span><br>
+            │   ├── <span class="file">db.js</span>          <span class="comment"># Inicializace DB, CREATE TABLE, migrace</span><br>
+            │   ├── <span class="file">seed.js</span>        <span class="comment"># Výchozí produkty a testovací data</span><br>
+            │   └── <span class="file">logger.js</span>      <span class="comment"># File-based logger (JSON, levely)</span><br>
+            ├── <span class="dir">assets/</span><br>
+            │   ├── <span class="dir">css/</span> <span class="comment"># style.css (hlavní), cart.css, ...</span><br>
+            │   ├── <span class="dir">js/</span>  <span class="comment"># cart.js, products.js, dev-mode.js</span><br>
+            │   └── <span class="dir">fonts/</span> <span class="comment"># TelkaTRIAL-Medium.otf, TelkaTRIAL-Bold.otf</span><br>
+            ├── <span class="dir">data/</span><br>
+            │   └── <span class="file">site.db</span>        <span class="comment"># SQLite databáze (gitignored v praxi)</span><br>
+            ├── <span class="dir">logs/</span>               <span class="comment"># combined.log, error.log, orders.log</span><br>
+            ├── <span class="dir">docs/</span>              <span class="comment"># Dev konzole, prezentace, ER diagramy</span><br>
+            ├── <span class="dir">Cart/</span>              <span class="comment"># cart.html, checkout.html, ...</span><br>
+            ├── <span class="dir">Products/</span><br>
+            ├── <span class="dir">Product-detail/</span><br>
+            ├── <span class="dir">Account/</span>           <span class="comment"># login, register, profile, ...</span><br>
+            └── <span class="dir">Info/</span>              <span class="comment"># terms, privacy, shipping</span>
+        </div>
+    </section>
+
+    <!-- DATABÁZE -->
+    <section id="database">
+        <h2><i class="fas fa-database"></i> Databázové schéma</h2>
+        <div class="alert alert-green">
+            Všechny ceny jsou v <strong>haléřích</strong> (<code>price_cents</code>). Frontend dělí 100 pro zobrazení v Kč.
+            Databáze se inicializuje automaticky při prvním spuštění v <code>src/db.js</code>.
+        </div>
+        <div class="grid-3">
+            <div class="card"><h3>🛒 E-shop core</h3><p><code>products</code>, <code>product_images</code>, <code>carts</code>, <code>cart_items</code>, <code>orders</code>, <code>order_items</code></p></div>
+            <div class="card"><h3>👤 Uživatelé</h3><p><code>users</code>, <code>sessions</code>, <code>password_resets</code>, <code>user_subscriptions</code></p></div>
+            <div class="card"><h3>📣 Marketing</h3><p><code>subscribers</code>, <code>discounts</code></p></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+            <h3>Cizí klíče a kaskády</h3>
+            <div class="code-block"><span class="comment">-- cart_items se smažou s košíkem</span>
+FOREIGN KEY(cart_id) REFERENCES carts(id) ON DELETE CASCADE
+
+<span class="comment">-- order_items se smažou s objednávkou</span>
+FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE
+
+<span class="comment">-- product_images se smažou s produktem</span>
+FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE</div>
+        </div>
+        <p style="margin-top:12px; font-size:0.9rem; color:#666;">
+            <a href="/docs/index.html#db-arch" style="color:var(--brand);">→ Zobrazit ER diagramy v dev konzoli</a>
+        </p>
+    </section>
+
+    <!-- API -->
+    <section id="api">
+        <h2><i class="fas fa-plug"></i> API endpointy</h2>
+        <div class="card">
+            <table class="api-table">
+                <thead><tr><th>Metoda</th><th>Endpoint</th><th>Popis</th><th>Auth</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="method get">GET</span></td><td><code>/api/products</code></td><td>Seznam všech produktů</td><td>—</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/api/products/:idOrSlug</code></td><td>Detail produktu + obrázky</td><td>—</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/api/cart</code></td><td>Obsah košíku (session)</td><td>—</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/cart</code></td><td>Přidat položku do košíku</td><td>—</td></tr>
+                    <tr><td><span class="method patch">PATCH</span></td><td><code>/api/cart</code></td><td>Změnit množství</td><td>—</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/api/cart/:itemId</code></td><td>Odebrat položku</td><td>—</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/checkout</code></td><td>Vytvořit objednávku</td><td>—</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/validate-discount</code></td><td>Ověřit slevový kód</td><td>—</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/auth/register</code></td><td>Registrace uživatele</td><td>—</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/auth/login</code></td><td>Přihlášení (rate limited)</td><td>—</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/auth/logout</code></td><td>Odhlášení</td><td>cookie</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/api/auth/me</code></td><td>Info o přihlášeném uživateli</td><td>cookie</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/api/user/orders</code></td><td>Historie objednávek</td><td>cookie</td></tr>
+                    <tr><td><span class="method put">PUT</span></td><td><code>/api/user/profile</code></td><td>Aktualizace profilu</td><td>cookie</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/api/admin/discounts</code></td><td>Seznam slevových kódů</td><td>dev_token</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/admin/discounts</code></td><td>Vytvořit slevový kód</td><td>dev_token</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/api/admin/send-newsletter</code></td><td>Rozeslat newsletter</td><td>dev_token</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- AUTENTIZACE -->
+    <section id="auth">
+        <h2><i class="fas fa-lock"></i> Autentizace</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Uživatelské session</h3>
+                <p>Cookie <code>auth_token</code> (httpOnly, sameSite: lax, 30 dní). Token je UUID v4, uložen v tabulce <code>sessions</code> s expirací.</p>
+                <div class="code-block"><span class="func">getCurrentUser</span>(req) {
+  <span class="keyword">const</span> token = req.cookies?.auth_token;
+  <span class="keyword">if</span> (!token) <span class="keyword">return null</span>;
+  <span class="keyword">return</span> db.prepare(
+    <span class="string">'SELECT u.* FROM sessions s JOIN users u...'</span>
+  ).get(token, <span class="keyword">new</span> Date().toISOString());
+}</div>
+            </div>
+            <div class="card">
+                <h3>Admin / Dev mode</h3>
+                <p>Dvě cookies:<br>
+                <code>dev_mode</code> — nesigned, pro UI viditelnost<br>
+                <code>dev_token</code> — signed httpOnly, pro API ochranu</p>
+                <div class="code-block"><span class="comment">// API ochrana</span>
+<span class="keyword">if</span> (req.signedCookies.dev_token
+    !== <span class="string">'authorized'</span>) {
+  <span class="keyword">return</span> res.status(403).json({...});
+}</div>
+            </div>
+        </div>
+        <div class="alert alert-yellow" style="margin-top:16px;">
+            <strong>Rate limiting:</strong> Login endpoint je chráněn in-memory rate limiterem — max 5 pokusů / 15 minut per IP.
+        </div>
+    </section>
+
+    <!-- VZORY & KONVENCE -->
+    <section id="patterns">
+        <h2><i class="fas fa-code"></i> Vzory a konvence</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Logger</h3>
+                <p>Vždy používej <code>logger</code> místo <code>console.*</code>. Loguje do souborů s JSON formátem.</p>
+                <div class="code-block"><span class="keyword">const</span> logger = <span class="func">require</span>(<span class="string">'./src/logger'</span>);
+
+logger.<span class="func">info</span>(<span class="string">'checkout'</span>, <span class="string">'Order created'</span>, { orderId });
+logger.<span class="func">error</span>(<span class="string">'auth'</span>, <span class="string">'Login failed'</span>, { email });</div>
+            </div>
+            <div class="card">
+                <h3>DB transakce</h3>
+                <p>Pro vícekrokové operace vždy použij <code>db.transaction()</code> — atomičnost a výkon.</p>
+                <div class="code-block"><span class="keyword">const</span> createOrder = db.<span class="func">transaction</span>(() => {
+  <span class="comment">// 1. Ověř sklad</span>
+  <span class="comment">// 2. Vytvoř objednávku</span>
+  <span class="comment">// 3. Odečti sklad</span>
+  <span class="keyword">return</span> orderId;
+});
+<span class="keyword">const</span> id = <span class="func">createOrder</span>();</div>
+            </div>
+            <div class="card">
+                <h3>Ceny vždy v haléřích</h3>
+                <p>Databáze ukládá ceny jako integer haléře. Frontend dělí 100.</p>
+                <div class="code-block"><span class="comment">// Správně:</span>
+price_cents: 3990   <span class="comment">// = 39,90 Kč</span>
+
+<span class="comment">// Frontend zobrazení:</span>
+(price_cents / 100).<span class="func">toFixed</span>(0) + <span class="string">' Kč'</span></div>
+            </div>
+            <div class="card">
+                <h3>Error handling</h3>
+                <p>API vrací konzistentní JSON chyby. Vždy loguj chyby s kontextem.</p>
+                <div class="code-block">} <span class="keyword">catch</span> (e) {
+  logger.<span class="func">error</span>(<span class="string">'ctx'</span>, <span class="string">'msg'</span>, {
+    message: e.message
+  });
+  res.status(500).json({
+    error: <span class="string">'...'</span>
+  });
+}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FRONTEND -->
+    <section id="frontend">
+        <h2><i class="fas fa-desktop"></i> Frontend architektura</h2>
+        <div class="card">
+            <h3>Klíčové JS soubory</h3>
+            <table class="api-table">
+                <thead><tr><th>Soubor</th><th>Zodpovědnost</th></tr></thead>
+                <tbody>
+                    <tr><td><code>assets/js/cart.js</code></td><td>Správa košíku, synchronizace s API, počítadlo v navigaci</td></tr>
+                    <tr><td><code>assets/js/products.js</code></td><td>Načítání produktů z API, filtrování, zobrazení</td></tr>
+                    <tr><td><code>assets/js/dev-mode.js</code></td><td>Dev badge, klávesová zkratka (5× D), nav link "Vývoj"</td></tr>
+                    <tr><td><code>assets/js/cookie-consent.js</code></td><td>GDPR cookie banner, uložení souhlasu</td></tr>
+                    <tr><td><code>assets/js/scroll-snap.js</code></td><td>Smooth scroll animace na hlavní stránce</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- KOŠÍK -->
+    <section id="cart">
+        <h2><i class="fas fa-shopping-cart"></i> Košík — dual-mode</h2>
+        <div class="alert alert-blue">
+            Košík funguje ve dvou módech souběžně. Při přihlášení se automaticky synchronizuje localStorage košík se serverovým.
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>📦 Guest (localStorage)</h3>
+                <p>Nepřihlášený uživatel ukládá košík do <code>localStorage</code> jako JSON pole. Rychlé, bez API volání.</p>
+            </div>
+            <div class="card">
+                <h3>☁️ Přihlášený (server)</h3>
+                <p>Po přihlášení se localStorage košík synchronizuje přes <code>POST /api/user/cart/sync</code> na server. Data přetrvají přes prohlížeče.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SETUP -->
+    <section id="setup">
+        <h2><i class="fas fa-wrench"></i> Setup a spuštění</h2>
+        <div class="card">
+            <div class="code-block"><span class="comment"># 1. Naklonovat</span>
+git clone &lt;repo-url&gt;
+cd "Housa Jakub"
+
+<span class="comment"># 2. Nainstalovat závislosti</span>
+npm install
+
+<span class="comment"># 3. Volitelně: nastavit .env</span>
+<span class="comment"># SMTP_HOST, SMTP_USER, SMTP_PASS, COOKIE_SECRET, PORT</span>
+
+<span class="comment"># 4. Spustit server</span>
+npm start
+<span class="comment"># → http://localhost:3000</span></div>
+        </div>
+        <div class="alert alert-green" style="margin-top:12px;">
+            <strong>Dev mode:</strong> 5× stiskni <kbd style="background:#eee;padding:2px 6px;border-radius:3px;font-family:monospace;">d</kbd> na libovolné stránce → přesměruje na <code>/dev-enable</code>. Heslo: <code>kO2N37Ac</code>
+        </div>
+    </section>
+
+    <!-- PŘISPÍVÁNÍ -->
+    <section id="contribute">
+        <h2><i class="fas fa-code-branch"></i> Jak přispívat</h2>
+        <div class="card">
+            <h3>Větve a workflow</h3>
+            <ul>
+                <li>Pracuj na feature větvi: <code>git checkout -b feature/popis</code></li>
+                <li>Commituj malé logické celky s popisným mesagem</li>
+                <li>PR merge do <code>main</code> větve</li>
+            </ul>
+        </div>
+        <div class="card" style="margin-top:12px;">
+            <h3>Přidání nové API route</h3>
+            <ol style="padding-left:20px;font-size:0.9rem;line-height:1.8;color:#555;">
+                <li>Najdi správnou sekci v <code>server.js</code> (komentáře <code>// ===== API: XXX =====</code>)</li>
+                <li>Přidej route s <code>app.get/post/put/delete</code></li>
+                <li>Pro admin routes přidej kontrolu <code>req.signedCookies.dev_token</code></li>
+                <li>Všechny chyby loguj přes <code>logger.error('context', 'msg', data)</code></li>
+                <li>Nezapomeň na vstupní validaci a odpovědi 400/401/403/404/500</li>
+            </ol>
+        </div>
+        <div class="card" style="margin-top:12px;">
+            <h3>Přidání nové HTML stránky</h3>
+            <ol style="padding-left:20px;font-size:0.9rem;line-height:1.8;color:#555;">
+                <li>Vytvoř HTML soubor ve správné složce</li>
+                <li>Přidej <code>&lt;script src="/assets/js/dev-mode.js"&gt;&lt;/script&gt;</code> před <code>&lt;/body&gt;</code></li>
+                <li>Pokud má navigaci, použij <code>id="navMenu"</code> na <code>&lt;ul&gt;</code></li>
+            </ol>
+        </div>
+    </section>
+
+</main>
+
+<script src="/assets/js/dev-mode.js"></script>
+</body>
+</html>

@@ -36,7 +36,83 @@
                 // Při server módu hned načti košík ze serveru
                 this.fetchServerCart?.();
             }
+            
+            // Check if user is logged in and sync cart with DB
+            this.checkAuthAndSyncCart();
+            
             window.dispatchEvent(new Event('cartReady'));
+        }
+
+        async checkAuthAndSyncCart() {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    // User is logged in - sync cart with DB
+                    await this.syncCartToServer();
+                }
+            } catch (e) {
+                // User not logged in or error - continue with localStorage
+            }
+        }
+
+        async syncCartToServer() {
+            // Push current localStorage cart to server for logged-in users
+            try {
+                const response = await fetch('/api/user/cart/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: this.cart.map(item => ({
+                            id: item.id,
+                            quantity: item.quantity,
+                            name: item.name,
+                            price_cents: Math.round(item.price * 100),
+                            isSubscription: item.isSubscription
+                        }))
+                    })
+                });
+                
+                if (response.ok) {
+                    // Server cart synced successfully
+                    console.log('[Cart] Synced to server');
+                }
+            } catch (e) {
+                console.error('[Cart] Sync to server failed:', e);
+            }
+        }
+
+        async loadCartFromServer() {
+            // Load cart from server for logged-in users (e.g., after login from mobile/another device)
+            try {
+                const response = await fetch('/api/user/cart');
+                if (response.ok) {
+                    const data = await response.json();
+                    // Map server cart items to localStorage format
+                    if (data.items && Array.isArray(data.items)) {
+                        this.cart = data.items.map(item => {
+                            const isSub = !!item.is_subscription;
+                            const basePrice = item.price_cents || 0;
+                            // Calculate effective price if subscription (20% off)
+                            const finalPrice = isSub ? Math.round(basePrice * 0.8) : basePrice;
+
+                            return {
+                                id: item.product_id || item.id,
+                                name: item.name,
+                                price: finalPrice / 100,
+                                quantity: item.quantity,
+                                variant: isSub ? 'Předplatné' : 'Standardní balení',
+                                image: item.image || null,
+                                isSubscription: isSub,
+                                addedAt: new Date().toISOString()
+                            };
+                        });
+                        this.persistAndRefresh();
+                        console.log('[Cart] Loaded from server');
+                    }
+                }
+            } catch (e) {
+                console.error('[Cart] Load from server failed:', e);
+            }
         }
 
         cacheDom() {
@@ -92,11 +168,17 @@
 
             event.preventDefault();
 
+            // Check for subscription checkbox in the product card
+            const card = button.closest('.product-card') || button.closest('.product-info') || button.parentElement;
+            const subCheckbox = card ? card.querySelector('.sub-checkbox') : null;
+            const isSub = subCheckbox ? subCheckbox.checked : false;
+
             const product = {
                 id: button.dataset.id,
                 name: button.dataset.name,
                 price: Number(button.dataset.price) || 0,
-                image: button.dataset.image || null
+                image: button.dataset.image || null,
+                isSubscription: isSub
             };
 
             const variant = button.dataset.variant || null;
@@ -174,23 +256,30 @@
 
         async addToCart(product, quantity = 1, variant = null) {
             const safeQuantity = Math.max(1, Number(quantity) || 1);
+            const isSub = !!product.isSubscription;
+            
             if (this.useLocalStorage) {
                 const existingItem = this.findItem(product.id, variant);
                 if (existingItem) {
                     existingItem.quantity += safeQuantity;
+                    // DŮLEŽITÉ: Aktualizovat isSubscription i u existující položky
+                    existingItem.isSubscription = isSub;
+                    existingItem.price = Number(product.price) || existingItem.price;
                 } else {
-                    this.cart.push({
+                    const newItem = {
                         id: product.id,
                         name: product.name,
                         price: Number(product.price) || 0,
                         quantity: safeQuantity,
                         variant: variant || null,
                         image: product.image || null,
+                        isSubscription: isSub,
                         addedAt: new Date().toISOString()
-                    });
+                    };
+                    this.cart.push(newItem);
                 }
                 this.persistAndRefresh();
-                this.showToast('Produkt byl přidán do košíku');
+                this.showToast(isSub ? 'Předplatné přidáno do košíku' : 'Produkt byl přidán do košíku');
                 return;
             }
 
@@ -294,9 +383,24 @@
             return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         }
 
+        getDiscount() {
+            const subtotal = this.getSubtotal();
+            const percent = Number(localStorage.getItem('discountPercent')) || 0;
+            if (percent > 0) {
+                return Math.round(subtotal * (percent / 100));
+            }
+            return 0;
+        }
+
+        getTotal() {
+            return this.getSubtotal() - this.getDiscount();
+        }
+
         persistAndRefresh() {
             this.saveCart();
             this.updateCartDisplay();
+            // Also sync to server if user is logged in
+            this.syncCartToServer();
         }
 
         updateCartDisplay() {
@@ -455,8 +559,100 @@
             });
 
             if (cartSubtotalEl) cartSubtotalEl.textContent = this.formatPrice(subtotal);
-            if (cartTotalEl) cartTotalEl.textContent = this.formatPrice(subtotal);
-            if (checkoutTotalEl) checkoutTotalEl.textContent = this.formatPrice(subtotal);
+            
+            // Discount Logic
+            let discount = 0;
+            const discountPercent = Number(localStorage.getItem('discountPercent')) || 0;
+            const hasValidCode = !!localStorage.getItem('discountCode');
+
+            if (discountPercent > 0 && hasValidCode) {
+                discount = Math.round(subtotal * (discountPercent / 100));
+            } else if (discountPercent > 0 && !hasValidCode) {
+                // Cleanup invalid state
+                localStorage.removeItem('discountPercent');
+            }
+
+            const discountRow = document.getElementById('discountRow');
+            const discountAmountEl = document.getElementById('discountAmount');
+            const discountInput = document.getElementById('discountCode');
+            const discountBtn = document.getElementById('applyDiscountBtn');
+            const discountMsg = document.getElementById('discountMessage');
+
+            if (discountRow && discountAmountEl) {
+                if (discount > 0) {
+                    discountRow.style.display = 'flex';
+                    discountAmountEl.textContent = '-' + this.formatPrice(discount);
+                } else {
+                    discountRow.style.display = 'none';
+                }
+            }
+
+            // Setup Discount Button Event
+            if (discountBtn && !discountBtn.hasAttribute('data-bound')) {
+                discountBtn.setAttribute('data-bound', 'true');
+                discountBtn.addEventListener('click', async () => {
+                    const code = discountInput.value.trim().toUpperCase();
+                    if (!code) return;
+
+                    try {
+                        const res = await fetch('/api/validate-discount', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ code })
+                        });
+                        const data = await res.json();
+
+                        if (data.valid) {
+                            localStorage.setItem('discountCode', data.code);
+                            localStorage.setItem('discountPercent', data.discount_percent);
+                            discountMsg.textContent = `Slevový kód uplatněn! (-${data.discount_percent}%)`;
+                            discountMsg.className = 'discount-message success';
+                            this.updateCartPage();
+                        } else {
+                            discountMsg.textContent = 'Neplatný slevový kód';
+                            discountMsg.className = 'discount-message error';
+                            localStorage.removeItem('discountCode');
+                            localStorage.removeItem('discountPercent');
+                            this.updateCartPage();
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        discountMsg.textContent = 'Chyba při ověřování kódu';
+                        discountMsg.className = 'discount-message error';
+                    }
+                });
+                
+                // Pre-fill if exists
+                const savedCode = localStorage.getItem('discountCode');
+                const savedPercent = localStorage.getItem('discountPercent');
+                if (savedCode && discountInput) {
+                    discountInput.value = savedCode;
+                    if (savedPercent) {
+                        discountMsg.innerHTML = `
+                            Slevový kód uplatněn! (-${savedPercent}%) 
+                            <a href="#" id="removeDiscount" style="color: #dc3545; margin-left: 10px; font-size: 0.8em;">Odstranit</a>
+                        `;
+                        discountMsg.className = 'discount-message success';
+                        
+                        // Add remove handler
+                        const removeLink = document.getElementById('removeDiscount');
+                        if (removeLink) {
+                            removeLink.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                localStorage.removeItem('discountCode');
+                                localStorage.removeItem('discountPercent');
+                                discountInput.value = '';
+                                discountMsg.textContent = '';
+                                discountMsg.className = 'discount-message';
+                                this.updateCartPage();
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (cartTotalEl) cartTotalEl.textContent = this.formatPrice(subtotal - discount);
+            if (checkoutTotalEl) checkoutTotalEl.textContent = this.formatPrice(subtotal - discount);
         }
 
         dispatchCartUpdate() {

@@ -138,8 +138,16 @@ function selectPurchaseOption(optionKey, element) {
     document.querySelectorAll('.purchase-option').forEach(node => {
         node.classList.remove('active');
     });
+    // Element might be passed directly or we might need to find it if function called programmatically
     if (element) {
         element.classList.add('active');
+    } else {
+        // Fallback for initialization
+        const selector = optionKey === 'single' ? 
+            '.purchase-option:nth-child(1)' : 
+            '.purchase-option:nth-child(2)';
+        const el = document.querySelector(selector);
+        if (el) el.classList.add('active');
     }
 
     updateAddButtonState();
@@ -173,12 +181,16 @@ function handleAddToCart(event) {
 
     const flavor = flavorData[currentFlavor];
     const option = purchaseOptions[currentPurchaseOption];
+    const isSub = currentPurchaseOption === 'subscription';
+
+    console.log('[Product-detail] Adding to cart:', { flavor: currentFlavor, option: currentPurchaseOption, isSubscription: isSub });
 
     const product = {
         id: `cans-${currentFlavor}`,
         name: flavor.name,
         price: option.price,
-        image: flavor.images.mini
+        image: flavor.images.mini,
+        isSubscription: isSub
     };
 
     const variantLabel = `${flavor.shortName} - ${option.label.toLowerCase()}`;
@@ -241,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
         firstAccordion.classList.add('active');
     }
 
+    // Initialize purchase option state
+    selectPurchaseOption(currentPurchaseOption);
     updateAddButtonState();
 });
 

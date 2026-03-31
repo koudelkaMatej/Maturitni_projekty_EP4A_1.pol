@@ -1,21 +1,9 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
-    // Databáze produktů
-    const products = [
-        { id: '1', name: 'Citrónová energie', price: 89, image: '🍋', description: 'Osvěžující citrónová příchuť s vyváženým obsahem kofeinu.', category: 'energy', badge: '' },
-        { id: '2', name: 'Lesní ovoce', price: 79, image: '🍓', description: 'Sladká chuť lesního ovoce s jemným osvěžením.', category: 'hydratation', badge: 'NOVINKA' },
-        { id: '3', name: 'Mátová svěžest', price: 85, image: '🍃', description: 'Svěží mátová příchuť, která povzbudí vaše smysly.', category: 'fresh', badge: '' },
-        { id: '4', name: 'Limetkový restart', price: 95, image: '🍏', description: 'Kombinace limetky a zeleného jablka pro osvěžení.', category: 'fresh', badge: '' },
-        { id: '5', name: 'Borůvková exploze', price: 99, image: '🫐', description: 'Intenzivní chuť borůvek s vysokým obsahem kofeinu.', category: 'energy', badge: '' },
-        { id: '6', name: 'Pomerančový náboj', price: 87, image: '🍊', description: 'Sladkokyselá pomerančová příchuť pro každodenní použití.', category: 'fresh', badge: '' },
-        { id: '7', name: 'Tropická směs', price: 92, image: '🍍', description: 'Exotická kombinace manga, ananasu a maracuji.', category: 'tropical', badge: '' },
-        { id: '8', name: 'Jablečná svěžest', price: 83, image: '🍎', description: 'Křupavá chuť zeleného jablka s jemným nádechem skořice.', category: 'fresh', badge: '' }
-    ];
+    // Produkty se načtou z API
+    let products = [];
 
     // Košík
     const hasCartManager = typeof window.cartManager !== 'undefined';
-    // if (hasCartManager) {
-    //    try { window.cartManager.enableServerMode('/api'); } catch {}
-    // }
     let cart = hasCartManager ? [] : JSON.parse(localStorage.getItem('cart')) || [];
 
     // Navigace
@@ -27,6 +15,37 @@
             navMenu.classList.toggle('active');
             hamburger.classList.toggle('active');
         });
+    }
+
+    // Načtení produktů z API
+    async function fetchProducts() {
+        try {
+            const res = await fetch('/api/products');
+            if (!res.ok) throw new Error('Failed to fetch products');
+            const data = await res.json();
+            
+            // Map server fields to UI fields
+            products = data.map(p => ({
+                id: p.slug || String(p.id), // Prefer slug
+                slug: p.slug,
+                name: p.name,
+                price: Math.round(p.price_cents / 100), // Convert cents to Kč
+                image: p.image || null,
+                hoverImage: p.hover_image || null,
+                description: p.description || '',
+                category: 'all',
+                badge: ''
+            }));
+            
+            renderProducts();
+        } catch (error) {
+            console.error('Chyba při načítání produktů:', error);
+            // Fallback - zobrazit zprávu
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                productsGrid.innerHTML = '<p class="text-center" style="grid-column: 1/-1; padding: 2rem;">Nepodařilo se načíst produkty. Zkuste obnovit stránku.</p>';
+            }
+        }
     }
 
     // Aktualizace počtu položek v košíku
@@ -56,31 +75,56 @@
             return;
         }
 
+        // Placeholder for missing images
+        const placeholderPath = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNmOGY5ZmEiLz4KICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzI3NDQ1QyI+RFJJVkUuPC90ZXh0Pgo8L3N2Zz4=';
+
         filteredProducts.forEach(product => {
             const productCard = document.createElement('div');
             productCard.className = 'product-card';
+            
+            // Resolve image path
+            let imgUrl = product.image;
+            if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                imgUrl = '/' + imgUrl;
+            }
+            
+            let hoverImgUrl = product.hoverImage;
+            if (hoverImgUrl && !hoverImgUrl.startsWith('http') && !hoverImgUrl.startsWith('/')) {
+                hoverImgUrl = '/' + hoverImgUrl;
+            }
+
             productCard.innerHTML = `
                 ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-                <div class="product-image">
-                    <span>${product.image}</span>
-                </div>
+                <a href="/Product-detail/index.html?product=${product.slug}" class="product-image-link">
+                    <div class="product-image">
+                        <img src="${imgUrl || placeholderPath}" 
+                             alt="${product.name}"
+                             ${hoverImgUrl ? `data-hover="${hoverImgUrl}"` : ''}
+                             onerror="this.onerror=null; this.src='${placeholderPath}';">
+                    </div>
+                </a>
                 <div class="product-info">
-                    <h3 class="product-title">${product.name}</h3>
+                    <a href="/Product-detail/index.html?product=${product.slug}" class="product-title-link">
+                        <h3 class="product-title">${product.name}</h3>
+                    </a>
                     <div class="product-price">${product.price} Kč</div>
-                    <p class="product-description">${product.description}</p>
-                    <button
-                        class="add-to-cart"
-                        data-add-to-cart="true"
-                        data-id="${product.id}"
-                        data-name="${product.name}"
-                        data-price="${product.price}"
-                        data-quantity="1"
-                    >
-                        Přidat do košíku
-                    </button>
+                    ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
                 </div>
             `;
             productsGrid.appendChild(productCard);
+        });
+
+        // Hover effect for images
+        document.querySelectorAll('.product-image img[data-hover]').forEach(img => {
+            const originalSrc = img.src;
+            const hoverSrc = img.dataset.hover;
+            
+            img.addEventListener('mouseenter', () => {
+                img.src = hoverSrc;
+            });
+            img.addEventListener('mouseleave', () => {
+                img.src = originalSrc;
+            });
         });
 
         // Animace produktových karet
@@ -100,7 +144,7 @@
     }
 
     // Přidání do košíku
-    function addToCart(productId) {
+    function addToCart(productId, isSubscription = false) {
         const productToAdd = products.find(p => p.id === productId);
         if (!productToAdd) return;
 
@@ -110,7 +154,8 @@
                     id: productToAdd.id,
                     name: productToAdd.name,
                     price: Number(productToAdd.price) || 0,
-                    image: null
+                    image: productToAdd.image || null,
+                    isSubscription: isSubscription
                 },
                 1
             );
@@ -120,14 +165,22 @@
         const existingItem = cart.find(item => item.id === productId);
         if (existingItem) {
             existingItem.quantity++;
+            existingItem.isSubscription = isSubscription;
         } else {
-            cart.push({ ...productToAdd, quantity: 1 });
+            cart.push({ 
+                id: productToAdd.id,
+                name: productToAdd.name,
+                price: productToAdd.price,
+                image: productToAdd.image,
+                quantity: 1,
+                isSubscription: isSubscription
+            });
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
 
         // Zobrazit potvrzení
-        showNotification('Produkt byl přidán do košíku');
+        showNotification(isSubscription ? 'Předplatné přidáno do košíku' : 'Produkt byl přidán do košíku');
     }
 
     // Filtrování podle kategorie
@@ -184,18 +237,17 @@
 
     // Inicializace
     updateCartCount();
-    renderProducts();
+    fetchProducts(); // Načíst produkty z API
     setupCategoryFilters();
 
-    // Event listenery
-    if (!hasCartManager) {
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.add-to-cart')) {
-                const productId = e.target.closest('.add-to-cart').dataset.id;
-                addToCart(productId);
-            }
-        });
-    }
+    // Event listener pro přidání do košíku
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.add-to-cart');
+        if (btn) {
+            const productId = btn.dataset.id;
+            addToCart(productId, false);
+        }
+    });
 
     // Newsletter
     const newsletterForm = document.querySelector('.newsletter-form');
@@ -214,42 +266,66 @@
     function animateOpen(item) {
         const content = item.querySelector('.faq-answer');
         if (!content) return;
-        // prepare
-        content.style.paddingBottom = '0px';
-        content.style.height = '0px';
-        content.style.opacity = '0';
+        
+        // Only override if not already auto (prevent jumps)
+        if (content.style.height !== 'auto') {
+             content.style.height = '0px';
+             content.style.paddingBottom = '0px';
+             content.style.opacity = '0';
+        }
+
         // force reflow
         void content.offsetHeight;
+        
         const target = content.scrollHeight;
         content.style.height = target + 'px';
         content.style.paddingBottom = '1.2rem';
         content.style.opacity = '1';
+
+        let finished = false;
         const onEnd = (e) => {
-            if (e.propertyName === 'height') {
-                content.style.height = 'auto';
-                content.removeEventListener('transitionend', onEnd);
-            }
+            if (finished) return;
+            // Only listen for height (main transition) or fallback
+            if (e && e.propertyName !== 'height') return; 
+            
+            finished = true;
+            content.style.height = 'auto'; // release height for responsiveness
+            content.removeEventListener('transitionend', onEnd);
         };
+        
         content.addEventListener('transitionend', onEnd);
+        // Safety timeout to ensure callback runs even if transition fails/interrupts
+        setTimeout(() => onEnd(), 400); 
     }
 
     function animateClose(item, cb) {
         const content = item.querySelector('.faq-answer');
         if (!content) { if (cb) cb(); return; }
+
+        // Start from current pixel height to animate down
         const current = content.scrollHeight;
         content.style.height = current + 'px';
+        
         // force reflow
         void content.offsetHeight;
+        
         content.style.height = '0px';
         content.style.paddingBottom = '0px';
         content.style.opacity = '0';
+        
+        let finished = false;
         const onEnd = (e) => {
-            if (e.propertyName === 'height') {
-                content.removeEventListener('transitionend', onEnd);
-                if (cb) cb();
-            }
-        }
+            if (finished) return;
+            if (e && e.propertyName !== 'height') return;
+            
+            finished = true;
+            content.removeEventListener('transitionend', onEnd);
+            if (cb) cb();
+        };
+
         content.addEventListener('transitionend', onEnd);
+        // Safety timeout
+        setTimeout(() => onEnd(), 400);
     }
 
     function reserveListMinHeight() {

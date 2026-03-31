@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Košík | Drive.</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css?v=2">
     <link rel="stylesheet" href="/assets/css/cart.css?v=2">
 </head>
@@ -23,6 +23,22 @@
     </div>
 
     <main class="container main-content">
+        <!-- Progress Steps -->
+        <div class="checkout-steps">
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <div class="step-label">Košík</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">2</div>
+                <div class="step-label">Doprava a platba</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Kontrola</div>
+            </div>
+        </div>
+
         <div class="cart-header">
             <h1>Váš košík</h1>
             <p class="cart-instructions">Zkontrolujte si položky před dokončením objednávky</p>
@@ -35,76 +51,53 @@
                 </div>
             </div>
 
-            <div class="cart-summary">
-                <h3>Souhrn objednávky</h3>
-                <div class="summary-row">
-                    <span>Mezisoučet</span>
-                    <span id="cartSubtotal">0 Kč</span>
+            <div class="cart-sidebar-wrapper">
+                <div class="cart-summary">
+                    <h3>Souhrn objednávky</h3>
+                    <div class="summary-row">
+                        <span>Mezisoučet</span>
+                        <span id="cartSubtotal">0 Kč</span>
+                    </div>
+                    
+                    <div class="summary-row discount-row" id="discountRow" style="display: none; color: #28a745;">
+                        <span>Sleva</span>
+                        <span id="discountAmount">-0 Kč</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Doprava</span>
+                        <span id="cartSummaryShipping">Zdarma</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Celkem</span>
+                        <span id="cartTotal">0 Kč</span>
+                    </div>
+                    <button class="btn checkout-btn" onclick="proceedToCheckout()">
+                        Pokračovat k platbě
+                    </button>
                 </div>
-                <div class="summary-row">
-                    <span>Doprava</span>
-                    <span id="cartSummaryShipping">Zdarma</span>
+                
+                <!-- Discount Code Section (Moved outside) -->
+                <div class="cart-summary">
+                    <h3>Slevový kód</h3>
+                    <div class="discount-section" style="border: none; padding: 0; margin: 0;">
+                        <div class="discount-input-group">
+                            <input type="text" id="discountCode" placeholder="Vložte kód slevy">
+                            <button id="applyDiscountBtn" class="btn-small">Použít</button>
+                        </div>
+                        <div id="discountMessage" class="discount-message"></div>
+                    </div>
                 </div>
-                <div class="summary-total">
-                    <span>Celkem</span>
-                    <span id="cartTotal">0 Kč</span>
-                </div>
-                <button class="btn checkout-btn" onclick="proceedToCheckout()">
-                    Pokračovat k platbě
-                </button>
             </div>
         </div>
     </main>
 
-    <footer>
-        <div class="footer-container">
-            <div class="footer-section footer-info">
-                <a href="/index.html" class="logo">
-                    <i class="fas fa-bolt logo-icon"></i>
-                    <span>Drive.</span>
-                </a>
-                <p>Osvěžující energie s nulovými kaloriemi. Vaše denní dávka hydratace a koncentrace.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Odkazy</h4>
-                <ul>
-                    <li><a href="/index.html">Domů</a></li>
-                    <li><a href="/Products/index.html">Produkty</a></li>
-                    <li><a href="/AboutUs/index.html">O nás</a></li>
-                    <li><a href="/index.html#section-newsletter">Kontakt</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Informace</h4>
-                <ul>
-                    <li><a href="/Info/terms.html">Obchodní podmínky</a></li>
-                    <li><a href="/Info/privacy.html">Ochrana soukromí</a></li>
-                    <li><a href="/Info/shipping.html">Doprava a platba</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Kontakt</h4>
-                <p>
-                    <i class="fas fa-map-marker-alt"></i> 123 Ulice Vody, Praha<br>
-                    <i class="fas fa-phone"></i> +420 123 456 789<br>
-                    <i class="fas fa-envelope"></i> info@kofeinovavoda.cz
-                </p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; <span id="year">2025</span> Drive. Všechna práva vyhrazena.</p>
-            <div class="payment-icons">
-                <i class="fab fa-cc-visa" title="Visa"></i>
-                <i class="fab fa-cc-mastercard" title="Mastercard"></i>
-                <i class="fab fa-apple-pay" title="Apple Pay"></i>
-                <i class="fab fa-google-pay" title="Google Pay"></i>
-            </div>
-        </div>
-    </footer>
+
 
     <script src="/assets/js/cart.js?v=2"></script>
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
+        // Clear discount code on page load
+        localStorage.removeItem('discountCode');
 
         function proceedToCheckout() {
             if (window.cartManager && window.cartManager.cart.length === 0) {
@@ -116,8 +109,11 @@
         }
     </script>
     <script src="/assets/js/cookie-consent.js"></script>
+    <script src="/assets/js/dev-mode.js"></script>
 </body>
 </html>
+
+
 
 
 

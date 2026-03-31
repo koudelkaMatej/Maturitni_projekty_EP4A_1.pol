@@ -1,29 +1,121 @@
 erDiagram
   PRODUCTS {
     INT id PK
+    TEXT slug
     TEXT name
-    INT price_czk
+    INT price_cents
     TEXT image
-    TEXT flavor
-    INT in_stock
+    TEXT hover_image
+    TEXT description
+    TEXT features
+    INT stock
+    TEXT color
+    DATETIME created_at
+  }
+  PRODUCT_IMAGES {
+    INT id PK
+    INT product_id FK
+    TEXT url
+    TEXT alt_text
+    INT sort_order
+    TEXT type
+  }
+  USERS {
+    INT id PK
+    TEXT email
+    TEXT password_hash
+    TEXT first_name
+    TEXT last_name
+    TEXT phone
+    TEXT address
+    TEXT city
+    TEXT zip_code
+    DATETIME created_at
+  }
+  SESSIONS {
+    INT id PK
+    INT user_id FK
+    TEXT token
+    DATETIME expires_at
+    DATETIME created_at
+  }
+  PASSWORD_RESETS {
+    INT id PK
+    TEXT email
+    TEXT token
+    DATETIME expires_at
+    DATETIME created_at
+  }
+  CARTS {
+    INT id PK
+    TEXT session_id
+    INT user_id FK
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  CART_ITEMS {
+    INT id PK
+    INT cart_id FK
+    INT product_id FK
+    INT quantity
+    BOOL is_subscription
+    DATETIME created_at
   }
   ORDERS {
     INT id PK
-    TEXT created_at
-    INT total_czk
-    TEXT status
-    TEXT customer_name
+    INT user_id FK
     TEXT customer_email
-    TEXT address
+    TEXT customer_name
+    TEXT customer_address
+    TEXT customer_city
+    TEXT customer_zip
+    TEXT customer_phone
+    TEXT payment_method
+    INT total_cents
+    TEXT discount_code
+    INT discount_amount
+    TEXT status
+    DATETIME created_at
   }
   ORDER_ITEMS {
     INT id PK
     INT order_id FK
     INT product_id FK
     INT quantity
-    INT unit_price_czk
-    INT line_total_czk
+    INT price_cents
+    TEXT product_name
+  }
+  USER_SUBSCRIPTIONS {
+    INT id PK
+    INT user_id FK
+    INT product_id
+    TEXT product_name
+    TEXT product_slug
+    INT price_cents
+    TEXT status
+    DATETIME next_billing_date
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  SUBSCRIBERS {
+    INT id PK
+    TEXT email
+    DATETIME subscribed_at
+  }
+  DISCOUNTS {
+    INT id PK
+    TEXT code
+    INT discount_percent
+    BOOL active
+    DATETIME created_at
   }
 
-  PRODUCTS ||--o{ ORDER_ITEMS : is_ordered_in
-  ORDERS ||--o{ ORDER_ITEMS : has
+  PRODUCTS ||--o{ PRODUCT_IMAGES : has
+  PRODUCTS ||--o{ CART_ITEMS : in_cart
+  PRODUCTS ||--o{ ORDER_ITEMS : ordered_as
+  USERS ||--o{ SESSIONS : has
+  USERS ||--o{ CARTS : owns
+  USERS ||--o{ ORDERS : places
+  USERS ||--o{ USER_SUBSCRIPTIONS : subscribes
+  CARTS ||--o{ CART_ITEMS : contains
+  ORDERS ||--o{ ORDER_ITEMS : contains

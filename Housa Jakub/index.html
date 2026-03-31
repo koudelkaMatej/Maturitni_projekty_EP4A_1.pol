@@ -21,7 +21,7 @@
     <meta property="twitter:image" content="https://www.drive-energy.cz/assets/img/products/test.png">
 
     <title>Kofeinová Voda | Energie + Hydratace</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/cart.css">
@@ -40,6 +40,9 @@
                 <li><a href="/index.html#section-newsletter" class="nav-link">Kontakt</a></li>
             </ul>
             <div class="nav-actions">
+                <a href="/Account/index.html" class="user-icon" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="Můj účet">
+                    <i class="fas fa-user"></i>
+                </a>
                 <a href="/Products/index.html" class="btn nav-cta">Nakupovat</a>
                 <div class="cart-icon" id="cartIcon">
                     <i class="fas fa-shopping-cart"></i>
@@ -63,23 +66,30 @@
 
     <main id="fullpage-wrapper">
         <section id="home" class="fullpage-section hero">
-            <div class="container hero-inner">
-                <div class="hero-left">
-                    <h1 class="hero-title">
-                        <span>Čistá Energie.</span>
-                        <span>Maximální</span>
-                        <span>Hydratace.</span>
+            <div class="hero-background-blobs">
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+            </div>
+            <div class="container hero-inner modern-hero">
+                <div class="hero-content animate-fade-up">
+                    <h1 class="hero-title-large">
+                        ČISTÁ ENERGIE
                     </h1>
-                    <p class="hero-subtitle">DRIVE. je vaše denní dávka přírodního osvěžení a soustředění. Čistý kofein ze zeleného čaje v kombinaci s hydratací — bez cukru, bez chemie, jen čistá energie.</p>
-                    <div class="hero-ctas">
-                        <a href="/Products/index.html" class="btn btn-primary">Nakupovat</a>
-                        <a href="#section-benefits" class="btn btn-outline">Zjistit více</a>
+                    <p class="hero-subtitle-modern">
+                        Přírodní kofein. Žádný cukr. Maximální hydratace.<br>
+                        DRIVE. je vaše denní dávka přírodního osvěžení.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/Products/index.html" class="btn btn-glass">
+                            <span>Nakupovat</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#section-benefits" class="btn btn-glass-outline">Zjistit více</a>
                     </div>
                 </div>
-                <div class="hero-right">
-                    <div class="hero-card">
-                        <img src="/assets/img/products/voda.png" alt="DRIVE bottle" class="hero-bottle">
-                    </div>
+                <div class="hero-visual">
+                    <div class="glass-circle"></div>
+                    <img src="/assets/img/products/voda.png" alt="DRIVE Energy Water" class="hero-bottle-large animate-float">
                 </div>
             </div>
         </section>
@@ -135,7 +145,7 @@
     <div class="products-grid mt-2">
       <!-- Produkt 1 -->
       <div class="product-card">
-        <a href="#" class="product-link">
+        <a href="Product-detail/index.html?product=cans-citrus" class="product-link">
           <div class="product-image">
             <img src="/assets/img/products/test.png" alt="CANS Citron" class="default-img">
             <img src="/assets/img/products/voda.png" alt="CANS Citron Hover" class="hover-img">
@@ -149,7 +159,7 @@
 
       <!-- Produkt 2 -->
       <div class="product-card">
-        <a href="#" class="product-link">
+        <a href="Product-detail/index.html?product=cans-berry" class="product-link">
           <div class="product-image">
             <img src="/assets/img/products/test.png" alt="CANS Lesní ovoce" class="default-img">
             <img src="/assets/img/products/voda.png" alt="CANS Lesní ovoce Hover" class="hover-img">
@@ -188,28 +198,28 @@
                 <h2 class="text-center">Kofeinová voda ve vašem životě</h2>
                 <p class="text-center subtitle">Inspirace pro každý den. Kamkoliv jdete, berte nás s sebou.</p>
                 <div class="lifestyle-grid mt-3">
-                    <div class="lifestyle-item">
-                        <img src="/assets/img/pexels-cottonbro-7885592.jpg" alt="Hydratace během cvičení" class="lifestyle-image">
-                        <div class="lifestyle-overlay">
-                            <h3>Během cvičení</h3>
-                            <p>Pro maximální výkon a rychlou regeneraci.</p>
-                        </div>
-                    </div>
-                    <div class="lifestyle-item">
-                        <img src="/assets/img/pexels-cottonbro-7885592.jpg" alt="Soustředění při studiu" class="lifestyle-image">
-                        <div class="lifestyle-overlay">
-                            <h3>Při učení a práci</h3>
-                            <p>Pro lepší soustředění a jasnou mysl.</p>
-                        </div>
-                    </div>
-                    <div class="lifestyle-item">
-                        <img src="/assets/img/pexels-cottonbro-7885592.jpg" alt="Na cestách a túrách" class="lifestyle-image">
-                        <div class="lifestyle-overlay">
-                            <h3>Na cestách</h3>
-                            <p>Osvěžení a energie pro všechna vaše dobrodružství.</p>
-                        </div>
+                <div class="lifestyle-item">
+                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&auto=format&fit=crop&q=60" alt="Hydratace během cvičení" class="lifestyle-image">
+                    <div class="lifestyle-overlay">
+                        <h3>Během cvičení</h3>
+                        <p>Pro maximální výkon a rychlou regeneraci.</p>
                     </div>
                 </div>
+                <div class="lifestyle-item">
+                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60" alt="Soustředění při studiu" class="lifestyle-image">
+                    <div class="lifestyle-overlay">
+                        <h3>Při učení a práci</h3>
+                        <p>Pro lepší soustředění a jasnou mysl.</p>
+                    </div>
+                </div>
+                <div class="lifestyle-item">
+                    <img src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=800&auto=format&fit=crop&q=60" alt="Na cestách a túrách" class="lifestyle-image">
+                    <div class="lifestyle-overlay">
+                        <h3>Na cestách</h3>
+                        <p>Osvěžení a energie pro všechna vaše dobrodružství.</p>
+                    </div>
+                </div>
+            </div>
             </div>
         </section>
 
@@ -468,11 +478,13 @@
         </section>
     </main>
     <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/dev-mode.js"></script>
     <script src="/assets/js/script.js"></script>
     <script src="/assets/js/scroll-snap.js"></script>
     <script src="/assets/js/cookie-consent.js"></script>
 </body>
 </html>
+
 
 
 
