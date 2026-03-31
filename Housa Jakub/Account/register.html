@@ -17,13 +17,13 @@
                 <span>DRIVE.</span>
             </a>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="/index.html" class="nav-link">DomĹŻ</a></li>
+                <li><a href="/index.html" class="nav-link">Domů</a></li>
                 <li><a href="/Products/index.html" class="nav-link">Produkty</a></li>
-                <li><a href="/AboutUs/index.html" class="nav-link">O nĂˇs</a></li>
+                <li><a href="/AboutUs/index.html" class="nav-link">O nás</a></li>
                 <li><a href="/index.html#section-newsletter" class="nav-link">Kontakt</a></li>
             </ul>
             <div class="nav-actions">
-                <a href="/Account/index.html" class="user-icon" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="MĹŻj ĂşÄŤet">
+                <a href="/Account/index.html" class="user-icon" style="color: #27445C; margin-right: 15px; font-size: 1.2rem;" title="Můj účet">
                     <i class="fas fa-user"></i>
                 </a>
                 <a href="/Products/index.html" class="btn nav-cta">Nakupovat</a>
@@ -31,13 +31,13 @@
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
                     <div class="mini-cart">
-                        <h3>VĂˇĹˇ koĹˇĂ­k</h3>
+                        <h3>Váš košík</h3>
                         <div class="mini-cart-items"></div>
                         <div class="mini-cart-total">
                             <span>Celkem:</span>
-                            <span id="miniCartTotal">0 KÄŤ</span>
+                            <span id="miniCartTotal">0 Kč</span>
                         </div>
-                        <a href="/Cart/cart.html" class="btn btn-block">Zobrazit koĹˇĂ­k</a>
+                        <a href="/Cart/cart.html" class="btn btn-block">Zobrazit košík</a>
                     </div>
                 </div>
             </div>
@@ -51,19 +51,19 @@
                     <div class="auth-icon" style="font-size: 2.5rem; color: #27445c; margin-bottom: 1rem;">
                         <i class="fas fa-user-plus"></i>
                     </div>
-                    <h2>VytvoĹ™it novĂ˝ ĂşÄŤet</h2>
-                    <p>ZĂ­skejte pĹ™Ă­stup k historii objednĂˇvek a rychlejĹˇĂ­mu nĂˇkupu</p>
+                    <h2>Vytvořit nový účet</h2>
+                    <p>Získejte přístup k historii objednávek a rychlejšímu nákupu</p>
                 </div>
                 <form id="registerForm">
                     <div class="form-group">
-                        <label class="form-label">JmĂ©no a pĹ™Ă­jmenĂ­</label>
+                        <label class="form-label">Jméno a příjmení</label>
                         <div style="position: relative;">
-                            <input type="text" name="name" class="form-input" placeholder="Jan NovĂˇk" required>
+                            <input type="text" name="name" class="form-input" placeholder="Jan Novák" required>
                             <i class="fas fa-user" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">EmailovĂˇ adresa</label>
+                        <label class="form-label">Emailová adresa</label>
                         <div style="position: relative;">
                             <input type="email" name="email" class="form-input" placeholder="vas@email.cz" required>
                             <i class="fas fa-envelope" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
@@ -72,22 +72,22 @@
                     <div class="form-group">
                         <label class="form-label">Heslo</label>
                         <div style="position: relative;">
-                            <input type="password" name="password" class="form-input" placeholder="MinimĂˇlnÄ› 6 znakĹŻ" required minlength="6">
+                            <input type="password" name="password" class="form-input" placeholder="Minimálně 6 znaků" required minlength="6">
                             <i class="fas fa-lock" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
                         </div>
                         <div style="font-size: 0.8rem; color: #888; margin-top: 5px; margin-left: 5px;">
-                            <i class="fas fa-info-circle"></i> Heslo musĂ­ mĂ­t alespoĹ 6 znakĹŻ
+                            <i class="fas fa-info-circle"></i> Heslo musí mít alespoň 6 znaků
                         </div>
                     </div>
                     <button type="submit" class="btn-auth">
-                        VytvoĹ™it ĂşÄŤet <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                        Vytvořit účet <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
                     </button>
                     <div id="registerError" class="form-error">
                         <i class="fas fa-exclamation-circle"></i> <span></span>
                     </div>
                 </form>
                 <div class="auth-footer">
-                    JiĹľ mĂˇte ĂşÄŤet? <a href="login.html">PĹ™ihlaste se</a>
+                    Již máte účet? <a href="login.html">Přihlaste se</a>
                 </div>
             </div>
         </div>
@@ -153,5 +153,6 @@
             }
         });
     </script>
+    <script src="/assets/js/dev-mode.js"></script>
 </body>
 </html>

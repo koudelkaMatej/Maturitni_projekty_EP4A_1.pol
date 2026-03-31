@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Deck | DRIVE.</title>
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        :root {
+            --brand: #27445C;
+            --accent: #A9ECFF;
+            --green: #2e8b57;
+            --light-green: #E2FBDE;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; }
+
+        /* Header */
+        .inv-header {
+            background: linear-gradient(135deg, var(--brand) 0%, #1a2d3e 100%);
+            color: white;
+            padding: 80px 60px 60px;
+            text-align: center;
+        }
+        .inv-header .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; color: var(--accent); margin-bottom: 8px; }
+        .inv-header .tagline { font-size: 1.3rem; opacity: 0.85; margin-bottom: 40px; }
+        .inv-header .meta { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+        .meta-item { text-align: center; }
+        .meta-item .value { font-size: 2rem; font-weight: 800; color: var(--accent); }
+        .meta-item .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+
+        /* Nav */
+        .inv-nav {
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 0 60px;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .inv-nav a {
+            padding: 16px 20px;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .inv-nav a:hover { color: var(--brand); border-bottom-color: var(--accent); }
+
+        /* Content */
+        .inv-content { max-width: 1100px; margin: 0 auto; padding: 60px 30px; }
+
+        .section { margin-bottom: 70px; }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title i { color: var(--accent); background: var(--brand); padding: 8px; border-radius: 8px; font-size: 1rem; }
+        .section-subtitle { color: #888; margin-bottom: 30px; font-size: 1rem; }
+
+        /* Cards */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+        }
+        .card-icon { font-size: 2rem; margin-bottom: 16px; }
+        .card h3 { font-size: 1.1rem; color: var(--brand); margin-bottom: 10px; }
+        .card p { font-size: 0.9rem; color: #666; line-height: 1.6; }
+
+        /* Stats */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+        .stat-card {
+            background: var(--brand);
+            color: white;
+            border-radius: 12px;
+            padding: 28px 20px;
+            text-align: center;
+        }
+        .stat-card .number { font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+        .stat-card .desc { font-size: 0.85rem; opacity: 0.8; margin-top: 6px; }
+
+        /* Feature list */
+        .feature-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+        .feature-list li {
+            background: white;
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent);
+        }
+        .feature-list li i { color: var(--green); width: 20px; }
+
+        /* Tech badges */
+        .badge-row { display: flex; flex-wrap: wrap; gap: 10px; }
+        .badge {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #dbeafe;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Roadmap */
+        .roadmap { display: flex; flex-direction: column; gap: 16px; }
+        .roadmap-item {
+            display: flex;
+            gap: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+            align-items: flex-start;
+        }
+        .roadmap-item .phase {
+            background: var(--brand);
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+        .roadmap-item h4 { color: var(--brand); margin-bottom: 6px; }
+        .roadmap-item p { font-size: 0.9rem; color: #666; }
+
+        /* Highlight box */
+        .highlight {
+            background: var(--light-green);
+            border-left: 5px solid var(--green);
+            border-radius: 0 10px 10px 0;
+            padding: 24px 28px;
+            margin-bottom: 30px;
+        }
+        .highlight strong { color: var(--green); }
+
+        /* Footer */
+        .inv-footer {
+            background: var(--brand);
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        .inv-footer .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<header class="inv-header">
+    <div class="logo">DRIVE.</div>
+    <div class="tagline">E-shopová platforma pro prémiové energetické nápoje</div>
+    <div class="meta">
+        <div class="meta-item"><div class="value">11</div><div class="label">DB tabulek</div></div>
+        <div class="meta-item"><div class="value">30+</div><div class="label">API endpointů</div></div>
+        <div class="meta-item"><div class="value">100%</div><div class="label">Offline provoz</div></div>
+        <div class="meta-item"><div class="value">Node.js</div><div class="label">Runtime</div></div>
+    </div>
+</header>
+
+<nav class="inv-nav">
+    <a href="#vision"><i class="fas fa-eye"></i> Vize</a>
+    <a href="#problem"><i class="fas fa-exclamation-circle"></i> Problém & Řešení</a>
+    <a href="#product"><i class="fas fa-box"></i> Produkt</a>
+    <a href="#tech"><i class="fas fa-code"></i> Technologie</a>
+    <a href="#traction"><i class="fas fa-chart-line"></i> Metriky</a>
+    <a href="#roadmap"><i class="fas fa-road"></i> Roadmapa</a>
+</nav>
+
+<main class="inv-content">
+
+    <!-- VIZE -->
+    <section id="vision" class="section">
+        <h2 class="section-title"><i class="fas fa-eye"></i> Vize projektu</h2>
+        <p class="section-subtitle">Proč DRIVE. existuje a kam míří</p>
+        <div class="highlight">
+            <strong>DRIVE.</strong> je moderní e-shopová platforma postavená na principu, že prémiové zboží si zaslouží prémiový zážitek z nákupu. Projekt demonstruje, jak lze vystavět kompletní, produkčně připravený e-shop bez závislosti na cloudových službách třetích stran.
+        </div>
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-icon">🎯</div>
+                <h3>Mise</h3>
+                <p>Poskytnout zákazníkům plynulý, rychlý a bezpečný nákupní zážitek pro energetické nápoje DRIVE.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔒</div>
+                <h3>Bezpečnost</h3>
+                <p>Bcrypt hashování, signed cookies, CSRF ochrana a rate limiting — bezpečnost není doplněk, ale základ.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>Výkon</h3>
+                <p>Dual-mode košík (localStorage + server), Gzip komprese, WAL mode SQLite — rychlost na každé úrovni.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLÉM & ŘEŠENÍ -->
+    <section id="problem" class="section">
+        <h2 class="section-title"><i class="fas fa-exclamation-circle"></i> Problém a řešení</h2>
+        <p class="section-subtitle">Co řeší DRIVE. lépe než tradiční přístupy</p>
+        <div class="card-grid">
+            <div class="card" style="border-top: 4px solid #ff6b6b;">
+                <h3>❌ Problém</h3>
+                <ul style="list-style: none; padding: 0; margin-top: 12px;">
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5;">Ztráta košíku při odhlášení</li>
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5;">Složitá správa předplatného</li>
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5;">Pomalé stránky s mnoha závislostmi</li>
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem;">Žádná offline funkčnost</li>
+                </ul>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--green);">
+                <h3>✅ Řešení DRIVE.</h3>
+                <ul style="list-style: none; padding: 0; margin-top: 12px;">
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5;">Košík synchronizován při přihlášení</li>
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5;">Předplatné s automatickým billing cyklem</li>
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f5f5f5;">Vanilla JS bez frameworků</li>
+                    <li style="padding: 8px 0; color: #666; font-size: 0.9rem;">100% offline provoz po instalaci</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUKT -->
+    <section id="product" class="section">
+        <h2 class="section-title"><i class="fas fa-box"></i> Funkce produktu</h2>
+        <p class="section-subtitle">Co umí DRIVE. od prvního dne</p>
+        <ul class="feature-list">
+            <li><i class="fas fa-shopping-cart"></i> Košík s dual-mode úložištěm (guest + přihlášený)</li>
+            <li><i class="fas fa-user-check"></i> Registrace, přihlášení, reset hesla</li>
+            <li><i class="fas fa-file-invoice"></i> Automatická PDF faktura s každou objednávkou</li>
+            <li><i class="fas fa-envelope"></i> E-mailové potvrzení objednávky s fakturou</li>
+            <li><i class="fas fa-tags"></i> Slevové kódy se správou přes admin panel</li>
+            <li><i class="fas fa-sync"></i> Systém předplatného (subscription)</li>
+            <li><i class="fas fa-newspaper"></i> Newsletter s automatickým kódem DRIVE10</li>
+            <li><i class="fas fa-shield-alt"></i> Admin panel chráněný signed cookie</li>
+            <li><i class="fas fa-cookie-bite"></i> GDPR cookie consent banner</li>
+            <li><i class="fas fa-images"></i> Detail produktu s více obrázky a příchutěmi</li>
+            <li><i class="fas fa-mobile-alt"></i> Responzivní design pro mobil i desktop</li>
+            <li><i class="fas fa-database"></i> SQLite databáze, žádná cloud závislost</li>
+        </ul>
+    </section>
+
+    <!-- TECHNOLOGIE -->
+    <section id="tech" class="section">
+        <h2 class="section-title"><i class="fas fa-code"></i> Technologický stack</h2>
+        <p class="section-subtitle">Prověřené technologie, žádný over-engineering</p>
+        <div class="stats-row" style="margin-bottom: 30px;">
+            <div class="stat-card"><div class="number">0</div><div class="desc">externích cloudových závislostí</div></div>
+            <div class="stat-card"><div class="number">~2 MB</div><div class="desc">velikost serveru bez node_modules</div></div>
+            <div class="stat-card"><div class="number">WAL</div><div class="desc">SQLite journal mode pro výkon</div></div>
+            <div class="stat-card"><div class="number">&lt;100ms</div><div class="desc">průměrná odpověď API</div></div>
+        </div>
+        <div class="badge-row">
+            <span class="badge">Node.js 22 LTS</span>
+            <span class="badge">Express 5</span>
+            <span class="badge">SQLite + better-sqlite3</span>
+            <span class="badge">bcryptjs</span>
+            <span class="badge">PDFKit</span>
+            <span class="badge">Nodemailer</span>
+            <span class="badge">Vanilla JS (ES2022)</span>
+            <span class="badge">CSS Custom Properties</span>
+            <span class="badge">Font Awesome 6</span>
+            <span class="badge">Morgan (logging)</span>
+            <span class="badge">Dotenv</span>
+            <span class="badge">UUID v4</span>
+        </div>
+    </section>
+
+    <!-- METRIKY -->
+    <section id="traction" class="section">
+        <h2 class="section-title"><i class="fas fa-chart-line"></i> Technické metriky</h2>
+        <p class="section-subtitle">Čísla, která vypovídají o zralosti projektu</p>
+        <div class="stats-row">
+            <div class="stat-card"><div class="number">11</div><div class="desc">databázových tabulek</div></div>
+            <div class="stat-card"><div class="number">30+</div><div class="desc">REST API endpointů</div></div>
+            <div class="stat-card"><div class="number">18</div><div class="desc">HTML stránek</div></div>
+            <div class="stat-card"><div class="number">1300+</div><div class="desc">řádků server.js</div></div>
+            <div class="stat-card"><div class="number">4</div><div class="desc">kroky checkoutu</div></div>
+            <div class="stat-card"><div class="number">3</div><div class="desc">platební metody</div></div>
+        </div>
+    </section>
+
+    <!-- ROADMAPA -->
+    <section id="roadmap" class="section">
+        <h2 class="section-title"><i class="fas fa-road"></i> Roadmapa</h2>
+        <p class="section-subtitle">Plán dalšího rozvoje projektu</p>
+        <div class="roadmap">
+            <div class="roadmap-item">
+                <span class="phase">DONE</span>
+                <div>
+                    <h4>MVP — Funkční e-shop</h4>
+                    <p>Kompletní e-shop s košíkem, checkoutem, uživatelskými účty, PDF fakturami a admin panelem.</p>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <span class="phase" style="background:#d4a017;color:#fff;">Q3 2025</span>
+                <div>
+                    <h4>Platební brána</h4>
+                    <p>Integrace reálné platební brány (Stripe / GoPay) místo simulace karet.</p>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <span class="phase" style="background:#666;color:#fff;">Q4 2025</span>
+                <div>
+                    <h4>Analytika & Reporting</h4>
+                    <p>Dashboard s přehledy prodejů, konverzním poměrem a aktivními předplatiteli.</p>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <span class="phase" style="background:#888;color:#fff;">2026</span>
+                <div>
+                    <h4>Multi-tenancy & SaaS</h4>
+                    <p>Platforma pro více značek — jeden backend, více e-shopů s oddělenými daty.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="inv-footer">
+    <p style="opacity:0.7; font-size:0.9rem;">DRIVE. E-shop — Maturitní projekt 2025/2026 | Jakub Housa, SPŠ a VOŠ Kladno</p>
+    <a href="/docs/index.html" class="back-link"><i class="fas fa-arrow-left"></i> Zpět do dev konzole</a>
+</footer>
+
+<script src="/assets/js/dev-mode.js"></script>
+</body>
+</html>

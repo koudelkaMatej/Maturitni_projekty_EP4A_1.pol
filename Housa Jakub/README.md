@@ -1,4 +1,3 @@
-﻿# DRIVE. | E-shop s čistou energií (Maturitní projekt)
 
 Tento repozitář obsahuje zdrojové kódy pro maturitní projekt. Jedná se o plně funkční e-shop s kofeinovou vodou "DRIVE.", který je postaven na moderních webových technologiích. Aplikace běží v prostředí Node.js a k ukládání dat využívá lokální databázi SQLite.
 
@@ -48,6 +47,19 @@ Pro přihlášení do předpřipraveného účtu pro hodnocení můžete využí
 - **Heslo:** `ucitel`
 
 *(Pozn.: Údaje byly vytvořeny předem pro usnadnění procházení aplikace a účet má již nasimulovanou fiktivní historii nákupů.)*
+
+## Vývojářský režim (Dev Mode)
+
+Dev mód zpřístupňuje vývojářskou dokumentaci, správu slevových kódů a hromadný newsletter.
+
+**Jak vstoupit:**
+
+1. Otevřete jakoukoliv stránku e-shopu
+2. 5× rychle stiskněte klávesu `d` (do 2 sekund)
+3. Zadejte heslo: `kO2N37Ac`
+4. Po přihlášení se v navigaci objeví odkaz „Vývoj" a v pravém dolním rohu plovoucí badge DEV
+
+Alternativně: přistupte přímo na `/dev-enable`
 
 ## Databáze
 Aplikace k chodu používá souborovou databázi SQLite. Data se ukládají lokálně (primárně do souboru `site.db` v kořeni projektu). Při **prvním spuštění** projektu se databáze automaticky inicializuje, vytvoří strukturu tabulek a sama se naplní výchozími testovacími daty (kategorie, produkty aj.). Z hlediska chodu databáze tedy není nutný žádný manuální zásah.

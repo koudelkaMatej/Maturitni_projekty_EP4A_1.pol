@@ -2,17 +2,18 @@
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
+const logger = require('./src/logger');
 
 process.on('exit', (code) => {
-    console.log(`Process exiting with code: ${code}`);
+    logger.info('process', 'Exiting', { code });
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
+    logger.error('process', 'Uncaught exception', { message: err.message, stack: err.stack });
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason, _promise) => {
+    logger.error('process', 'Unhandled rejection', { reason: String(reason) });
 });
 
 const compression = require('compression');
@@ -30,7 +31,7 @@ const ROOT = __dirname; // Serve from workspace root (where HTML/CSS/JS live)
 
 // Basic middleware
 app.use(compression());
-app.use(morgan('tiny'));
+app.use(morgan('combined', { stream: logger.morganStream }));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'secure-secret-key-123'));
 app.use(express.json());
 
@@ -68,9 +69,9 @@ const requireAdmin = (req, res, next) => {
 // Ensure DB has basic seed
 try {
   const res = seedProducts();
-  if (res?.seeded) console.log(`Seeded ${res.count} products`);
+  if (res?.seeded) logger.info('seed', `Seeded ${res.count} products`);
 } catch (e) {
-  console.error('Seeding failed:', e);
+  logger.error('seed', 'Seeding failed', { message: e.message });
 }
 
 // Email configuration
@@ -102,7 +103,7 @@ async function generateInvoicePDF(orderId, totalCents, items, customerDetails) {
             doc.font(fontBold).fontSize(20).text('DRIVE.', { align: 'left' });
             doc.font(fontRegular);
         } catch (e) {
-            console.warn('Custom fonts not found, using standard fonts');
+            logger.warn('pdf', 'Custom fonts not found, using standard fonts');
             doc.font('Helvetica-Bold').fontSize(20).text('DRIVE.', { align: 'left' });
             doc.font('Helvetica');
         }
@@ -163,7 +164,7 @@ async function sendConfirmationEmail(email, orderId, totalCents, items, customer
     try {
         pdfBuffer = await generateInvoicePDF(orderId, totalCents, items, customerDetails);
     } catch (e) {
-        console.error('Failed to generate PDF:', e);
+        logger.error('pdf', 'Failed to generate PDF', { message: e.message });
     }
 
     const itemsListHtml = items.map(i => `
@@ -273,13 +274,13 @@ async function sendConfirmationEmail(email, orderId, totalCents, items, customer
     try {
         if (process.env.SMTP_HOST) {
             await transporter.sendMail(mailOptions);
-            console.log(`[EMAIL SENT] To: ${email}, Subject: ${mailOptions.subject}`);
+            logger.info('email', 'Email sent', { to: email, subject: mailOptions.subject });
         } else {
-            console.log(`[MOCK EMAIL] To: ${email}, Subject: ${mailOptions.subject}`);
+            logger.info('email', 'Mock email (no SMTP_HOST)', { to: email, subject: mailOptions.subject });
             // console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info)); // If we were actually using ethereal account creation
         }
     } catch (error) {
-        console.error('Error sending email:', error);
+        logger.error('email', 'Error sending email', { to: email, message: error.message });
     }
 }
 
@@ -499,7 +500,7 @@ app.post('/api/user/cart/sync', (req, res) => {
     const payload = getCartItems(cart.id);
     res.json({ ok: true, cart_id: cart.id, user_id: user.id, ...payload });
   } catch (e) {
-    console.error('Cart sync failed:', e);
+    logger.error('cart', 'Cart sync failed', { message: e.message });
     res.status(500).json({ error: 'Failed to sync cart' });
   }
 });
@@ -545,16 +546,16 @@ app.delete('/api/user/cart', (req, res) => {
 });
 
 app.post('/api/validate-discount', (req, res) => {
-  console.log('[Validate Discount] Request body:', req.body);
+  logger.debug('discount', 'Validate request', req.body);
   try {
     const { code } = req.body || {};
     if (!code) {
-        console.log('[Validate Discount] No code provided');
+        logger.warn('discount', 'No code provided');
         return res.status(400).json({ error: 'Code required' });
     }
-    
+
     const discount = db.prepare('SELECT * FROM discounts WHERE code = ? AND active = 1').get(code.toUpperCase());
-    console.log('[Validate Discount] Found:', discount);
+    logger.debug('discount', 'Lookup result', { code, found: !!discount });
     
     if (discount) {
       res.json({ valid: true, code: discount.code, discount_percent: discount.discount_percent });
@@ -562,7 +563,7 @@ app.post('/api/validate-discount', (req, res) => {
       res.json({ valid: false, error: 'Invalid or inactive code' });
     }
   } catch (e) {
-    console.error('[Validate Discount] Error:', e);
+    logger.error('discount', 'Validate error', { message: e.message });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -572,10 +573,10 @@ app.post('/api/checkout', (req, res) => {
   const cart = getOrCreateCartSession(req, res);
   const { email, phone, firstName, lastName, address, city, zipCode, paymentMethod, items, discountCode } = req.body || {};
 
-  console.log('[Checkout] Received payload:', { email, firstName, lastName, itemCount: items?.length });
+  logger.info('checkout', 'Received payload', { email, firstName, lastName, itemCount: items?.length });
 
   if (!email || !firstName || !lastName || !address || !city || !zipCode) {
-    console.warn('[Checkout] Missing required fields:', { email, firstName, lastName, address, city, zipCode });
+    logger.warn('checkout', 'Missing required fields', { email, firstName, lastName, address, city, zipCode });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -592,7 +593,7 @@ app.post('/api/checkout', (req, res) => {
         return db.prepare('SELECT id, name, price_cents, stock FROM products WHERE slug = ?').get(String(idOrSlug));
       }
     } catch (e) {
-      console.error('[Checkout] Error fetching product:', idOrSlug, e);
+      logger.error('checkout', 'Error fetching product', { idOrSlug, message: e.message });
       return null;
     }
   };
@@ -604,14 +605,14 @@ app.post('/api/checkout', (req, res) => {
       const product = getProductInfo(id);
       if (product) results.push(product);
     }
-    console.log('[Checkout] Products found:', JSON.stringify(results));
+    logger.debug('checkout', 'Products found', results);
     return results;
   };
 
   if (items && Array.isArray(items) && items.length > 0) {
     // Validate items from request body against database prices - but NOT stock yet
     // Stock check will happen inside transaction to prevent race conditions
-    console.log('[Checkout] Processing items:', JSON.stringify(items));
+    logger.debug('checkout', 'Processing items', items);
     
     for (const item of items) {
       // Lookup each product individually by ID or slug - get price
@@ -667,12 +668,7 @@ app.post('/api/checkout', (req, res) => {
   const user = getCurrentUser(req);
   let userId = user ? user.id : (cart.user_id || null);
 
-  console.log('[Checkout Debug] Auth State:', { 
-      sessionUser: user, 
-      cartUserId: cart.user_id, 
-      resolvedUserId: userId,
-      email: email
-  });
+  logger.debug('checkout', 'Auth state', { userId, cartUserId: cart.user_id, email });
 
 
   // If no user is logged in, but we have a strong email match in the database, we could theoretically link it,
@@ -685,18 +681,18 @@ app.post('/api/checkout', (req, res) => {
           // Try to look up user by email
           const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
           if (existingUser) {
-              console.log('[Checkout] Found existing user by email, linking order to user ID:', existingUser.id);
+              logger.info('checkout', 'Found existing user by email, linking order', { userId: existingUser.id });
               userId = existingUser.id;
           } else {
              // CRITICAL: Block subscription without account
-             console.error('[Checkout] Cannot create subscription for guest without generic account.');
+             logger.error('checkout', 'Cannot create subscription - no user account', { email });
              return res.status(400).json({ 
                  error: 'Pro zakoupení předplatného je nutné mít vytvořený účet. Prosím, zaregistrujte se se stejným emailem nebo se přihlaste.',
                  code: 'AUTH_REQUIRED'
              });
           }
       } else {
-          console.log('[Checkout] User ID validated for subscription:', userId);
+          logger.debug('checkout', 'User ID validated for subscription', { userId });
       }
   }
 
@@ -712,7 +708,7 @@ app.post('/api/checkout', (req, res) => {
               WHERE id = ?
           `).run(firstName, lastName, phone, address, city, zipCode, userId);
       } catch (e) {
-          console.error('Failed to update user profile during checkout:', e);
+          logger.error('checkout', 'Failed to update user profile', { message: e.message });
       }
       */
   }
@@ -759,10 +755,10 @@ app.post('/api/checkout', (req, res) => {
       updateStock.run(item.quantity, item.product_id);
 
       if (item.isSubscription && userId) {
-        console.log(`[Checkout] CREATING SUBSCRIPTION for user ${userId}, product ${item.product_id}`);
+        logger.info('checkout', 'Creating subscription', { userId, productId: item.product_id });
         insertSub.run(userId, item.product_id);
       } else if (item.isSubscription && !userId) {
-        console.warn(`[Checkout] CANNOT CREATE SUBSCRIPTION - no userId! Item:`, item);
+        logger.warn('checkout', 'Cannot create subscription - no userId', { item });
       }
     }
 
@@ -784,7 +780,7 @@ app.post('/api/checkout', (req, res) => {
 
     res.json({ ok: true, orderId, message: 'Order created successfully' });
   } catch (error) {
-    console.error('Checkout failed:', error);
+    logger.error('checkout', 'Checkout failed', { message: error.message });
     
     // Handle stock errors from transaction
     if (error.message && error.message.startsWith('STOCK_ERROR:')) {
@@ -828,7 +824,7 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(201).json({ id: info.lastInsertRowid, email, firstName, lastName });
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) return res.status(409).json({ error: 'Email already registered' });
-    console.error(e);
+    logger.error('auth', 'Registration failed', { message: e.message });
     res.status(500).json({ error: 'Registration failed: ' + e.message });
   }
 });
@@ -884,7 +880,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     db.prepare('INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)').run(email.toLowerCase(), token, expiresAt);
 
     const resetLink = `${req.protocol}://${req.get('host')}/Account/reset-password.html?token=${token}`;
-    console.log('DEV RESET LINK:', resetLink);
+    logger.info('auth', 'Password reset link generated', { resetLink });
 
     const mailOptions = {
         from: '"CANS.cz" <noreply@cans.cz>',
@@ -902,9 +898,9 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Password reset email sent to ${email}`);
+        logger.info('auth', 'Password reset email sent', { email });
     } catch (error) {
-        console.error('Error sending reset email:', error);
+        logger.error('auth', 'Error sending reset email', { email, message: error.message });
         return res.status(500).json({ error: 'Failed to send email' });
     }
 
@@ -934,7 +930,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
         db.prepare('DELETE FROM password_resets WHERE email = ?').run(resetRequest.email);
         res.json({ message: 'Heslo bylo úspěšně změněno.' });
     } catch (e) {
-        console.error(e);
+        logger.error('auth', 'Password update failed', { message: e.message });
         res.status(500).json({ error: 'Password update failed' });
     }
 });
@@ -991,7 +987,7 @@ app.put('/api/user/profile', (req, res) => {
         });
 
     } catch (e) {
-        console.error('Profile update failed:', e);
+        logger.error('user', 'Profile update failed', { message: e.message });
         res.status(500).json({ error: 'Failed to update profile' });
     }
 });
@@ -1037,7 +1033,7 @@ app.delete('/api/user/delete', (req, res) => {
         res.clearCookie('auth_token');
         res.json({ success: true });
     } catch (e) {
-        console.error('Delete account failed:', e);
+        logger.error('user', 'Delete account failed', { message: e.message });
         // Ensure FKs are back on if something crashed outside the try/finally block (unlikely but safe)
         try { db.pragma('foreign_keys = ON'); } catch(err) {} 
         res.status(500).json({ error: 'Database error: ' + e.message });
@@ -1157,7 +1153,7 @@ app.post('/api/newsletter', async (req, res) => {
         if (String(e.message).includes('UNIQUE')) {
             return res.status(409).json({ error: 'Email already subscribed' });
         }
-        console.error('Newsletter error:', e);
+        logger.error('newsletter', 'Subscription failed', { message: e.message });
         res.status(500).json({ error: 'Subscription failed' });
     }
 });
@@ -1185,13 +1181,13 @@ app.post('/api/admin/send-newsletter', async (req, res) => {
                 });
                 sentCount++;
             } catch (err) {
-                console.error(`Failed to send to ${sub.email}:`, err);
+                logger.error('newsletter', 'Failed to send to subscriber', { email: sub.email, message: err.message });
             }
         }
 
         res.json({ success: true, sent: sentCount, total: subscribers.length });
     } catch (e) {
-        console.error('Bulk send error:', e);
+        logger.error('newsletter', 'Bulk send failed', { message: e.message });
         res.status(500).json({ error: 'Failed to send newsletter' });
     }
 });
@@ -1298,7 +1294,7 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  logger.info('server', `Listening on http://localhost:${PORT}`);
 });
 
 

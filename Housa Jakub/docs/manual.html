@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uživatelský manuál | DRIVE.</title>
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        :root { --brand: #27445C; --accent: #A9ECFF; --code-bg: #1e1e2e; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; display: flex; }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: white;
+            border-right: 1px solid #eee;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+        }
+        .sidebar-top { padding: 24px 20px; border-bottom: 1px solid #f0f0f0; }
+        .sidebar-logo { font-size: 1.3rem; font-weight: 900; color: var(--brand); }
+        .sidebar-tag { font-size: 0.75rem; color: #888; margin-top: 4px; }
+        .sidebar-nav { padding: 16px 10px; flex: 1; overflow-y: auto; }
+        .nav-section { font-size: 0.7rem; text-transform: uppercase; color: #aaa; letter-spacing: 1px; padding: 12px 10px 6px; font-weight: 700; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px; border-radius: 7px;
+            text-decoration: none; color: #555;
+            font-size: 0.88rem; font-weight: 500;
+            margin-bottom: 2px; transition: all 0.15s;
+        }
+        .nav-item:hover { background: #f0f4f8; color: var(--brand); }
+        .nav-item i { width: 18px; font-size: 0.85rem; color: #aaa; }
+        .sidebar-footer { padding: 16px; border-top: 1px solid #f0f0f0; }
+
+        .main { margin-left: 260px; flex: 1; padding: 40px 50px; max-width: 1100px; }
+
+        h1 { font-size: 2rem; color: var(--brand); margin-bottom: 8px; }
+        .subtitle { color: #888; margin-bottom: 40px; }
+
+        section { margin-bottom: 60px; }
+        h2 { font-size: 1.4rem; color: var(--brand); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        h2 i { background: var(--brand); color: var(--accent); padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; }
+
+        .card { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; margin-bottom: 16px; }
+        .card h3 { color: var(--brand); margin-bottom: 10px; font-size: 1rem; }
+        .card p, .card li { font-size: 0.9rem; color: #555; line-height: 1.7; }
+        .card ul, .card ol { padding-left: 20px; }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #cdd6f4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.82rem;
+            border-radius: 8px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+        .code-block .comment { color: #6c7086; }
+        .code-block .keyword { color: #cba6f7; }
+        .code-block .string { color: #a6e3a1; }
+        .code-block .num { color: #fab387; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th { background: var(--brand); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; }
+        td { padding: 9px 14px; border-bottom: 1px solid #f0f0f0; color: #444; }
+        tr:hover td { background: #f8f9fc; }
+        code { background: #f0f4f8; color: var(--brand); padding: 2px 7px; border-radius: 4px; font-size: 0.85em; font-family: 'Consolas', monospace; }
+
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+        .badge-blue { background: #e3f0ff; color: #1a6fcc; }
+        .badge-green { background: #e6f9ef; color: #1a8c4e; }
+        .badge-orange { background: #fff3e0; color: #c26a00; }
+        .badge-red { background: #fdecea; color: #c0392b; }
+
+        .step-list { list-style: none; padding: 0; counter-reset: steps; }
+        .step-list li { counter-increment: steps; display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+        .step-list li::before {
+            content: counter(steps);
+            min-width: 32px; height: 32px;
+            background: var(--brand); color: var(--accent);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+        }
+        .step-list li div { font-size: 0.9rem; color: #555; padding-top: 5px; line-height: 1.6; }
+        .step-list li div strong { color: var(--brand); }
+
+        .info-box { background: #eaf4ff; border-left: 4px solid #5b9bd5; border-radius: 6px; padding: 14px 18px; margin: 12px 0; font-size: 0.88rem; color: #1e3a5f; }
+        .warn-box { background: #fff8e6; border-left: 4px solid #f0a500; border-radius: 6px; padding: 14px 18px; margin: 12px 0; font-size: 0.88rem; color: #6b4c00; }
+
+        .env-table td:first-child code { font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-logo">DRIVE.</div>
+        <div class="sidebar-tag">Uživatelský manuál</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Přehled</div>
+        <a href="#overview" class="nav-item"><i class="fas fa-bolt"></i> O projektu</a>
+        <a href="#tech" class="nav-item"><i class="fas fa-layer-group"></i> Technologie</a>
+
+        <div class="nav-section">Provoz</div>
+        <a href="#install" class="nav-item"><i class="fas fa-terminal"></i> Instalace &amp; spuštění</a>
+        <a href="#database" class="nav-item"><i class="fas fa-database"></i> Databáze</a>
+        <a href="#api" class="nav-item"><i class="fas fa-plug"></i> API endpointy</a>
+
+        <div class="nav-section">Funkce</div>
+        <a href="#cart" class="nav-item"><i class="fas fa-shopping-cart"></i> Košík</a>
+        <a href="#checkout" class="nav-item"><i class="fas fa-credit-card"></i> Checkout</a>
+        <a href="#auth" class="nav-item"><i class="fas fa-user-lock"></i> Autentizace</a>
+        <a href="#emails" class="nav-item"><i class="fas fa-envelope"></i> E-maily &amp; PDF</a>
+        <a href="#newsletter" class="nav-item"><i class="fas fa-bullhorn"></i> Newsletter &amp; slevy</a>
+
+        <div class="nav-section">Správa</div>
+        <a href="#products" class="nav-item"><i class="fas fa-box"></i> Produkty</a>
+        <a href="#devmode" class="nav-item"><i class="fas fa-code"></i> Admin / Dev mód</a>
+        <a href="#css" class="nav-item"><i class="fas fa-palette"></i> CSS &amp; vzhled</a>
+
+        <div class="nav-section">Nasazení</div>
+        <a href="#deploy" class="nav-item"><i class="fas fa-rocket"></i> Deployment</a>
+        <a href="#files" class="nav-item"><i class="fas fa-folder-tree"></i> Struktura souborů</a>
+
+        <div class="nav-section">Prezentace</div>
+        <a href="investor.html" class="nav-item"><i class="fas fa-chart-line"></i> Pro investora</a>
+        <a href="collaborator.html" class="nav-item"><i class="fas fa-code-branch"></i> Pro spolupracovníka</a>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> Dev Home</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="/" style="font-size:0.8rem; color:#888; text-decoration:none;"><i class="fas fa-store"></i> Zpět na e-shop</a>
+    </div>
+</aside>
+
+<main class="main">
+    <h1>Uživatelský manuál</h1>
+    <p class="subtitle">Kompletní průvodce projektem DRIVE. — od instalace po deployment</p>
+
+    <!-- ── PŘEHLED ─────────────────────────────────────────────── -->
+    <section id="overview">
+        <h2><i class="fas fa-bolt"></i> 1. Přehled projektu</h2>
+        <div class="card">
+            <p><strong>DRIVE.</strong> je e-shop pro energetické nápoje postavený jako <strong>Multi-Page Application (MPA)</strong> s vanilla JavaScriptem (bez frameworku). Server běží na <strong>Node.js + Express 5</strong>, data jsou uložena v <strong>SQLite</strong> databázi.</p>
+        </div>
+        <div class="grid-3">
+            <div class="card">
+                <h3><i class="fas fa-store"></i> E-shop funkce</h3>
+                <ul>
+                    <li>Katalog produktů z databáze</li>
+                    <li>Detail s přepínáním příchutí</li>
+                    <li>4-krokový checkout</li>
+                    <li>Slevové kódy &amp; PDF faktura</li>
+                    <li>Uživatelský účet + předplatné</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-user"></i> Uživatelé</h3>
+                <ul>
+                    <li>Registrace / přihlášení</li>
+                    <li>Reset hesla e-mailem</li>
+                    <li>Historie objednávek</li>
+                    <li>Správa předplatného</li>
+                    <li>GDPR smazání účtu</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-cogs"></i> Backend</h3>
+                <ul>
+                    <li>Newsletter s kódem DRIVE10</li>
+                    <li>Admin rozhraní (dev mód)</li>
+                    <li>GDPR cookie consent</li>
+                    <li>Responzivní design</li>
+                    <li>Vlastní font TelkaTRIAL</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── TECHNOLOGIE ─────────────────────────────────────────── -->
+    <section id="tech">
+        <h2><i class="fas fa-layer-group"></i> 2. Architektura a technologie</h2>
+        <div class="card">
+            <h3>Backend závislosti</h3>
+            <table>
+                <thead><tr><th>Balíček</th><th>Verze</th><th>Účel</th></tr></thead>
+                <tbody>
+                    <tr><td><code>express</code></td><td>5.1.0</td><td>Webový framework</td></tr>
+                    <tr><td><code>better-sqlite3</code></td><td>12.4.1</td><td>SQLite databáze (synchronní)</td></tr>
+                    <tr><td><code>bcryptjs</code></td><td>3.0.2</td><td>Hashování hesel (10 rounds)</td></tr>
+                    <tr><td><code>nodemailer</code></td><td>7.0.11</td><td>Odesílání e-mailů</td></tr>
+                    <tr><td><code>pdfkit</code></td><td>0.17.2</td><td>Generování PDF faktur</td></tr>
+                    <tr><td><code>uuid</code></td><td>13.0.0</td><td>Generování UUID tokenů</td></tr>
+                    <tr><td><code>morgan</code></td><td>1.10.1</td><td>HTTP přístupové logy</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Klíčové vzory</h3>
+            <div class="grid-2">
+                <div>
+                    <p><strong>Ceny v haléřích</strong> — <code>price_cents</code> v databázi, dělení 100 na frontendu</p>
+                    <p style="margin-top:8px;"><strong>Měna</strong> — CZK, formátování přes <code>Intl.NumberFormat('cs-CZ')</code></p>
+                </div>
+                <div>
+                    <p><strong>Session</strong> — cookie-based, httpOnly, signed, 30denní platnost</p>
+                    <p style="margin-top:8px;"><strong>Architektura</strong> — MPA, vanilla JS, žádné fronted frameworky</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── INSTALACE ───────────────────────────────────────────── -->
+    <section id="install">
+        <h2><i class="fas fa-terminal"></i> 3. Instalace a spuštění</h2>
+        <div class="card">
+            <h3>Postup</h3>
+            <div class="code-block"><span class="comment"># 1. Naklonovat repozitář</span>
+git clone &lt;repo-url&gt;
+cd "Housa Jakub"
+
+<span class="comment"># 2. Nainstalovat závislosti</span>
+npm install
+
+<span class="comment"># 3. Spustit server</span>
+node server.js
+<span class="comment"># nebo:</span>
+npm start
+
+<span class="comment"># 4. Otevřít v prohlížeči</span>
+<span class="comment"># http://localhost:3000</span></div>
+            <div class="info-box">Při prvním spuštění se automaticky vytvoří složka <code>data/</code>, soubor <code>data/site.db</code>, všechny tabulky, provedou migrace a zaseedují produkty včetně slevového kódu <strong>DRIVE10</strong>.</div>
+        </div>
+        <div class="card">
+            <h3>Proměnné prostředí — <code>.env</code></h3>
+            <div class="code-block">PORT=3000
+COOKIE_SECRET=secure-secret-key-123
+SMTP_HOST=smtp.ethereal.email
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=user@example.com
+SMTP_PASS=password</div>
+            <table class="env-table" style="margin-top:12px;">
+                <thead><tr><th>Proměnná</th><th>Výchozí</th><th>Popis</th></tr></thead>
+                <tbody>
+                    <tr><td><code>PORT</code></td><td>3000</td><td>Port serveru</td></tr>
+                    <tr><td><code>COOKIE_SECRET</code></td><td><em>viz .env</em></td><td>Klíč pro podepisování cookies</td></tr>
+                    <tr><td><code>SMTP_HOST</code></td><td>smtp.ethereal.email</td><td>SMTP server — pokud chybí, e-maily se logují</td></tr>
+                    <tr><td><code>SMTP_PORT</code></td><td>587</td><td>SMTP port (465 pro TLS)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ── DATABÁZE ────────────────────────────────────────────── -->
+    <section id="database">
+        <h2><i class="fas fa-database"></i> 4. Databáze</h2>
+        <div class="card">
+            <p>Engine: <strong>SQLite + WAL mód</strong> &nbsp;|&nbsp; Soubor: <code>data/site.db</code> &nbsp;|&nbsp; Kód: <code>src/db.js</code></p>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Tabulka <code>products</code></h3>
+                <table>
+                    <thead><tr><th>Sloupec</th><th>Typ</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>id</code></td><td>INTEGER PK</td></tr>
+                        <tr><td><code>slug</code></td><td>TEXT UNIQUE</td></tr>
+                        <tr><td><code>name</code></td><td>TEXT NOT NULL</td></tr>
+                        <tr><td><code>price_cents</code></td><td>INTEGER (haléře)</td></tr>
+                        <tr><td><code>image</code>, <code>hover_image</code></td><td>TEXT</td></tr>
+                        <tr><td><code>features</code></td><td>TEXT (JSON pole)</td></tr>
+                        <tr><td><code>stock</code></td><td>INTEGER DEF 100</td></tr>
+                        <tr><td><code>color</code></td><td>TEXT (mango/citrus/berry)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <h3>Tabulka <code>orders</code></h3>
+                <table>
+                    <thead><tr><th>Sloupec</th><th>Typ</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>id</code></td><td>INTEGER PK</td></tr>
+                        <tr><td><code>user_id</code></td><td>FK→users (nullable)</td></tr>
+                        <tr><td><code>customer_email/name</code></td><td>TEXT NOT NULL</td></tr>
+                        <tr><td><code>customer_address/city/zip</code></td><td>TEXT</td></tr>
+                        <tr><td><code>payment_method</code></td><td>TEXT DEF 'card'</td></tr>
+                        <tr><td><code>total_cents</code></td><td>INTEGER</td></tr>
+                        <tr><td><code>discount_code</code>, <code>discount_amount</code></td><td>TEXT / INT</td></tr>
+                        <tr><td><code>status</code></td><td>TEXT DEF 'pending'</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Všechny tabulky (11)</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                <span class="badge badge-blue">products</span>
+                <span class="badge badge-blue">product_images</span>
+                <span class="badge badge-green">users</span>
+                <span class="badge badge-green">sessions</span>
+                <span class="badge badge-green">password_resets</span>
+                <span class="badge badge-orange">carts</span>
+                <span class="badge badge-orange">cart_items</span>
+                <span class="badge badge-red">orders</span>
+                <span class="badge badge-red">order_items</span>
+                <span class="badge badge-blue">user_subscriptions</span>
+                <span class="badge badge-green">subscribers</span>
+                <span class="badge badge-orange">discounts</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Automatické migrace</h3>
+            <p style="margin-bottom:8px;">Při startu se automaticky přidávají chybějící sloupce:</p>
+            <ul>
+                <li><code>products.stock</code>, <code>products.color</code></li>
+                <li><code>orders.payment_method</code>, <code>orders.customer_phone</code>, <code>orders.discount_code</code>, <code>orders.user_id</code></li>
+                <li><code>cart_items.is_subscription</code></li>
+                <li>Restrukturalizace tabulky <code>user_subscriptions</code></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ── API ─────────────────────────────────────────────────── -->
+    <section id="api">
+        <h2><i class="fas fa-plug"></i> 5. API endpointy</h2>
+        <div class="card">
+            <h3>Produkty</h3>
+            <table>
+                <thead><tr><th>Metoda</th><th>Cesta</th><th>Popis</th><th>Auth</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/products</code></td><td>Seznam produktů</td><td>Ne</td></tr>
+                    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/products/:idOrSlug</code></td><td>Detail produktu + obrázky</td><td>Ne</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Autentizace</h3>
+            <table>
+                <thead><tr><th>Metoda</th><th>Cesta</th><th>Popis</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/auth/register</code></td><td>Registrace uživatele</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/auth/login</code></td><td>Přihlášení (rate-limit: 5×/15min)</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/auth/logout</code></td><td>Odhlášení</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/auth/forgot-password</code></td><td>Reset hesla — odešle e-mail (token 1h)</td></tr>
+                    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/auth/me</code></td><td>Údaje přihlášeného uživatele</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Košík, Checkout, Newsletter</h3>
+            <table>
+                <thead><tr><th>Metoda</th><th>Cesta</th><th>Popis</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/cart</code></td><td>Načtení košíku (session)</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/cart</code></td><td>Přidání položky</td></tr>
+                    <tr><td><span class="badge badge-orange">PATCH</span></td><td><code>/api/cart</code></td><td>Aktualizace množství (0 = smazání)</td></tr>
+                    <tr><td><span class="badge badge-red">DELETE</span></td><td><code>/api/cart/:itemId</code></td><td>Odebrání položky</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/validate-discount</code></td><td>Ověření slevového kódu</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/checkout</code></td><td>Vytvoření objednávky + PDF + e-mail</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/newsletter</code></td><td>Přihlášení k odběru + uvítací e-mail</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Admin endpointy <span class="badge badge-red" style="font-size:0.75rem; margin-left:6px;">signed cookie dev_token</span></h3>
+            <table>
+                <thead><tr><th>Metoda</th><th>Cesta</th><th>Popis</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/admin/send-newsletter</code></td><td>Hromadné rozeslání newsletteru</td></tr>
+                    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/admin/discounts</code></td><td>Seznam slevových kódů</td></tr>
+                    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/admin/discounts</code></td><td>Vytvoření slevového kódu</td></tr>
+                    <tr><td><span class="badge badge-red">DELETE</span></td><td><code>/api/admin/discounts/:id</code></td><td>Smazání slevového kódu</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ── KOŠÍK ───────────────────────────────────────────────── -->
+    <section id="cart">
+        <h2><i class="fas fa-shopping-cart"></i> 6. Systém košíku</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Nepřihlášený uživatel</h3>
+                <p>Košík se ukládá do <strong>localStorage</strong> v prohlížeči. Při načtení stránky se synchronizuje se serverovým košíkem přes session ID (cookie).</p>
+                <div class="info-box">Serverový košík (<code>/api/cart</code>) je vázán na session cookie — funguje i bez localStorage jako záloha.</div>
+            </div>
+            <div class="card">
+                <h3>Přihlášený uživatel</h3>
+                <p>Košík se ukládá do databáze (tabulky <code>carts</code> + <code>cart_items</code>). Při přihlášení se automaticky sloučí localStorage košík se serverovým košíkem.</p>
+                <div class="info-box">Endpoint <code>POST /api/user/cart/sync</code> provede sloučení a vrátí nový stav košíku.</div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Předplatné v košíku</h3>
+            <p>Položka s <code>is_subscription: true</code> označuje měsíční předplatné. Po dokončení checkoutu se vytvoří záznam v tabulce <code>user_subscriptions</code> a nastaví se <code>next_billing_date</code> o 30 dní do budoucna.</p>
+        </div>
+    </section>
+
+    <!-- ── CHECKOUT ────────────────────────────────────────────── -->
+    <section id="checkout">
+        <h2><i class="fas fa-credit-card"></i> 7. Objednávkový proces</h2>
+        <div class="card">
+            <h3>4 kroky checkoutu</h3>
+            <ol class="step-list">
+                <li><div><strong>Košík</strong> — přehled položek, možnost změny množství, zadání slevového kódu</div></li>
+                <li><div><strong>Doručení</strong> — jméno, adresa, telefon, e-mail (předvyplněno z profilu pokud přihlášen)</div></li>
+                <li><div><strong>Platba</strong> — výběr metody (karta / bankovní převod / dobírka)</div></li>
+                <li><div><strong>Shrnutí</strong> — rekapitulace objednávky před odesláním</div></li>
+            </ol>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Po odeslání objednávky</h3>
+                <ul>
+                    <li>Vytvoří se záznam v <code>orders</code> + <code>order_items</code></li>
+                    <li>Sníží se <code>stock</code> u produktů</li>
+                    <li>Odešle se potvrzovací e-mail</li>
+                    <li>Vygeneruje se PDF faktura</li>
+                    <li>Vymaže se košík</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Slevové kódy</h3>
+                <p>Ověření přes <code>POST /api/validate-discount</code>. Kód musí být v tabulce <code>discounts</code> s <code>active = 1</code>.</p>
+                <p style="margin-top:8px;">Výchozí kód: <strong>DRIVE10</strong> (10% sleva) — seedován automaticky při prvním spuštění.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── AUTENTIZACE ─────────────────────────────────────────── -->
+    <section id="auth">
+        <h2><i class="fas fa-user-lock"></i> 8. Autentizace a uživatelské účty</h2>
+        <div class="card">
+            <h3>Jak funguje přihlášení</h3>
+            <ol class="step-list">
+                <li><div>Uživatel odešle e-mail + heslo na <code>POST /api/auth/login</code></div></li>
+                <li><div>Server ověří heslo přes <code>bcryptjs.compare()</code> (hash uložen v DB)</div></li>
+                <li><div>Vytvoří se session token (UUID v4), uloží do tabulky <code>sessions</code> s expirací 30 dní</div></li>
+                <li><div>Token se nastaví jako signed httpOnly cookie <code>session_token</code></div></li>
+            </ol>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Reset hesla</h3>
+                <p>Uživatel požádá o reset → server vygeneruje token a uloží do <code>password_resets</code> s platností 1 hodinu → odešle e-mail s odkazem → uživatel zadá nové heslo → token se smaže.</p>
+            </div>
+            <div class="card">
+                <h3>GDPR smazání účtu</h3>
+                <p><code>DELETE /api/user/delete</code> — anonymizuje objednávky (nastaví <code>user_id = NULL</code>), smaže session tokeny, zruší předplatné a odstraní záznam z <code>users</code>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── E-MAILY ─────────────────────────────────────────────── -->
+    <section id="emails">
+        <h2><i class="fas fa-envelope"></i> 9. E-maily a PDF faktury</h2>
+        <div class="card">
+            <h3>Odesílané e-maily</h3>
+            <table>
+                <thead><tr><th>Událost</th><th>Obsah</th></tr></thead>
+                <tbody>
+                    <tr><td>Registrace</td><td>Uvítací e-mail s potvrzením účtu</td></tr>
+                    <tr><td>Reset hesla</td><td>Odkaz pro reset s platností 1 hodiny</td></tr>
+                    <tr><td>Objednávka</td><td>Potvrzení + PDF faktura jako příloha</td></tr>
+                    <tr><td>Newsletter</td><td>Uvítací e-mail se slevovým kódem DRIVE10</td></tr>
+                    <tr><td>Admin broadcast</td><td>Hromadný newsletter všem odběratelům</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>SMTP konfigurace</h3>
+            <p>Nakonfigurujte proměnné <code>SMTP_*</code> v souboru <code>.env</code>. Pro testování použijte <a href="https://ethereal.email" target="_blank">Ethereal Email</a> — zprávy se zobrazí ve webovém rozhraní, nebudou skutečně doručeny.</p>
+            <div class="warn-box">Pokud <code>SMTP_HOST</code> není nastaven, e-maily se nevyšlou — místo toho se logují jako <code>[MOCK EMAIL]</code> do konzole a log souboru.</div>
+        </div>
+        <div class="card">
+            <h3>PDF faktury</h3>
+            <p>Generovány knihovnou <strong>pdfkit</strong> přímo v paměti a odeslány jako příloha e-mailu. Faktura obsahuje: číslo objednávky, datum, položky, ceny, celkovou částku, dodací adresu a QR platební kód.</p>
+        </div>
+    </section>
+
+    <!-- ── NEWSLETTER ──────────────────────────────────────────── -->
+    <section id="newsletter">
+        <h2><i class="fas fa-bullhorn"></i> 10. Newsletter a slevové kódy</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Newsletter odběratelé</h3>
+                <p>E-mail se ukládá do tabulky <code>subscribers</code>. Při přihlášení se automaticky odešle uvítací e-mail s kódem <strong>DRIVE10</strong> (10 % sleva).</p>
+                <p style="margin-top:8px;">Admin může odeslat hromadný newsletter přes <code>POST /api/admin/send-newsletter</code> s tělem <code>{ "subject": "...", "html": "..." }</code>.</p>
+            </div>
+            <div class="card">
+                <h3>Správa slevových kódů</h3>
+                <p>Slevové kódy jsou v tabulce <code>discounts</code>. Správa přes admin API (vyžaduje dev mód):</p>
+                <ul style="margin-top:8px;">
+                    <li>Vytvořit: <code>POST /api/admin/discounts</code></li>
+                    <li>Smazat: <code>DELETE /api/admin/discounts/:id</code></li>
+                    <li>Aktivovat/deaktivovat: nastavit <code>active</code></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PRODUKTY ────────────────────────────────────────────── -->
+    <section id="products">
+        <h2><i class="fas fa-box"></i> 11. Správa produktů</h2>
+        <div class="card">
+            <h3>Přidání nového produktu</h3>
+            <ol class="step-list">
+                <li><div>Otevřete <code>src/seed.js</code> a přidejte slug do pole <code>mustHaveSlugs</code></div></li>
+                <li><div>Přidejte objekt produktu do pole <code>products</code> se všemi povinnými poli</div></li>
+                <li><div>Přidejte barvu do <code>colorMap</code>: <code>'novy-produkt': 'citrus'</code></div></li>
+                <li><div>Nahrajte obrázky do <code>assets/img/products/</code></div></li>
+                <li><div>Smažte databázi a restartujte: <code>del data\site.db &amp;&amp; node server.js</code></div></li>
+            </ol>
+        </div>
+        <div class="card">
+            <h3>Příklad objektu produktu</h3>
+            <div class="code-block">{
+  slug: <span class="string">'cans-peach'</span>,
+  name: <span class="string">'CANS Peach — 24 × 330ml'</span>,
+  price_cents: <span class="num">59900</span>,          <span class="comment">// 599 Kč v haléřích</span>
+  image: <span class="string">'/assets/img/products/peach.png'</span>,
+  hover_image: <span class="string">'/assets/img/products/peach-hover.jpg'</span>,
+  description: <span class="string">'Popis produktu...'</span>,
+  features: JSON.stringify([<span class="string">'Přírodní kofein'</span>, <span class="string">'Bez cukru'</span>]),
+  stock: <span class="num">100</span>,
+  color: <span class="string">'mango'</span>             <span class="comment">// mango, citrus, nebo berry</span>
+}</div>
+        </div>
+    </section>
+
+    <!-- ── DEV MÓD ────────────────────────────────────────────── -->
+    <section id="devmode">
+        <h2><i class="fas fa-code"></i> 12. Admin / Dev mód</h2>
+        <div class="card">
+            <h3>Jak vstoupit do Dev módu</h3>
+            <ol class="step-list">
+                <li><div><strong>Klávesová zkratka</strong> — na jakékoli stránce e-shopu stiskněte klávesu <code>D</code> 5× za sebou do 2 sekund</div></li>
+                <li><div><strong>Přímá URL</strong> — přejděte na <code>/dev-enable</code></div></li>
+                <li><div><strong>Zadejte heslo:</strong> <code style="font-size:1rem; background:#1e1e2e; color:#a6e3a1; padding:4px 12px;">kO2N37Ac</code></div></li>
+                <li><div>Po přihlášení se v navigaci zobrazí odkaz <strong>Vývoj</strong> a v pravém dolním rohu plovoucí badge DEV</div></li>
+            </ol>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Technická implementace</h3>
+                <p><strong>Dva cookies:</strong></p>
+                <ul style="margin-top:8px;">
+                    <li><code>dev_mode=true</code> — unsigned, čtitelný z JS (zobrazení UI)</li>
+                    <li><code>dev_token=authorized</code> — signed httpOnly (autorizace API)</li>
+                </ul>
+                <p style="margin-top:8px;">Admin API endpointy ověřují <code>req.signedCookies.dev_token === 'authorized'</code>.</p>
+            </div>
+            <div class="card">
+                <h3>Dev mód funkce</h3>
+                <ul>
+                    <li>Správa slevových kódů</li>
+                    <li>Hromadné rozeslání newsletteru</li>
+                    <li>Přístup na vývojářskou dokumentaci (<code>/docs/</code>)</li>
+                    <li>ER diagramy databáze</li>
+                    <li>Prezentace (investor, spolupracovník)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Opuštění Dev módu</h3>
+            <p>Přejděte na <code>/dev-disable</code> nebo smažte cookies <code>dev_mode</code> a <code>dev_token</code> v prohlížeči.</p>
+        </div>
+    </section>
+
+    <!-- ── CSS ────────────────────────────────────────────────── -->
+    <section id="css">
+        <h2><i class="fas fa-palette"></i> 13. CSS a vzhled</h2>
+        <div class="card">
+            <h3>Globální CSS proměnné (<code>assets/css/style.css</code>)</h3>
+            <div class="code-block">:root {
+  --primary-light:   <span class="string">#A9ECFF</span>;   <span class="comment">/* Světle modrá — akcenty, hover */</span>
+  --primary-medium:  <span class="string">#DBF6ED</span>;   <span class="comment">/* Zeleno-modrá — pozadí sekcí */</span>
+  --text-primary:    <span class="string">#27445C</span>;   <span class="comment">/* Tmavě modrá — hlavní text */</span>
+  --text-secondary:  <span class="string">#5A8DB9</span>;   <span class="comment">/* Střední modrá — sekundární text */</span>
+  --radius:          <span class="num">8px</span>;        <span class="comment">/* Zaoblení rohů */</span>
+  --navbar-height:   <span class="num">72px</span>;       <span class="comment">/* Výška navigace */</span>
+}</div>
+            <div class="warn-box">Stejné proměnné jsou definovány i v <code>products.css</code>, <code>cart.css</code>, <code>account.css</code> a dalších — pro konzistenci změňte ve všech souborech.</div>
+        </div>
+        <div class="card">
+            <h3>Přehled CSS souborů</h3>
+            <table>
+                <thead><tr><th>Soubor</th><th>Řádků</th><th>Účel</th></tr></thead>
+                <tbody>
+                    <tr><td><code>style.css</code></td><td>2 235</td><td>Globální styly, navbar, hero, footer</td></tr>
+                    <tr><td><code>products.css</code></td><td>763</td><td>Katalog — grid, karty, filtry</td></tr>
+                    <tr><td><code>product-detail.css</code></td><td>807</td><td>Detail — galerie, příchutě, akordeon</td></tr>
+                    <tr><td><code>cart.css</code></td><td>1 079</td><td>Košík, checkout, shrnutí</td></tr>
+                    <tr><td><code>account.css</code></td><td>1 356</td><td>Dashboard, objednávky, profil</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ── DEPLOYMENT ──────────────────────────────────────────── -->
+    <section id="deploy">
+        <h2><i class="fas fa-rocket"></i> 14. Nasazení (deployment)</h2>
+        <div class="card">
+            <h3>Produkční spuštění</h3>
+            <div class="code-block"><span class="comment"># Produkční proměnné prostředí</span>
+NODE_ENV=production
+PORT=3000
+COOKIE_SECRET=&lt;silný-náhodný-klíč&gt;
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=vas@email.cz
+SMTP_PASS=&lt;app-password&gt;</div>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Doporučené nastavení</h3>
+                <ul>
+                    <li>Použijte <strong>PM2</strong> pro správu procesu (<code>pm2 start server.js</code>)</li>
+                    <li>Nastavte <strong>reverse proxy</strong> (nginx/Apache) před Node.js</li>
+                    <li>Zajistěte zálohování <code>data/site.db</code></li>
+                    <li>Nastavte silný <code>COOKIE_SECRET</code></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Bezpečnostní poznámky</h3>
+                <ul>
+                    <li>Nezveřejňujte soubor <code>.env</code></li>
+                    <li>Změňte výchozí heslo dev módu před nasazením</li>
+                    <li>SQLite není vhodné pro vysokou konkurenci — zvažte PostgreSQL pro produkci</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SOUBORY ─────────────────────────────────────────────── -->
+    <section id="files">
+        <h2><i class="fas fa-folder-tree"></i> 15. Struktura souborů</h2>
+        <div class="card">
+            <div class="code-block">Housa Jakub/
+├── server.js              <span class="comment"># Hlavní soubor — Express 5, všechny routes</span>
+├── package.json
+├── .env                   <span class="comment"># Proměnné prostředí (neverzovat)</span>
+├── src/
+│   ├── db.js              <span class="comment"># Inicializace DB, migrace, seedování</span>
+│   ├── seed.js            <span class="comment"># Data produktů a výchozí kódy</span>
+│   └── logger.js          <span class="comment"># Strukturovaný JSON logger</span>
+├── assets/
+│   ├── css/               <span class="comment"># Všechny CSS soubory</span>
+│   ├── js/                <span class="comment"># Frontend JavaScript</span>
+│   │   └── dev-mode.js    <span class="comment"># Klávesová zkratka + DEV badge</span>
+│   ├── img/               <span class="comment"># Obrázky produktů a webu</span>
+│   └── fonts/             <span class="comment"># Font TelkaTRIAL (Medium + Bold)</span>
+├── data/
+│   └── site.db            <span class="comment"># SQLite databáze (auto-vytvoří se)</span>
+├── logs/                  <span class="comment"># Log soubory (auto-vytvoří se)</span>
+├── docs/
+│   ├── index.html         <span class="comment"># Dev Home</span>
+│   ├── investor.html      <span class="comment"># Prezentace pro investora</span>
+│   ├── collaborator.html  <span class="comment"># Prezentace pro spolupracovníka</span>
+│   ├── manual.html        <span class="comment"># Tento soubor</span>
+│   ├── MANUAL.md          <span class="comment"># Zdrojový manuál v Markdown</span>
+│   └── diagrams/          <span class="comment"># ER diagramy (.mmd, .svg, .png)</span>
+├── Products/index.html
+├── Product-detail/index.html
+├── Cart/                  <span class="comment"># cart.html, checkout.html, thank-you.html, summary.html</span>
+├── Account/               <span class="comment"># index.html, login.html, register.html, ...</span>
+├── Info/                  <span class="comment"># privacy.html, shipping.html, terms.html</span>
+└── 404.html</div>
+        </div>
+    </section>
+
+</main>
+
+<script src="/assets/js/dev-mode.js"></script>
+</body>
+</html>

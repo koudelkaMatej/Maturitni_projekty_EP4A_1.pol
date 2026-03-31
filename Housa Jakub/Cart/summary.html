@@ -138,7 +138,7 @@
             show(message, type = 'info', duration = 5000) {
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
-
+                
                 const iconMap = {
                     error: 'fas fa-exclamation-circle',
                     success: 'fas fa-check-circle',
@@ -153,7 +153,7 @@
                 `;
 
                 this.container.appendChild(toast);
-
+                
                 // Trigger animation
                 requestAnimationFrame(() => {
                     toast.classList.add('show');
@@ -253,12 +253,13 @@
         // Define generic submit function
         async function submitOrder(details = null) {
             const btn = document.getElementById('confirmOrderBtn');
+            btn.style.minWidth = btn.offsetWidth + 'px';
             btn.disabled = true;
-            btn.textContent = 'Odesílám...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px"></i>Odesílám...';
 
             // Map items with both numeric ID and slug for robust backend lookup
             const validItems = cart.filter(item => item.id).map(item => {
-                const mapped = {
+                const mapped = { 
                     id: item.id,  // This might be numeric ID or slug
                     quantity: parseInt(item.quantity, 10) || 1,
                     isSubscription: !!item.isSubscription
@@ -266,11 +267,12 @@
                 console.log('[Summary] Mapping item for checkout:', mapped);
                 return mapped;
             });
-
+            
             if (validItems.length === 0) {
                 toast.error('Košík neobsahuje platné produkty.');
                 btn.disabled = false;
-                btn.textContent = 'Odeslat objednávku';
+                btn.innerHTML = 'Odeslat objednávku <i class="fas fa-arrow-right"></i>';
+                btn.style.minWidth = '';
                 return;
             }
 
@@ -310,25 +312,27 @@
                     }, 800);
                 } else {
                     console.error('Order failed:', result);
-
+                    
                     if (result.code === 'AUTH_REQUIRED') {
                         // Tlačítko necháme zablokované a změníme text
                         btn.textContent = 'Přesměrovávám na přihlášení...';
-
+                        
                         // Okamžité přesměrování
                         window.location.href = '/Account/login.html?redirect=/Cart/summary.html&message=' + encodeURIComponent(result.error);
                     } else {
                         toast.error('Chyba při odesílání objednávky: ' + (result.error || 'Neznámá chyba'));
                         // Jen v případě jiné chyby tlačítko odblokujeme
                         btn.disabled = false;
-                        btn.textContent = 'Odeslat objednávku';
+                        btn.innerHTML = 'Odeslat objednávku <i class="fas fa-arrow-right"></i>';
+                btn.style.minWidth = '';
                     }
                 }
             } catch (error) {
                 console.error('Network error:', error);
                 toast.error('Chyba připojení k serveru. Zkontrolujte své připojení.');
                 btn.disabled = false;
-                btn.textContent = 'Odeslat objednávku';
+                btn.innerHTML = 'Odeslat objednávku <i class="fas fa-arrow-right"></i>';
+                btn.style.minWidth = '';
             }
         }
     </script>
@@ -1364,6 +1368,7 @@
                 });
         }
     </script>
+    <script src="/assets/js/dev-mode.js"></script>
 </body>
 
 </html>

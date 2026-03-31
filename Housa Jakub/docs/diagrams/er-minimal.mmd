@@ -1,18 +1,37 @@
 erDiagram
+  USERS {
+    INT id PK
+    TEXT email
+    TEXT first_name
+    TEXT last_name
+    DATETIME created_at
+  }
   PRODUCTS {
     INT id PK
+    TEXT slug
     TEXT name
-    INT price_czk
-    TEXT image
-    TEXT flavor
-    INT in_stock
+    INT price_cents
+    INT stock
+    TEXT color
   }
   ORDERS {
     INT id PK
-    TEXT created_at
-    INT total_czk
+    INT user_id FK
+    TEXT customer_email
+    TEXT customer_name
+    INT total_cents
+    TEXT status
+    DATETIME created_at
+  }
+  ORDER_ITEMS {
+    INT id PK
+    INT order_id FK
     INT product_id FK
     INT quantity
+    INT price_cents
+    TEXT product_name
   }
 
-  PRODUCTS ||--o{ ORDERS : contains
+  USERS ||--o{ ORDERS : places
+  PRODUCTS ||--o{ ORDER_ITEMS : included_in
+  ORDERS ||--o{ ORDER_ITEMS : contains
