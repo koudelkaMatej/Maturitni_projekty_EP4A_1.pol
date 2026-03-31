@@ -1,7 +1,0 @@
-{
-    "autologin": {
-        "username": "admin",
-        "password": "1234",
-        "enabled": false
-    }
-}
