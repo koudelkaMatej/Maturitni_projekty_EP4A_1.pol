@@ -1,1 +1,1 @@
-Projekt je v slozce DATABASE
+Projekt je slozka DATABASE
