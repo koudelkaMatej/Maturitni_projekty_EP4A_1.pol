@@ -16,3 +16,4 @@ if exist "venv\Scripts\python.exe" (
 ) else (
     echo ERROR: venv not available. Please install Python 3.12 and run install_dependencies.bat
 )
+)

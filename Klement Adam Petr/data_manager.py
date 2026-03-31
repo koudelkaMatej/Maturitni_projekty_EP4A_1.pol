@@ -27,7 +27,6 @@ class DataManager:
         """Vytvoří a vrátí připojení k SQLite databázi."""
         conn = sqlite3.connect(self.db_file)
         conn.row_factory = sqlite3.Row  # Umožňuje přístup k výsledkům přes názvy sloupců
-        conn.execute("PRAGMA foreign_keys = ON")
         return conn
 
     def _init_db(self):
@@ -94,12 +93,6 @@ class DataManager:
                 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             );
-        """)
-
-        # Výchozí admin (convenience) – aby validate_login nevyžadoval speciální fallback
-        cursor.execute("""
-            INSERT OR IGNORE INTO users (username, password, role)
-            VALUES ('admin', '1234', 'admin')
         """)
 
         conn.commit()

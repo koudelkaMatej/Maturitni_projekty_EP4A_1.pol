@@ -65,8 +65,7 @@ def get_workouts():
     frontend_workouts = []
     raw_workouts = user_data.get('workouts', [])
     
-    for w_session in raw_workouts:
-        workout_id = w_session.get('id')
+    for idx, w_session in enumerate(raw_workouts):
         date = w_session.get('date')
         note = w_session.get('note')
         exercises = w_session.get('exercises', [])
@@ -84,7 +83,7 @@ def get_workouts():
             summary_text = "Žádné cviky"
 
         frontend_workouts.append({
-            'id': workout_id,
+            'id': idx,
             'date': date,
             'note': note,
             'summary_text': summary_text,
@@ -96,9 +95,9 @@ def get_workouts():
     
     return jsonify({'workouts': frontend_workouts}), 200
 
-@app.route('/get_workout_detail/<int:workout_id>', methods=['GET'])
-def get_workout_detail(workout_id):
-    """Vrátí detailní data o konkrétním tréninku podle jeho DB id."""
+@app.route('/get_workout_detail/<int:index>', methods=['GET'])
+def get_workout_detail(index):
+    """Vrátí detailní data o konkrétním tréninku podle jeho indexu."""
     token = request.headers.get('Authorization')
     if not token:
         return jsonify({'error': 'Neautorizovaný přístup'}), 401
@@ -109,10 +108,10 @@ def get_workout_detail(workout_id):
         return jsonify({'error': 'Uživatel nenalezen'}), 404
         
     raw_workouts = user_data.get('workouts', [])
-    workout = next((w for w in raw_workouts if w.get('id') == workout_id), None)
-    if not workout:
+    if index < 0 or index >= len(raw_workouts):
         return jsonify({'error': 'Trénink nenalezen'}), 404
         
+    workout = raw_workouts[index]
     return jsonify(workout), 200
 
 # --- API pro Statistiky a Dashboard ---
@@ -138,7 +137,7 @@ def get_user_stats():
     }
     
     if raw_workouts:
-        last = raw_workouts[0]
+        last = raw_workouts[-1]
         exercises = last.get('exercises', [])
         ex_count = len(exercises)
         
