@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Speed Hell – Profil</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body>
+<div class="profile-bckground">
+    <div class="profile-container">
+        
+        <div class="profile-header-box">
+            <h1 style="color: white; text-align: center; font-family: 'NavFont';">PROFIL HRÁČE: {{ user.username }}</h1>
+        </div>
+
+        <div class="profile-content-wrapper">
+            
+            <main class="profile-main">
+                <div class="profile-block">
+                    <h2>O mně</h2>
+                      <div class="profile-content">
+                        <p>Zde může být tvůj herní příběh nebo achievementy...</p>
+                      </div>
+
+                  <a href="/" class="back-to-home-inline">
+                    <span class="arrow">←</span> ZPĚT DO PEKLA
+                  </a>
+                </div>
+            </main>
+
+            <aside class="profile-sidebar">
+              <div class="stats-card">
+                <h2 class="stats-title">Statistiky</h2>
+                <div class="stats-divider"></div>
+                
+              <div class="stats-item">
+                <p class="stats-label">Nejlepší čas v pekle:</p>
+                <p class="stats-value">
+                    {{ user.profile.get_formatted_time }}
+                  </p>
+              </div>
+
+               
+              </div>
+            </aside>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

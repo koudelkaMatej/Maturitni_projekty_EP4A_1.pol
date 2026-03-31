@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake</title>
+    <link rel="stylesheet" type="text/css" href="Můj účet.css">
+</head>
+<body>
+    <header>
+        <h1>Snake</h1> 
+        <nav>
+            <ul>
+                <li><a href="O Projektu.html">O Projektu</a></li>
+                <li><a href="Diagramy.html">Diagramy</a></li>
+                <li class="dropdown">
+              <button type="button" class="dropdown-toggle">Dokumentace</button>
+              <ul class="dropdown-menu">
+                <li><a href="manual-pro-uzivatele.html">Manuál pro uživatele</a></li>
+                <li><a href="Prezentace-pro-investora.html">Prezentace pro investora</a></li>
+                <li><a href="Prehled-pro-noveho-spolupracovnika.html">Přehled pro nového spolupracovníka</a></li>
+              </ul>
+            </li>
+            <li><a href="O-hre.html">O hře</a></li>
+            <li><a href="Herní módy.html">Herní módy</a></li>
+            <li><a href="top10.html">TOP10</a></li>
+            <li><a href="Přihlášení.html">Přihlášení</a></li>
+            <li><a class="active" href="Můj účet.html">Můj účet</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="top10-main">
+      <section class="top10-card">
+        <div class="top10-header">
+          <div>
+            <h2>Můj účet</h2>
+            <p class="muted">Zde uvidíš svůj e-mail, datum založení a nejlepší skóre v jednotlivých módech.</p>
+          </div>
+          <div class="top10-actions">
+            <button id="accountBtn" class="btn primary" type="button">Můj účet</button>
+            <button id="loginBtn" class="btn ghost" type="button">Přihlášení</button>
+            <button id="logoutBtn" class="btn ghost" type="button">Odhlásit</button>
+          </div>
+        </div>
+
+        <div id="accountBox" class="account-box" hidden aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script>
+    (function(){
+      const btn = document.getElementById('accountBtn');
+      const loginBtn = document.getElementById('loginBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const box = document.getElementById('accountBox');
+      const msg = document.createElement('div');
+      msg.className = 'msg';
+      box.parentElement.insertBefore(msg, box);
+      const API = 'http://localhost:5000/api';
+
+      function formatDate(value){
+        if(!value) return '';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        return d.toLocaleString('cs-CZ', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function renderScores(bestScores){
+        const scores = Array.isArray(bestScores) ? bestScores : [];
+        if(!scores.length){
+          return '<li class="muted">Zatím žádná skóre.</li>';
+        }
+        return scores.map(s => {
+          const label = s.label || s.mode || 'Mód';
+          const value = (typeof s.score === 'number' ? s.score : 0);
+          return `<li><span class="score-mode">${label}</span><span class="score-value">${value}</span></li>`;
+        }).join('');
+      }
+
+      async function renderAccount(){
+        const token = localStorage.getItem('snake_token');
+        if(!token){
+          box.innerHTML = '<strong>Nejsi přihlášen.</strong><br>Přejdi na Přihlášení a vytvoř si účet.';
+          return;
+        }
+        try {
+          const res = await fetch(`${API}/me`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            box.innerHTML = (data.error || 'Nelze načíst účet.') + '<br><a href="Přihlášení.html" class="btn ghost" style="margin-top:8px; display:inline-flex;">Přihlásit znovu</a>';
+            return;
+          }
+
+          const created = formatDate(data.created_at);
+          const scoreList = renderScores(data.best_scores);
+
+          box.innerHTML = `
+            <div class="account-grid">
+              <div class="account-item">
+                <div class="label">Uživatel</div>
+                <div class="value">${data.username}</div>
+              </div>
+              <div class="account-item">
+                <div class="label">E-mail</div>
+                <div class="value">${data.email}</div>
+              </div>
+              <div class="account-item">
+                <div class="label">Založen</div>
+                <div class="value">${created}</div>
+              </div>
+            </div>
+            <div class="score-card">
+              <div class="score-header">
+                <h3>Nejlepší skóre</h3>
+                <span class="muted">Podle herního módu</span>
+              </div>
+              <ul class="score-list">${scoreList}</ul>
+            </div>
+          `;
+        } catch(err){
+          box.innerHTML = 'Chyba připojení k serveru.';
+        }
+      }
+
+      btn.addEventListener('click', ()=> {
+        const isHidden = box.hasAttribute('hidden');
+        if(isHidden){
+          renderAccount();
+          box.removeAttribute('hidden');
+        }else{
+          box.setAttribute('hidden', '');
+        }
+      });
+
+      logoutBtn.addEventListener('click', ()=> {
+        localStorage.removeItem('snake_token');
+        localStorage.removeItem('snake_user');
+        msg.textContent = '';
+        box.innerHTML = '<strong>Byl jsi odhlášen.</strong><br><a href="Přihlášení.html" class="btn primary" style="margin-top:8px; display:inline-flex;">Přihlásit znovu</a>';
+        box.removeAttribute('hidden');
+      });
+
+      loginBtn.addEventListener('click', ()=> {
+        const token = localStorage.getItem('snake_token');
+        if (!token) {
+          location.href = 'Přihlášení.html';
+          return;
+        }
+        renderAccount();
+        msg.textContent = 'Už jsi přihlášen.';
+        msg.style.color = '#bff7c6';
+        box.removeAttribute('hidden');
+      });
+
+      // zobraz účet hned po načtení
+      renderAccount();
+      box.removeAttribute('hidden');
+    })();
+    </script>
+</body>
+</html>

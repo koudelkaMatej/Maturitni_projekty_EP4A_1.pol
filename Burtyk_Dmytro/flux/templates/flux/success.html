@@ -1,0 +1,101 @@
+{% extends 'flux/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container-fluid py-5 mt-5 text-center">
+    <div class="container py-5">
+      <h1 class="display-4 text-success mb-4"><i class="fas fa-check-circle"></i> Order Placed Successfully!</h1>
+      <p class="fs-4">Thank you for your purchase.</p>
+
+      <hr class="my-5 w-50 mx-auto" />
+
+      {% if payment_method == 'Direct Bank Transfer' %}
+        <div class="bg-light p-4 rounded shadow-sm d-inline-block">
+          <h4 class="mb-3 text-dark">Scan to Pay via Bank Transfer</h4>
+          {% if qr_code %}
+            <img src="data:image/png;base64,{{ qr_code }}" class="img-fluid border rounded p-2 bg-white" style="max-width: 200px;" />
+          {% endif %}
+          <p class="text-muted mt-3">
+            Total: <strong class="text-dark">${{ grand_total|floatformat:2 }}</strong>
+          </p>
+        </div>
+      {% elif payment_method == 'Paypal' %}
+        <div class="bg-light p-4 rounded shadow-sm d-inline-block" style="min-width: 300px;">
+          <h4 class="mb-3 text-dark">Complete your payment</h4>
+
+          <div id="offline-warning-paypal" class="alert alert-warning" style="display: none;">
+            <i class="fas fa-wifi"></i> Internet required for PayPal.
+          </div>
+
+          <div id="paypal-button-container"></div>
+
+          <script>
+            if (!navigator.onLine) {
+              document.getElementById('offline-warning-paypal').style.display = 'block'
+            } else {
+              // Dynamically load the PayPal script only if online
+              let script = document.createElement('script')
+              // Using client-id=test gives us free sandbox buttons instantly!
+              script.src = 'https://www.paypal.com/sdk/js?client-id=test&currency=USD'
+              script.onload = function () {
+                paypal
+                  .Buttons({
+                    createOrder: function (data, actions) {
+                      return actions.order.create({
+                        purchase_units: [{ amount: { value: '{{ grand_total|stringformat:".2f" }}' } }]
+                      })
+                    },
+                    onApprove: function (data, actions) {
+                      alert('School Project Demo: PayPal Payment Successful!')
+                    }
+                  })
+                  .render('#paypal-button-container')
+              }
+              document.head.appendChild(script)
+            }
+          </script>
+        </div>
+      {% elif payment_method == 'Google Pay & Apple Pay' %}
+        <div class="bg-light p-4 rounded shadow-sm d-inline-block" style="min-width: 300px;">
+          <h4 class="mb-3 text-dark">Pay with Google Pay</h4>
+
+          <div id="offline-warning-gpay" class="alert alert-warning" style="display: none;">
+            <i class="fas fa-wifi"></i> Internet required for Google Pay.
+          </div>
+
+          <div id="google-pay-button-container" class="d-flex justify-content-center"></div>
+
+          <script>
+            if (!navigator.onLine) {
+              document.getElementById('offline-warning-gpay').style.display = 'block'
+            } else {
+              let script = document.createElement('script')
+              script.src = 'https://pay.google.com/gp/p/js/pay.js'
+              script.onload = function () {
+                const paymentsClient = new google.payments.api.PaymentsClient({ environment: 'TEST' })
+                const button = paymentsClient.createButton({
+                  onClick: () => {
+                    alert('School Project Demo: Google Pay Payment Successful!')
+                  }
+                })
+                document.getElementById('google-pay-button-container').appendChild(button)
+              }
+              document.head.appendChild(script)
+            }
+          </script>
+        </div>
+      {% endif %}
+    <div class="mt-5 d-flex justify-content-center gap-3 flex-wrap">
+        
+        <a href="{% url 'home' %}" class="btn btn-primary rounded-pill py-3 px-5 text-uppercase">Continue Shopping</a>
+
+        {% if allow_pdf_download %}
+                <a href="{% url 'download_invoice' order.id %}" class="btn btn-danger rounded-pill py-3 px-5 text-uppercase">
+                    <i class="fas fa-file-pdf"></i> Download Invoice
+                </a>
+            {% endif %}
+    </div>    
+
+    </div>
+  </div>
+{% endblock %}

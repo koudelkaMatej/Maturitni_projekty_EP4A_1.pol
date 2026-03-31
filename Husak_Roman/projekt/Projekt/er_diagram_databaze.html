@@ -1,0 +1,118 @@
+<div class="diagram-container">
+  <div id="erd"></div>
+
+  <div class="image-box">
+    <img src="vyvojovy_diagram_hra.svg" alt="Vývojový diagram hry">
+  </div>
+</div>
+
+<style>
+body {
+  background-color: #000;
+  color: #fff;
+}
+
+.diagram-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+#erd {
+  flex: 1;
+}
+
+#erd svg {
+  width: 100%;
+}
+
+/* 🔥 černý text v ER diagramu */
+#erd svg text {
+  fill: #000000 !important;
+}
+
+/* světlé boxy kvůli černému textu */
+#erd svg .node rect {
+  fill: #ffffff !important;
+  stroke: #8b5cf6 !important;
+}
+
+#erd svg .row-rect-odd rect {
+  fill: #f9fafb !important;
+}
+#erd svg .row-rect-even rect {
+  fill: #e5e7eb !important;
+}
+
+#erd svg path {
+  stroke: #4b5563 !important;
+}
+
+.image-box {
+  width: 600px;
+  max-width: 100%;
+}
+
+.image-box img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  .diagram-container {
+    flex-direction: column;
+  }
+
+  .image-box {
+    width: 100%;
+  }
+}
+</style>
+
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+
+await document.fonts.ready;
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  themeVariables: {
+    darkMode: false,              // ❗ vypnuto
+    primaryColor: '#ffffff',
+    secondaryColor: '#f9fafb',
+    tertiaryColor: '#e5e7eb',
+
+    primaryTextColor: '#000000',  // ❗ černý text
+    secondaryTextColor: '#000000',
+
+    primaryBorderColor: '#8b5cf6',
+    lineColor: '#4b5563',
+
+    mainBkg: '#ffffff',
+    secondBkg: '#f9fafb',
+
+    fontSize: '13px',
+  },
+});
+
+const { svg } = await mermaid.render('erd-svg', `erDiagram
+  USERS {
+    INTEGER id PK "AUTO INCREMENT"
+    TEXT jmeno UK "Unikátní přezdívka"
+    TEXT heslo "SHA-256 hash"
+    INTEGER max_body "Nejlepší skóre (výchozí 0)"
+  }
+
+  USERS ||--o{ GAME_SESSION : "má skóre"
+
+  GAME_SESSION {
+    INTEGER id PK
+    TEXT jmeno FK "Odkaz na USERS.jmeno"
+    INTEGER skore "Dosažené skóre"
+    TIMESTAMP cas "Čas záznamu"
+  }
+`);
+
+document.getElementById('erd').innerHTML = svg;
+</script>

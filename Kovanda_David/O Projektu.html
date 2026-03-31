@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake - O Projektu</title>
+  <link rel="stylesheet" type="text/css" href="O-hre.css">
+    <link rel="stylesheet" type="text/css" href="O Projektu.css">
+</head>
+<body>
+    <header>
+        <h1>Snake</h1>
+        <nav>
+            <ul>
+                <li><a class="active" href="O Projektu.html">O Projektu</a></li>
+                <li><a href="Diagramy.html">Diagramy</a></li>
+            <li class="dropdown">
+              <button type="button" class="dropdown-toggle">Dokumentace</button>
+              <ul class="dropdown-menu">
+                <li><a href="manual-pro-uzivatele.html">Manuál pro uživatele</a></li>
+                <li><a href="Prezentace-pro-investora.html">Prezentace pro investora</a></li>
+                <li><a href="Prehled-pro-noveho-spolupracovnika.html">Přehled pro nového spolupracovníka</a></li>
+              </ul>
+            </li>
+                <li><a href="O-hre.html">O hře</a></li>
+                <li><a href="Herní módy.html">Herní módy</a></li>
+                <li><a href="top10.html">TOP10</a></li>
+                <li><a href="Přihlášení.html">Přihlášení</a></li>
+                <li><a href="Můj účet.html">Můj účet</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="o-hre-main">
+      <section class="o-card">
+        <h2>O projektu</h2>
+        <p class="muted">Krátké shrnutí zadání, technologií a toho, jak web a hra spolu mluví.</p>
+
+        <div class="grid">
+          <article>
+            <h3>Cíl</h3>
+            <p>Jednoduchá webová prezentace a účetní vrstva pro hru Snake, aby si hráči mohli vytvářet účty a sledovat nejlepší skóre v jednotlivých módech.</p>
+          </article>
+          <article>
+            <h3>Stack</h3>
+            <p>Backend Flask + SQLite (REST API na http://localhost:5000), frontend statické HTML/CSS/JS servírované přes Live Server, ukládání tokenu v localStorage.</p>
+          </article>
+          <article>
+            <h3>Propojení</h3>
+            <p>Hra i web volají stejné API: /login a /register pro přihlášení, /me pro profil (uživatel, e-mail, datum založení, best skóre), /scores pro ukládání výsledků.</p>
+          </article>
+        </div>
+
+        <div class="grid" style="margin-top:16px;">
+          <article>
+            <h3>Hlavní funkce</h3>
+            <ul class="list">
+              <li>Registrace a přihlášení s JWT tokenem, uloženým v localStorage.</li>
+              <li>Stránka Můj účet zobrazuje e-mail, uživatelské jméno, datum založení a nejlepší skóre v jednotlivých módech.</li>
+              <li>Herní mód „Snake" aktualizuje skóre přes API a čte nejlepší hodnoty při startu.</li>
+              <li>Navigace mezi informacemi o hře, módech a účtem je jednotná napříč stránkami.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Jak spustit</h3>
+            <ul class="list">
+              <li>Spusť backend: python backend/app.py (předpoklad aktivního virtuálního prostředí a závislostí).</li>
+              <li>Frontend otevři přes Live Server z kořene projektu (typicky http://127.0.0.1:5500).</li>
+              <li>V prohlížeči otevři Přihlášení nebo Registrace, vytvoř účet a pokračuj na Můj účet.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+</body>
+</html>

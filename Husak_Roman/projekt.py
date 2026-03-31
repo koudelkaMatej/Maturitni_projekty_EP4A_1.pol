@@ -5,6 +5,7 @@ import sys
 # Inicializace pygame
 pygame.init()
 
+
 # Konstanty
 ŠÍŘKA, VÝŠKA = 800, 600
 FPS = 60

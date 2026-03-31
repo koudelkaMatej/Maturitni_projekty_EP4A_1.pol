@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Snake – TOP10</title>
+    <link rel="stylesheet" href="Registrace.css">
+    <link rel="stylesheet" href="top10.css">
+</head>
+<body>
+    <header>
+        <h1>Snake</h1>
+        <nav>
+            <ul>
+                <li><a href="O Projektu.html">O Projektu</a></li>
+                <li><a href="Diagramy.html">Diagramy</a></li>
+                <li class="dropdown">
+                    <button type="button" class="dropdown-toggle">Dokumentace</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="manual-pro-uzivatele.html">Manuál pro uživatele</a></li>
+                        <li><a href="Prezentace-pro-investora.html">Prezentace pro investora</a></li>
+                        <li><a href="Prehled-pro-noveho-spolupracovnika.html">Přehled pro nového spolupracovníka</a></li>
+                    </ul>
+                </li>
+                <li><a href="O-hre.html">O hře</a></li>
+                <li><a href="Herní módy.html">Herní módy</a></li>
+                <li><a class="active" href="top10.html">TOP10</a></li>
+                <li><a href="Přihlášení.html">Přihlášení</a></li>
+                <li><a href="Můj účet.html">Můj účet</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="top10-main">
+        <div class="top10-intro">
+            <h2>TOP10 skóre</h2>
+            <p class="muted">Nejlepší hráči v jednotlivých režimech na jednom místě.</p>
+            <button type="button" id="refreshTop10" class="refresh-button">Aktualizovat žebříček</button>
+        </div>
+        <section id="top10Grid" class="top10-grid" aria-live="polite">
+            <article class="mode-card" data-mode="classic" aria-label="Classic">
+                <h3>Classic</h3>
+                <p>Klasický režim bez jedovatých jablek a přídavných překážek.</p>
+                <table class="mode-table">
+                    <thead>
+                        <tr><th>#</th><th>Hráč</th><th>Skóre</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>2</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>3</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>4</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>5</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>6</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>7</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>8</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>9</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>10</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </article>
+            <article class="mode-card" data-mode="poison" aria-label="Poison">
+                <h3>Poison</h3>
+                <p>Jedovatá jablka znamenají okamžitý konec hry.</p>
+                <table class="mode-table">
+                    <thead>
+                        <tr><th>#</th><th>Hráč</th><th>Skóre</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>2</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>3</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>4</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>5</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>6</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>7</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>8</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>9</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>10</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </article>
+            <article class="mode-card" data-mode="pillars" aria-label="Pillars">
+                <h3>Pillars</h3>
+                <p>Strategický režim se sloupy a překážkami.</p>
+                <table class="mode-table">
+                    <thead>
+                        <tr><th>#</th><th>Hráč</th><th>Skóre</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>2</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>3</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>4</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>5</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>6</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>7</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>8</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>9</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>10</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </article>
+            <article class="mode-card" data-mode="hardcore" aria-label="Hardcore">
+                <h3>Hardcore</h3>
+                <p>Nejrychlejší mód s jedovatými jablky i překážkami.</p>
+                <table class="mode-table">
+                    <thead>
+                        <tr><th>#</th><th>Hráč</th><th>Skóre</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>2</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>3</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>4</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>5</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>6</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>7</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>8</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>9</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                        <tr><td>10</td><td class="player">&nbsp;</td><td class="score">&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+    </main>
+    <script>
+        const nbsp = String.fromCharCode(160);
+
+        const formatScore = (value) =>
+            value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, nbsp);
+
+        const renderMode = (mode, entries) => {
+            const card = document.querySelector(`.mode-card[data-mode="${mode}"]`);
+            if (!card) return;
+            const rows = Array.from(card.querySelectorAll("tbody tr"));
+            rows.forEach((row, index) => {
+                const usernameCell = row.querySelector("td:nth-child(2)");
+                const scoreCell = row.querySelector("td:nth-child(3)");
+                const entry = entries[index];
+                if (entry) {
+                    usernameCell.textContent = entry.username;
+                    scoreCell.textContent = formatScore(entry.score);
+                    scoreCell.classList.add("score");
+                } else {
+                    usernameCell.textContent = "—";
+                    scoreCell.textContent = "—";
+                    scoreCell.classList.remove("score");
+                }
+            });
+        };
+
+        const refreshButton = document.getElementById("refreshTop10");
+
+        const setButtonLoading = (loading) => {
+            if (!refreshButton) return;
+            refreshButton.disabled = loading;
+            refreshButton.textContent = loading ? "Aktualizuji…" : "Aktualizovat žebříček";
+        };
+
+        const API_BASE_URL = "http://127.0.0.1:5000";
+
+        const loadScores = () => {
+            setButtonLoading(true);
+            return fetch(`${API_BASE_URL}/api/scores/public`)
+                .then((response) => {
+                    if (!response.ok) throw new Error("Nezdařilo se načíst data");
+                    return response.json();
+                })
+                .then((payload) => {
+                    const scores = payload.scores || {};
+                    ["classic", "poison", "pillars", "hardcore"].forEach((mode) => {
+                        renderMode(mode, scores[mode] || []);
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    setButtonLoading(false);
+                });
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadScores();
+            if (refreshButton) {
+                refreshButton.addEventListener("click", loadScores);
+            }
+        });
+    </script>
+</body>
+</html>

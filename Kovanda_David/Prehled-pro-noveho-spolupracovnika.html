@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake - Přehled pro nového spolupracovníka</title>
+  <link rel="stylesheet" type="text/css" href="manual-pro-uzivatele.css">
+  <link rel="stylesheet" type="text/css" href="prehled-pro-noveho-spolupracovnika.css">
+</head>
+<body>
+    <header>
+      <h1>Snake</h1>
+      <nav>
+        <ul>
+          <li><a href="O Projektu.html">O Projektu</a></li>
+          <li><a href="Diagramy.html">Diagramy</a></li>
+          <li class="dropdown">
+            <button type="button" class="dropdown-toggle active">Dokumentace</button>
+            <ul class="dropdown-menu">
+              <li><a href="manual-pro-uzivatele.html">Manuál pro uživatele</a></li>
+              <li><a href="Prezentace-pro-investora.html">Prezentace pro investora</a></li>
+              <li><a href="Prehled-pro-noveho-spolupracovnika.html" class="active">Přehled pro nového spolupracovníka</a></li>
+            </ul>
+          </li>
+          <li><a href="O-hre.html">O hře</a></li>
+          <li><a href="Herní módy.html">Herní módy</a></li>
+          <li><a href="top10.html">TOP10</a></li>
+          <li><a href="Přihlášení.html">Přihlášení</a></li>
+          <li><a href="Můj účet.html">Můj účet</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="collab-main">
+      <section class="o-card collab-page">
+        <h2>Přehled pro nového spolupracovníka</h2>
+        <p class="muted">Rychlá orientace v projektu: co je kde, jak spolu části mluví a kde začít, když budeš něco upravovat.</p>
+
+        <div class="overview-grid">
+          <article class="overview-card">
+            <h3>1. Struktura projektu</h3>
+            <ul class="overview-list">
+              <li>Frontend je tvořený statickými HTML a CSS soubory v kořeni projektu.</li>
+              <li>Backend běží ve složce <strong>backend</strong> a používá Flask + SQLite.</li>
+              <li>Herní logika je v <strong>snake_game.py</strong>, assets jsou v <strong>images</strong>.</li>
+              <li>Společné styly a navigace jsou sdílené mezi stránkami přes <strong>O hře.css</strong>.</li>
+            </ul>
+          </article>
+
+          <article class="overview-card">
+            <h3>2. Backend</h3>
+            <ul class="overview-list">
+              <li>Flask aplikace v <strong>backend/app.py</strong>.</li>
+              <li>Databáze je uložená v <strong>backend/db.sqlite3</strong>.</li>
+              <li>API řeší registraci, login, profil a ukládání skóre.</li>
+              <li>Token se ukládá do databáze a používá se jako jednoduché přihlášení.</li>
+            </ul>
+          </article>
+
+          <article class="overview-card">
+            <h3>3. Frontend</h3>
+            <ul class="overview-list">
+              <li>Stránky jako <strong>Přihlášení</strong>, <strong>Registrace</strong>, <strong>Můj účet</strong>, <strong>TOP10</strong> jsou čistě HTML/CSS.</li>
+              <li>Navigace je stejná napříč webem, takže změny se obvykle kopírují do více stránek.</li>
+              <li>Dropdown <strong>Dokumentace</strong> vede na manuál, investorskou prezentaci a tento přehled.</li>
+              <li>Prohlížečová část je navržená jako lehký web bez frameworku.</li>
+            </ul>
+          </article>
+
+          <article class="overview-card">
+            <h3>4. Tok dat</h3>
+            <ul class="overview-list">
+              <li>Uživatel se zaregistruje nebo přihlásí přes API.</li>
+              <li>Frontend uloží token do <strong>localStorage</strong>.</li>
+              <li>Stránka <strong>Můj účet</strong> čte profil a nejlepší skóre.</li>
+              <li>Hra posílá skóre zpátky do backendu přes endpoint pro výsledky.</li>
+            </ul>
+          </article>
+
+          <article class="overview-card">
+            <h3>5. Kde začít</h3>
+            <ul class="overview-list">
+              <li>Pokud měníš UI, začni v HTML stránkách a následně dolaď CSS.</li>
+              <li>Pokud měníš přihlášení nebo skóre, koukni do <strong>backend/app.py</strong>.</li>
+              <li>Pokud měníš grafiku nebo spritey, uprav <strong>images</strong> a <strong>assets.py</strong>.</li>
+              <li>Pokud se ti něco rozbije, nejdřív zkontroluj cesty k souborům a názvy endpointů.</li>
+            </ul>
+          </article>
+
+          <article class="overview-card">
+            <h3>6. Rychlé spuštění</h3>
+            <ul class="overview-list">
+              <li>Backend: <strong>python backend/app.py</strong></li>
+              <li>Frontend: otevřít přes Live Server z kořene projektu</li>
+              <li>Hra: <strong>python snake_game.py</strong></li>
+              <li>Obrázky jsou v jedné společné složce <strong>images</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+</body>
+</html>

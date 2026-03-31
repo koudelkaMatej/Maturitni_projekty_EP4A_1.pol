@@ -12,8 +12,7 @@
 <div class="navbar">
     <img class="logo" src="{% static 'pictures/DDR.png' %}" alt="Logo">
     <div class="nav-links">
-        <a href="/">EXPLORE</a>
-        <a href="/diagram/">DIAGRAMS</a>
+        <a href="/">BACK TO MAIN PAGE</a>
     </div>
 
     <div class="accountbutton">
@@ -33,6 +32,7 @@
 
 
 <div class="content">
+    <h1>PROFILE</h1>
     <p>Profil uživatele: {{ user.username }}</p>
     <p>Email: {{ user.email }}</p>
     <p>Score: {{ profile.score }}</p>

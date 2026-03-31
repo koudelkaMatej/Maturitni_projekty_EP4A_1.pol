@@ -1,0 +1,214 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* ===== ZÁKLAD ===== */
+body {
+    background: linear-gradient(135deg, #1f2a44, #3a1f2a);
+    color: #f0f0f0;
+    line-height: 1.6;
+}
+
+/* ===== HEADER ===== */
+header {
+    background-color: rgba(20, 25, 40, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav a {
+    margin-left: 25px;
+    text-decoration: none;
+    color: #cfd6e6;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: #ff6b6b;
+}
+
+nav a.active {
+    color: #ff6b6b;
+    border-bottom: 2px solid #ff6b6b;
+    padding-bottom: 4px;
+}
+
+/* ===== MAIN ===== */
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 50px 30px;
+}
+
+/* ===== HERO ===== */
+.hero {
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 50px;
+    border-radius: 18px;
+    text-align: center;
+    margin-bottom: 50px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.hero h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.hero p {
+    font-size: 18px;
+    color: #d6dbea;
+    margin-bottom: 30px;
+}
+
+.hero button {
+    background-color: #ff6b6b;
+    color: #ffffff;
+    border: none;
+    padding: 14px 34px;
+    font-size: 17px;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.hero button:hover {
+    background-color: #e05656;
+}
+
+/* ===== CONTENT ===== */
+.content h3 {
+    margin-top: 40px;
+    margin-bottom: 10px;
+    font-size: 22px;
+    color: #ffffff;
+}
+
+.content p {
+    font-size: 17px;
+    color: #d0d6e6;
+}
+
+.content ul {
+    margin-top: 15px;
+    margin-left: 20px;
+}
+
+.content li {
+    margin-bottom: 8px;
+    color: #e0e4f0;
+}
+
+/* ===== PRÁZDNÉ STRÁNKY ===== */
+.empty {
+    text-align: center;
+    font-size: 18px;
+    color: #c9cfe0;
+    padding: 60px 0;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background-color: rgba(20, 25, 40, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #aeb6cc;
+}
+
+.logo {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #ff6b6b;
+    text-transform: uppercase;
+}
+
+/* ===== GALERIE ===== */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.gallery-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.gallery-item img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 2px solid rgba(255, 107, 107, 0.3);
+}
+
+.gallery-item p {
+    font-size: 15px;
+    color: #cfd6e6;
+}
+
+/* ===== ODKAZY ===== */
+.links-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.link-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    width: 320px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.link-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.link-card h3 {
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.link-card p {
+    font-size: 15px;
+    color: #cfd6e6;
+    margin-bottom: 20px;
+}
+
+.link-card button {
+    background-color: #ff6b6b;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.link-card button:hover {
+    background-color: #e05656;
+}

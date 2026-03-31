@@ -84,8 +84,78 @@ nav a{
   transition:all .15s ease;
   cursor:pointer;
 }
+nav button{
+  appearance:none;
+  -webkit-appearance:none;
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:6px;
+  display:inline-block;
+  transition:all .15s ease;
+  cursor:pointer;
+  font:inherit;
+}
+nav li{ position:relative; }
+nav li.dropdown > a::after,
+nav li.dropdown > button::after{
+  content:"▾";
+  display:inline-block;
+  margin-left:6px;
+  font-size:0.8em;
+  transform:translateY(-1px);
+}
+nav .dropdown-menu{
+  display:none;
+  position:absolute;
+  top:calc(100% - 4px);
+  left:0;
+  min-width:320px;
+  padding:0;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  z-index:50;
+  flex-direction:column;
+  gap:4px;
+}
+nav li.dropdown:hover > a,
+nav li.dropdown:focus-within > a,
+nav li.dropdown:hover > button,
+nav li.dropdown:focus-within > button{
+  background: rgba(255,255,255,0.03);
+  color:#fff;
+  border-radius:6px 6px 0 0;
+}
+nav li.dropdown:hover .dropdown-menu,
+nav li.dropdown:focus-within .dropdown-menu{
+  display:flex;
+}
+nav .dropdown-menu a{
+  display:block;
+  width:100%;
+  white-space:normal;
+  padding:10px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.06);
+  color:var(--text);
+  line-height:1.25;
+}
+nav .dropdown-menu a:hover,
+nav .dropdown-menu a:focus{
+  background:rgba(30,167,255,0.18);
+  border-color:rgba(30,167,255,0.35);
+  color:#fff;
+  transform:none;
+}
 nav a.active,
-nav a:hover{
+nav a:hover,
+nav button:hover,
+nav button:focus{
   background: rgba(255,255,255,0.03);
   color:#fff;
   transform:translateY(-1px);

@@ -1,0 +1,520 @@
+{% extends "flux/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container py-5">
+    <h1 class="text-center mb-5">Project Overview</h1>
+
+    <ul class="nav nav-pills nav-justified mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fs-5" id="pills-manual-tab" data-bs-toggle="pill" data-bs-target="#pills-manual" type="button" role="tab">User Manual</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fs-5" id="pills-presentation-tab" data-bs-toggle="pill" data-bs-target="#pills-presentation" type="button" role="tab">Presentation for investor</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fs-5" id="pills-newcolegue-tab" data-bs-toggle="pill" data-bs-target="#pills-newcolegue" type="button" role="tab">New colegue overview</button>
+        </li>
+    </ul>
+
+    <div class="tab-content bg-light p-5 rounded shadow-sm" id="pills-tabContent">
+        
+        <div class="tab-pane fade show active" id="pills-manual" role="tabpanel">
+            <div class="text-center mb-5 mt-4">
+                <h2 class="text-primary fw-bold">Flux Electronics: Uživatelský manuál</h2>
+                <p class="text-muted">Kompletní průvodce procházením, správou účtu a nakupováním na naší platformě.</p>
+            </div>
+
+            <div class="row align-items-center mb-5 pb-4 border-bottom">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h4 class="fw-bold"><i class="fas fa-user-shield text-primary me-2"></i>1. Účet a zabezpečení</h4>
+                    <p class="text-muted">Spravujte své osobní údaje bezpečně a jednoduše.</p>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">1</span>
+                        <div><strong>Registrace a bezpečnost:</strong> Vytvořte si účet bezpečně. Náš systém obsahuje <em>kontrolu síly hesla</em>, která zajistí ochranu vašich dat.</div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">2</span>
+                        <div><strong>Profil a uložené údaje:</strong> Své údaje můžete kdykoli upravit. Uložte si výchozí doručovací adresu, aby se při platbě vyplnila automaticky!</div>
+                    </div>
+                    <div class="d-flex">
+                        <span class="badge bg-danger rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">3</span>
+                        <div><strong>Smazání účtu:</strong> Máte plnou kontrolu nad svými daty. Svůj účet a všechny s ním spojené informace můžete trvale smazat v nastavení profilu.</div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div id="accountCarousel" class="carousel slide border rounded shadow-sm bg-white" data-bs-ride="false">
+                        <div class="carousel-inner rounded">
+                            <div class="carousel-item active text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/registration.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Registrace">
+                                </div>
+                            </div>
+                            <div class="carousel-item text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/settings_edited.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Nastavení">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#accountCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#accountCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 pb-4 border-bottom flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0 pl-lg-4">
+                    <h4 class="fw-bold"><i class="fas fa-search text-primary me-2"></i>2. Vyhledávání produktů</h4>
+                    <p class="text-muted">Naše chytrá navigace vám pomůže najít přesně to, co hledáte.</p>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">1</span>
+                        <div><strong>Chytré vyhledávání:</strong> Víte přesně, co chcete? Napište název produktu do vyhledávacího pole v horní části stránky a najděte jej okamžitě.</div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">2</span>
+                        <div><strong>Dynamický filtr kategorií:</strong> Pomocí bočního menu můžete procházet konkrétní oddělení (např. Notebooky, Telefony). Aktivní kategorie zůstane zvýrazněna.</div>
+                    </div>
+                    <div class="d-flex">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">3</span>
+                        <div><strong>Produktové karty:</strong> Přejetím myší přes produkt uvidíte 3D efekt. Po kliknutí se zobrazí detailní specifikace.</div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div id="searchCarousel" class="carousel slide border rounded shadow-sm bg-white" data-bs-ride="false">
+                        <div class="carousel-inner rounded">
+                            <div class="carousel-item active text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/search_edited.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Vyhledávání">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 pb-4 border-bottom">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h4 class="fw-bold"><i class="fas fa-shopping-cart text-primary me-2"></i>3. Vytvoření objednávky</h4>
+                    <p class="text-muted">Plynulý a bezpečný proces nákupu.</p>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">1</span>
+                        <div><strong>Správa košíku:</strong> Zkontrolujte své položky, upravte množství nebo odstraňte produkty. Celková cena se automaticky přepočítá.</div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">2</span>
+                        <div><strong>Automatické vyplňování:</strong> Při přechodu k pokladně systém automaticky načte vaši uloženou adresu z profilu, aby vám ušetřil čas!</div>
+                    </div>
+                    <div class="d-flex">
+                        <span class="badge bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">3</span>
+                        <div><strong>Možnosti doručení:</strong> Před kliknutím na „Odeslat objednávku“ si vyberte standardní doručení, lokální kurýra nebo bezplatné vyzvednutí na prodejně.</div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div id="checkoutCarousel" class="carousel slide border rounded shadow-sm bg-white" data-bs-ride="false">
+                        <div class="carousel-inner rounded">
+                            <div class="carousel-item active text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/cart.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Košík">
+                                </div>
+                            </div>
+                            <div class="carousel-item text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/cheackout_edited.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Pokladna Adresa">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#checkoutCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#checkoutCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3 flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0 pl-lg-4">
+                    <h4 class="fw-bold"><i class="fas fa-envelope-open-text text-primary me-2"></i>4. Potvrzení objednávky</h4>
+                    <p class="text-muted">Buďte informováni o každém kroku.</p>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-success rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">1</span>
+                        <div><strong>Systémová upozornění:</strong> Všímejte si zelených zpráv v horní části obrazovky, které potvrzují úspěšné vytvoření objednávky.</div>
+                    </div>
+                    <div class="d-flex">
+                        <span class="badge bg-success rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">2</span>
+                        <div><strong>E-mailová účtenka:</strong> Jakmile je objednávka vytvořena, systém automaticky odešle detailní účtenku přímo na váš ověřený e-mail!</div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div id="receiptCarousel" class="carousel slide border rounded shadow-sm bg-white" data-bs-ride="false">
+                        <div class="carousel-inner rounded">
+                            <div class="carousel-item active text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/order.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Potvrzení objednávky">
+                                </div>
+                            </div>
+                            <div class="carousel-item text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/invoice.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="E-mail faktura">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#receiptCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#receiptCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+        <div class="tab-pane fade" id="pills-presentation" role="tabpanel">
+            <div class="text-center mb-5 mt-4">
+                <span class="badge bg-primary text-uppercase mb-2 px-3 py-2">Investiční příležitost</span>
+                <h2 class="text-dark fw-bold">Flux Electronics: Architektura budoucnosti</h2>
+                <p class="text-muted lead w-75 mx-auto">Moderní, bezpečná a plně škálovatelná e-commerce platforma připravená na masivní růst uživatelské základny a minimalizaci provozních nákladů.</p>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm bg-white p-4 text-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-shield-alt fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold">Zabezpečení na úrovni bank</h5>
+                        <p class="text-muted small mb-0">Ochrana proti SQL injection, CSRF útokům a bezpečné šifrování hesel pomocí algoritmu PBKDF2.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm bg-white p-4 text-center">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold">Vysoká konverze (UX)</h5>
+                        <p class="text-muted small mb-0">Frikční nákupní proces, dynamické filtrování a blesková navigace zvyšují procento dokončených nákupů.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm bg-white p-4 text-center">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-server fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold">Škálovatelný Backend</h5>
+                        <p class="text-muted small mb-0">Postaveno na robustním frameworku Django. Připraveno na integraci API, tisíce produktů a vysokou zátěž.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 bg-white p-4 rounded shadow-sm">
+                <div class="col-lg-6 mb-4 mb-lg-0 pr-lg-5">
+                    <h3 class="fw-bold text-dark mb-3">Ochrana uživatelských dat jako priorita</h3>
+                    <p class="text-muted">V dnešní době je bezpečnost dat největším rizikem pro e-commerce. Náš systém je od základu navržen tak, aby chránil jak firmu, tak zákazníka.</p>
+                    <ul class="list-unstyled text-muted mt-4">
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i><strong>Pokročilá validace hesel:</strong> Neukládáme hesla v čistém textu, využíváme jednosměrné kryptografické hašování.</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i><strong>Ochrana relací (Session Security):</strong> Každý formulář je chráněn unikátním CSRF tokenem.</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i><strong>Bezpečná správa databáze:</strong> Striktní oddělení uživatelských a administrátorských práv.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="bg-light border rounded shadow-sm d-flex align-items-center justify-content-center text-muted" style="height: 300px;">
+                        <img src="{% static 'flux/img/registration.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Registrace">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 bg-white p-4 rounded shadow-sm flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0 pl-lg-5">
+                    <h3 class="fw-bold text-dark mb-3">Maximalizace dosahu díky UX a Mobile-First</h3>
+                    <p class="text-muted">Zákazníci nečekají. Pokud nenajdou produkt do 3 sekund, odcházejí ke konkurenci. Náš front-end je optimalizován pro okamžitou odezvu.</p>
+                    <ul class="list-unstyled text-muted mt-4">
+                        <li class="mb-3"><i class="fas fa-check-circle text-primary me-2"></i><strong>Blesková navigace a vyhledávání:</strong> Uživatelé mohou okamžitě přepínat mezi kategoriemi pomocí dynamického postranního panelu nebo využít přesné textové vyhledávání.</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-primary me-2"></i><strong>100% Responzivní design:</strong> Díky technologii Bootstrap 5 se e-shop plynule přizpůsobí jakémukoliv zařízení – od 4K monitorů po malé obrazovky smartphonů.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="bg-light border rounded shadow-sm d-flex align-items-center justify-content-center text-muted" style="height: 300px;">
+                        <img src="{% static 'flux/img/search.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Vyhledávání">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 bg-white p-4 rounded shadow-sm">
+                <div class="col-lg-6 mb-4 mb-lg-0 pr-lg-5">
+                    <h3 class="fw-bold text-dark mb-3">Odstranění bariér v nákupním procesu</h3>
+                    <p class="text-muted">Systém aktivně pracuje na tom, aby se minimalizovalo opuštění košíku. Dali jsme zákazníkům plnou kontrolu a flexibilitu.</p>
+                    <ul class="list-unstyled text-muted mt-4">
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i><strong>Smart Checkout:</strong> Přihlášeným uživatelům systém automaticky předvyplňuje doručovací údaje. Méně psaní znamená více dokončených objednávek.</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-success me-2"></i><strong>Flexibilní doručení a platby:</strong> Zákazník má na výběr z více možností (Standardní doručení, Lokální kurýr, Vyzvednutí na prodejně), přičemž systém dynamicky přepočítává celkovou cenu.</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i><strong>Automatizované e-mailové účtenky:</strong> Okamžité potvrzení objednávky snižuje zátěž zákaznické podpory o desítky procent.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div id="investorReceiptCarousel" class="carousel slide border rounded shadow-sm bg-white" data-bs-ride="false">
+                        <div class="carousel-inner rounded">
+                            <div class="carousel-item active text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/cheackout.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Checkout">
+                                </div>
+                            </div>
+                            <div class="carousel-item text-center" style="height: 300px;">
+                                <div class="d-flex flex-column h-100 justify-content-center align-items-center text-muted">
+                                    <img src="{% static 'flux/img/invoice.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Faktura">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#investorReceiptCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#investorReceiptCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center bg-white p-4 rounded shadow-sm flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0 pl-lg-5">
+                    <h3 class="fw-bold text-dark mb-3">Nulové náklady na vývoj Back-Office</h3>
+                    <p class="text-muted">Vývoj administračního rozhraní na míru často zdvojnásobuje rozpočet projektu. My jsme tento problém elegantně vyřešili pomocí nativních nástrojů.</p>
+                    <ul class="list-unstyled text-muted mt-4">
+                        <li class="mb-3"><i class="fas fa-check-circle text-primary me-2"></i><strong>Django Admin Panel:</strong> Integrovaný, plně zabezpečený administrační systém pro správu eshopu, který nevyžadoval žádné dodatečné náklady na vývoj.</li>
+                        <li class="mb-3"><i class="fas fa-check-circle text-primary me-2"></i><strong>Efektivní správa katalogu:</strong> Přidávání nových produktů, kategorií a úprava cen je záležitostí několika kliknutí přímo z prohlížeče.</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i><strong>Centralizovaná správa uživatelů:</strong> Kompletní přehled nad uživatelskými účty a oprávněními z jednoho místa, chráněný superuživatelským přístupem.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="bg-light border rounded shadow-sm d-flex align-items-center justify-content-center text-muted" style="height: 300px;">
+                        <img src="{% static 'flux/img/admin.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Admin Panel">                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-newcolegue" role="tabpanel">
+            <div class="text-center mb-5 mt-4">
+                <span class="badge bg-dark text-uppercase mb-2 px-3 py-2">Developer Onboarding</span>
+                <h2 class="text-dark fw-bold">Flux Electronics: Technický přehled</h2>
+                <p class="text-muted lead w-75 mx-auto">Vítej v týmu! Tento dokument ti pomůže rychle se zorientovat v architektuře projektu, databázovém schématu a pravidlech vývoje.</p>
+            </div>
+
+            <div class="row align-items-center mb-5 bg-white p-4 rounded shadow-sm border-start border-dark border-4">
+                <div class="col-lg-6 mb-4 mb-lg-0 pr-lg-4">
+                    <h4 class="fw-bold text-dark"><i class="fas fa-terminal text-dark me-2"></i>1. První spuštění projektu</h4>
+                    <p class="text-muted mb-4">Než začneš programovat, musíš si projekt rozběhnout u sebe na počítači. Zde je postup, jak nastavit lokální vývojové prostředí:</p>
+                    <ol class="text-muted mb-0">
+                        <li class="mb-2"><strong>Vytvoření virtuálního prostředí:</strong> Odděluje balíčky tohoto projektu od zbytku PC.</li>
+                        <li class="mb-2"><strong>Aktivace prostředí:</strong> Musíš provést před každou prací na projektu.</li>
+                        <li class="mb-2"><strong>Instalace závislostí:</strong> Stáhne Django z <code>requirements.txt</code>.</li>
+                        <li class="mb-2"><strong>Migrace databáze:</strong> Vytvoří prázdné tabulky v lokální databázi.</li>
+                        <li><strong>Spuštění serveru:</strong> Zapne web na <code>localhost:8000</code>.</li>
+                    </ol>
+                </div>
+                <div class="col-lg-6">
+                    <div class="bg-dark text-light p-4 rounded shadow-sm font-monospace small">
+                        <div class="text-secondary mb-2"># 1. Vytvoření a aktivace prostředí (Windows)</div>
+                        <div class="mb-3 text-success">&gt; python -m venv venv<br>&gt; .\venv\Scripts\activate</div>
+                        <div class="text-secondary mb-2"># 2. Instalace knihoven a migrace</div>
+                        <div class="mb-3 text-success">&gt; pip install -r requirements.txt<br>&gt; python manage.py migrate</div>
+                        <div class="text-secondary mb-2"># 3. Zapnutí serveru</div>
+                        <div class="text-success">&gt; python manage.py runserver</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 bg-white p-4 rounded shadow-sm border-start border-info border-4 flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0 pl-lg-4">
+                    <h4 class="fw-bold text-dark"><i class="fas fa-folder-tree text-info me-2"></i>2. Architektura složek</h4>
+                    <p class="text-muted mb-4">Abychom udrželi kód čistý, striktně oddělujeme logiku, šablony a statické soubory:</p>
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-3"><i class="fas fa-code text-info me-2"></i><strong>Hlavní aplikace (např. flux/):</strong> Zde žije veškerá Python logika (views, models, urls).</li>
+                        <li class="mb-3"><i class="fas fa-file-code text-info me-2"></i><strong>templates/:</strong> Zde jsou všechny HTML soubory. Používáme dědičnost z <code>base.html</code>.</li>
+                        <li class="mb-3"><i class="fas fa-paint-roller text-info me-2"></i><strong>static/:</strong> CSS soubory a statické obrázky rozhraní.</li>
+                        <li><i class="fas fa-images text-info me-2"></i><strong>media/:</strong> Sem se automaticky ukládají fotky produktů nahrané přes Admin panel.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="bg-light border rounded shadow-sm p-4 text-start font-monospace text-muted" style="min-height: 300px;">
+                        <div class="fw-bold text-dark mb-2"><i class="fas fa-folder-open text-warning me-2"></i>flux_project/</div>
+                        <div class="ms-4 mb-1"><i class="fas fa-folder text-warning me-2"></i>core/ <span class="text-secondary small">(settings.py, urls.py)</span></div>
+                        <div class="ms-4 mb-1"><i class="fas fa-folder text-warning me-2"></i>flux/ <span class="text-secondary small">(modely a views)</span></div>
+                        <div class="ms-4 mb-1"><i class="fas fa-folder text-warning me-2"></i>media/ <span class="text-secondary small">(fotky produktů z adminu)</span></div>
+                        <div class="ms-4 mb-1"><i class="fas fa-folder text-warning me-2"></i>static/ <span class="text-secondary small">(css a layout obrázky)</span></div>
+                        <div class="ms-4 mb-1"><i class="fas fa-folder text-warning me-2"></i>templates/ <span class="text-secondary small">(HTML šablony)</span></div>
+                        <div class="ms-4 mt-3 text-success"><i class="fab fa-python me-2"></i>manage.py</div>
+                        <div class="ms-4 text-primary"><i class="fas fa-database me-2"></i>db.sqlite3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow-sm border-start border-primary border-4 mb-5">
+                <div class="mb-4">
+                    <h4 class="fw-bold text-dark"><i class="fas fa-database text-primary me-2"></i>3. Databázová architektura a vztahy</h4>
+                    <p class="text-muted mb-4">Projekt využívá relační databázi spravovanou přes Django ORM. Níže uvedený ERD (Entity-Relationship Diagram) znázorňuje propojení jednotlivých tabulek a jejich kardinalitu:</p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border h-100 border-start border-secondary border-3">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-users text-secondary me-2"></i>User & Order (Vztah 1:N)</h6>
+                                <p class="small text-muted mb-0">Jeden uživatel může mít více objednávek. Tabulka <strong>Order</strong> na něj odkazuje přes Cizí klíč (User ID) a uchovává specifické doručovací údaje pro daný nákup.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border h-100 border-start border-secondary border-3">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-shopping-bag text-secondary me-2"></i>Order & Product (Vztah M:N)</h6>
+                                <p class="small text-muted mb-0">Propojení řeší asociativní entita <strong>Order items</strong>. Ta drží cizí klíče obou tabulek, uchovává zakoupené množství (Quantity) a dynamicky počítá celkovou cenu položky.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border h-100 border-start border-secondary border-3">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-table text-secondary me-2"></i>Category & Product (Vztah 1:N)</h6>
+                                <p class="small text-muted mb-0">Jedna kategorie může obsahovat nekonečně mnoho produktů. Každý model <strong>Product</strong> má Cizí klíč odkazující na svou domovskou kategorii.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border h-100 border-start border-secondary border-3">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-images text-secondary me-2"></i>Product & ProductImage (Vztah 1:N)</h6>
+                                <p class="small text-muted mb-0">Pro oddělení logiky může mít jeden produkt více fotek v galerii. Tabulka <strong>ProductImage</strong> se váže na konkrétní produkt přes jeho ID.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-light border rounded shadow-sm p-3 text-center">
+                    <img src="{% static 'flux/img/Project_diagram.png' %}" class="img-fluid rounded w-100 shadow-sm" alt="Databázový diagram">
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-5 bg-white p-4 rounded shadow-sm border-start border-success border-4 flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0 pl-lg-4">
+                    <h4 class="fw-bold text-dark"><i class="fas fa-cogs text-success me-2"></i>4. Administrační rozhraní</h4>
+                    <p class="text-muted mb-4">Pro správu obsahu poskytuje Django výkonný Admin panel zaregistrovaný v <code>admin.py</code>.</p>
+                    <h6 class="fw-bold">Jak se dostat do Adminu:</h6>
+                    <ol class="text-muted mb-4">
+                        <li>Běž na adresu <code>127.0.0.1:8000/admin</code>.</li>
+                        <li>Pokud nemáš účet, vytvoř ho:<br> <code class="bg-light p-1 rounded text-danger">python manage.py createsuperuser</code></li>
+                    </ol>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="bg-light border rounded shadow-sm d-flex flex-column align-items-center justify-content-center text-muted" style="min-height: 300px;">
+                        <img src="{% static 'flux/img/admin.png' %}" class="img-fluid" style="max-height: 100%; object-fit:contain;" alt="Admin Panel">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="bg-white border-start border-danger border-4 rounded p-4 shadow-sm">
+                        <h4 class="fw-bold text-danger mb-4"><i class="fas fa-exclamation-triangle me-2"></i>5. Zlatá pravidla pro psaní kódu</h4>
+                        <div class="row g-4 text-dark">
+                            <div class="col-md-4">
+                                <h6 class="fw-bold">1. Neupravuj databázi bez migrací!</h6>
+                                <p class="text-muted small mb-0">Pokud přidáš sloupec do <code class="bg-light text-danger px-1 border rounded">models.py</code>, musíš spustit <code class="bg-light text-danger px-1 border rounded">makemigrations</code> a <code class="bg-light text-danger px-1 border rounded">migrate</code>.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-bold">2. Vypínej DEBUG v produkci!</h6>
+                                <p class="text-muted small mb-0">V <code class="bg-light text-danger px-1 border rounded">settings.py</code> musí být <code class="bg-light text-danger px-1 border rounded">DEBUG = False</code> před nasazením na reálný server kvůli bezpečnosti.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-bold">3. Hardcoding URL je zakázán!</h6>
+                                <p class="text-muted small mb-0">V HTML šablonách nepiš <code class="bg-light text-danger px-1 border rounded">href="/shop"</code>. Používej dynamický tag <code class="bg-light text-danger px-1 border rounded">&#123;% url 'název' %&#125;</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow-sm border-start border-warning border-4 mb-5">
+                <h4 class="fw-bold text-dark mb-4"><i class="fas fa-map-marked-alt text-warning me-2"></i>6. Mapa funkcí (Pod kapotou)</h4>
+                <p class="text-muted mb-4">Tento tahák ti pomůže pochopit pokročilou logiku a najít správný soubor, když budeš upravovat kód.</p>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-search text-success me-2"></i>Kategorie a Vyhledávání</h6>
+                                <p class="text-muted small mb-2">Filtrování produktů na hlavní stránce obchodu.</p>
+                                <ul class="small text-muted mb-0">
+                                    <li><strong>Logika:</strong> <code>views.py</code> (zpracování parametru `?q=`)</li>
+                                    <li><strong>Routy:</strong> <code>urls.py</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light h-100 border-start border-primary border-3">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-globe text-primary me-2"></i>Context Processors</h6>
+                                <p class="text-muted small mb-2">Jak dostáváme data (např. počet položek v košíku) do všech šablon najednou bez psaní kódu do každého view.</p>
+                                <ul class="small text-muted mb-0">
+                                    <li><strong>Soubor:</strong> <code>context_processors.py</code></li>
+                                    <li><strong>Nastavení:</strong> Musí být registrováno v <code>settings.py</code> v sekci TEMPLATES.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light h-100 border-start border-primary border-3">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-shopping-cart text-primary me-2"></i>Logika košíku (cart.py)</h6>
+                                <p class="text-muted small mb-2">Košík nevyužívá databázi, dokud uživatel nezaplatí. Místo toho využíváme Django Sessions.</p>
+                                <ul class="small text-muted mb-0">
+                                    <li><strong>Třída Cart:</strong> V souboru <code>cart.py</code> držíme logiku pro přidávání a počítání cen.</li>
+                                    <li><strong>Ukládání:</strong> Data žijí v <code>request.session</code>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light h-100 border-start border-danger border-3">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-dark"><i class="fas fa-bug text-danger me-2"></i>Logování a Debugging</h6>
+                                <p class="text-muted small mb-2">Jak sledujeme chyby v produkci (např. selhání odeslání e-mailu nebo chyby v platbě).</p>
+                                <ul class="small text-muted mb-0">
+                                    <li><strong>Konfigurace:</strong> Slovník <code>LOGGING</code> v <code>settings.py</code>.</li>
+                                    <li><strong>Zápis:</strong> Události se zapisují do souboru (např. <code>debug.log</code>), abychom je mohli zpětně analyzovat.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center bg-white p-4 rounded shadow-sm border-start border-secondary border-4 mb-4">
+                <div class="col-lg-6 mb-4 mb-lg-0 pr-lg-4">
+                    <h4 class="fw-bold text-dark"><i class="fab fa-git-alt text-danger me-2"></i>7. Verzování a Git Flow</h4>
+                    <p class="text-muted mb-3">Na projektu pracujeme v týmu, proto striktně dodržujeme pravidla pro nahrávání kódu na GitHub.</p>
+                    <h6 class="fw-bold text-dark mt-4">Soubor .gitignore</h6>
+                    <p class="text-muted small">Tento soubor říká Gitu, které soubory má <strong>zcela ignorovat</strong> a nenahrávat na server. Jde o bezpečnost!</p>
+                    <ul class="list-unstyled text-muted small">
+                        <li><i class="fas fa-times-circle text-danger me-2"></i><strong>db.sqlite3:</strong> Nikdy nenahráváme produkční databázi!</li>
+                        <li><i class="fas fa-times-circle text-danger me-2"></i><strong>/venv/:</strong> Složka s virtuálním prostředím má stovky megabajtů, ignorujeme ji.</li>
+                        <li><i class="fas fa-times-circle text-danger me-2"></i><strong>.env (Tajné klíče):</strong> Hesla a Django SECRET_KEY nikdy nesmí jít na GitHub!</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class="bg-dark text-light p-4 rounded shadow-sm font-monospace small">
+                        <div class="text-secondary mb-2"># Správný postup pro nahrání kódu (Git Push)</div>
+                        <div class="text-secondary mt-3"># 1. Zkontroluj, co jsi změnil</div>
+                        <div class="text-info">&gt; git status</div>
+                        <div class="text-secondary mt-3"># 2. Přidej všechny bezpečné soubory</div>
+                        <div class="text-info">&gt; git add .</div>
+                        <div class="text-secondary mt-3"># 3. Vytvoř balíček s popisnou zprávou</div>
+                        <div class="text-info">&gt; git commit -m "feat: Přidána logika pro nákupní košík"</div>
+                        <div class="text-secondary mt-3"># 4. Odešli kód bezpečně na hlavní větev</div>
+                        <div class="text-success fw-bold">&gt; git push origin main</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

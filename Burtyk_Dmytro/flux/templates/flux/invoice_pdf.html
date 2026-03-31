@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* PDF specific CSS */
+        body { font-family: Helvetica, sans-serif; font-size: 14px; color: #333; }
+        .invoice-box { padding: 20px; }
+        
+        .header-table { width: 100%; margin-bottom: 40px; }
+        .title { font-size: 36px; color: #2c3e50; font-weight: bold; text-transform: uppercase; }
+        .company-details { text-align: right; font-size: 13px; color: #555; }
+        
+        .info-table { width: 100%; margin-bottom: 40px; }
+        .info-table th { text-align: left; background-color: #f8f9fa; padding: 8px; border-bottom: 2px solid #ddd; color: #2c3e50;}
+        .info-table td { padding: 8px; font-size: 13px; }
+        
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .item-table th { background-color: #2c3e50; color: white; padding: 10px; text-align: left; font-weight: bold; }
+        .item-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        /* Align numbers to the right */
+        .right { text-align: right; }
+        
+        .totals-table { width: 100%; margin-top: 20px; }
+        .total-row td { font-weight: bold; font-size: 18px; color: #2c3e50; border-top: 2px solid #2c3e50; padding-top: 10px; }
+        
+        .footer { text-align: center; margin-top: 60px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table class="header-table">
+            <tr>
+                <td class="title">Invoice</td>
+                <td class="company-details">
+                    <strong>Flux s.r.o</strong><br>
+                    123 Technology Drive<br>
+                    Silicon Valley, CA 94000<br>
+                    support@electroshop.com
+                </td>
+            </tr>
+        </table>
+
+        <table class="info-table">
+            <tr>
+                <th width="50%">Billed To:</th>
+                <th width="50%">Order Details:</th>
+            </tr>
+            <tr>
+                <td valign="top">
+                    <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                    {{ order.address }}<br>
+                    {{ order.city }}, {{ order.zip_code }}<br>
+                    {{ order.country }}<br>
+                    {{ order.email }}
+                </td>
+                <td valign="top">
+                    Order Number: <strong>#000{{ order.id }}</strong><br>
+                    Date: {{ order.created|date:"M d, Y" }}<br>
+                    Payment: {{ order.payment_method }}<br>
+                    Shipping: {{ order.shipping_method }}
+                </td>
+            </tr>
+        </table>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th>Product Description</th>
+                    <th class="right">Qty</th>
+                    <th class="right">Price</th>
+                    <th class="right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td class="right">{{ item.quantity }}</td>
+                    <td class="right">${{ item.price }}</td>
+                    <td class="right">${{ item.total_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="totals-table">
+            <tr>
+                <td width="70%" class="right">Shipping Cost:</td>
+                <td width="30%" class="right">${{ order.shipping_cost }}</td>
+            </tr>
+            <tr class="total-row">
+                <td class="right">GRAND TOTAL:</td>
+                <td class="right">${{ grand_total|floatformat:2 }}</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            Thank you for shopping with Flux Electro Shop! If you have any questions about this invoice, please contact us.
+        </div>
+    </div>
+</body>
+</html>

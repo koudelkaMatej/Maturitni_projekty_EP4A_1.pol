@@ -1,0 +1,255 @@
+/* 🎮 SNAKE — styl pro manuál pro uživatele */
+/* ========================= */
+
+/* 🔹 ZÁKLADNÍ NASTAVENÍ */
+/* ========================= */
+:root{
+  --bg-1:#071027;
+  --bg-2:#0b2e4a;
+  --accent:#1ea7ff;
+  --muted:#9fb8d9;
+  --card-bg: rgba(255,255,255,0.02);
+  --text:#eaf6ff;
+  --max-width:990px;
+  --header-height:64px;
+  --radius:12px;
+  --gap:12px;
+  --base-size:16px;
+}
+
+/* Reset + typografie */
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+html,body{
+  height:100%;
+  font-family:"Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  color:var(--text);
+  font-size:var(--base-size);
+}
+
+/* ========================= */
+/* 🔹 STRUKTURA STRÁNKY */
+/* ========================= */
+body{
+  background: linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 60%, #043239 100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+
+/* ========================= */
+/* 🔹 HLAVIČKA / NAVBAR */
+/* ========================= */
+header{
+  height:var(--header-height);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  background: rgba(0,0,0,0.12);
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  z-index:10;
+}
+header h1{
+  margin:0;
+  font-size:1.15rem;
+  color:var(--text);
+  font-weight:700;
+  letter-spacing:0.6px;
+}
+header h1 a{
+  color:inherit;
+  text-decoration:none;
+}
+nav ul{
+  display:flex;
+  gap:10px;
+  list-style:none;
+  margin:0;
+  padding:0;
+  align-items:center;
+  height:100%;
+}
+nav li{
+  position:relative;
+}
+nav a{
+  color:var(--muted);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:6px;
+  display:inline-block;
+  transition:all .15s ease;
+  cursor:pointer;
+}
+nav button{
+  appearance:none;
+  -webkit-appearance:none;
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:6px;
+  display:inline-block;
+  transition:all .15s ease;
+  cursor:pointer;
+  font:inherit;
+}
+nav li.dropdown > a::after{
+  content:"▾";
+  display:inline-block;
+  margin-left:6px;
+  font-size:0.8em;
+  transform:translateY(-1px);
+}
+nav li.dropdown > button::after{
+  content:"▾";
+  display:inline-block;
+  margin-left:6px;
+  font-size:0.8em;
+  transform:translateY(-1px);
+}
+nav .dropdown-menu{
+  display:none;
+  position:absolute;
+  top:calc(100% + 6px);
+  left:-88px;
+  min-width:320px;
+  padding:0;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  z-index:50;
+  flex-direction:column;
+  gap:4px;
+}
+nav li.dropdown:hover > a,
+nav li.dropdown:focus-within > a,
+nav li.dropdown:hover > button,
+nav li.dropdown:focus-within > button{
+  background: rgba(255,255,255,0.03);
+  color:#fff;
+  border-radius:6px 6px 0 0;
+}
+nav li.dropdown:hover .dropdown-menu,
+nav li.dropdown:focus-within .dropdown-menu{
+  display:flex;
+}
+nav .dropdown-menu a{
+  display:block;
+  width:100%;
+  white-space:normal;
+  padding:10px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.06);
+  color:var(--text);
+  line-height:1.25;
+}
+nav .dropdown-menu a:hover,
+nav .dropdown-menu a:focus{
+  background:rgba(30,167,255,0.18);
+  border-color:rgba(30,167,255,0.35);
+  color:#fff;
+  transform:none;
+}
+nav a.active, nav button.active, nav a:hover, nav button:hover, nav button:focus{
+  background: rgba(255,255,255,0.03);
+  color:#fff;
+  transform:translateY(-1px);
+}
+
+/* ========================= */
+/* 🔹 HLAVNÍ OBSAH */
+/* ========================= */
+main{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+}
+/* sjednocení pro všechny hlavní sekce */
+.o-hre-main{
+  min-height: calc(100vh - var(--header-height));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+}
+
+/* ========================= */
+/* 🔹 KARTY (OBSAHOVÉ BLOKY) */
+/* ========================= */
+.o-card{
+  width:100%;
+  max-width:var(--max-width);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.04);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  color:var(--text);
+}
+.o-card h2{
+  margin:0 0 8px;
+  font-size:1.4rem;
+  color:#fff;
+}
+.o-card .muted{
+  color:var(--muted);
+  margin-bottom:14px;
+}
+
+/* ========================= */
+/* 🔹 SEZNAMY / GRIDY */
+/* ========================= */
+.grid{
+  display:flex;
+  flex-direction:column;
+  gap:var(--gap);
+  margin-top:8px;
+}
+.grid article{
+  background: var(--card-bg);
+  border:1px solid rgba(255,255,255,0.03);
+  padding:14px 16px;
+  border-radius:8px;
+}
+.grid h3{
+  margin:0 0 6px;
+  color:#fff;
+  font-size:1.05rem;
+}
+.grid p{
+  margin:6px 0;
+  color:var(--text);
+  line-height:1.45;
+}
+
+/* ========================= */
+/* 🔹 RESPONSIVNÍ DESIGN */
+/* ========================= */
+@media (max-width:900px){
+  :root{ --max-width:760px; }
+}
+@media (max-width:700px){
+  :root{ --header-height:56px; --base-size:15px; }
+  header{ padding:0 14px; }
+  .o-card{ padding:16px; border-radius:10px; }
+  .grid article{ padding:12px; }
+}
+
+/* ========================= */
+/* 🔹 REDUCED MOTION */
+/* ========================= */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important; transform:none !important; }
+}

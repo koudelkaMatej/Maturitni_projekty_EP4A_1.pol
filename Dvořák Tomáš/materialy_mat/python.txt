@@ -1,0 +1,133 @@
+Text Type:	str
+Numeric Types:	int, float, complex
+Sequence Types:	list, tuple, range
+Mapping Type:	dict
+Set Types:	set, frozenset
+Boolean Type:	bool
+Binary Types:	bytes, bytearray, memoryview
+None Type:	NoneType
+
+There are three numeric types in Python:
+
+int
+float
+complex
+Variables of numeric types are created when you assign a value to them:
+
+ExampleGet your own Python Server
+x = 1    # int
+y = 2.8  # float
+z = 1j   # complex
+
+Slicing
+You can return a range of characters by using the slice syntax.
+
+Specify the start index and the end index, separated by a colon, to return a part of the string.
+
+ExampleGet your own Python Server
+Get the characters from position 2 to position 5 (not included):
+
+b = "Hello, World!"
+print(b[2:5])
+
+
+
+Vybusna strela
+
+
+class ExplodingProjectile:
+    """Výbušná střela hráče — pomalejší, ale při zásahu poškodí
+    všechny nepřátele v okolí 80px. Vizuálně modrá."""
+    EXPLODE_RADIUS = 80
+    DAMAGE = 2  # Poškodí nepřítele o 2 HP
+ 
+    def __init__(self, x, y, target_x, target_y):
+        self.x = x
+        self.y = y
+        speed = 9
+        dx = target_x - x
+        dy = target_y - y
+        distance = math.hypot(dx, dy)
+        self.dx = (dx / distance) * speed
+        self.dy = (dy / distance) * speed
+        self.rect = pygame.Rect(x - 10, y - 10, 20, 20)
+        self.exploded = False
+        self.explode_timer = 0   # vizuální efekt výbuchu
+ 
+    def move(self):
+        self.x += self.dx
+        self.y += self.dy
+        self.rect.center = (int(self.x), int(self.y))
+ 
+    def draw(self):
+        if self.explode_timer > 0:
+            # Výbuch — kruh mizící pryč
+            radius = int((1 - self.explode_timer / 15) * self.EXPLODE_RADIUS)
+            alpha_surf = pygame.Surface((radius * 2 + 4, radius * 2 + 4), pygame.SRCALPHA)
+            alpha = max(0, int(self.explode_timer / 15 * 200))
+            pygame.draw.circle(alpha_surf, (0, 100, 255, alpha), (radius + 2, radius + 2), radius, 4)
+            SCREEN.blit(alpha_surf, (int(self.x) - radius - 2, int(self.y) - radius - 2))
+        else:
+            pygame.draw.circle(SCREEN, DARK_BLUE, (int(self.x), int(self.y)), 10)
+            pygame.draw.circle(SCREEN, (100, 150, 255), (int(self.x), int(self.y)), 6)
+ 
+    def explode(self, enemies_list):
+        """Poškodí nepřátele v dosahu výbuchu. Vrátí seznam zabitých."""
+        self.exploded = True
+        self.explode_timer = 15
+        killed = []
+        for e in enemies_list[:]:
+            dist = math.hypot(e.x - self.x, e.y - self.y)
+            if dist <= self.EXPLODE_RADIUS:
+                e.hp -= self.DAMAGE
+                if e.hp <= 0:
+                    killed.append(e)
+        return killed
+ 
+    def collides_with(self, entity):
+        return self.rect.colliderect(entity.rect)
+
+exploding_projectiles = [] // cca radek 850
+
+            if event.button == 3:
+                if not main_menu and not game_over and not paused and not player.is_dead:
+                    if player.current_ammo > 0 and not player.is_reloading:
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
+                        exploding_projectiles.append(ExplodingProjectile(
+                            player.rect.centerx, player.rect.centery,
+                            mouse_x, mouse_y
+                        ))
+                        player.current_ammo -= 1
+                        log_shot_fired(player.current_ammo)
+                        if player.current_ammo == 0:
+                            player.reload()
+                            log_reload(player.max_ammo)
+
+
+        # NOVÉ: Logika výbušných střel
+        for ep in exploding_projectiles[:]:
+            if ep.explode_timer > 0:
+                ep.explode_timer -= 1
+                if ep.explode_timer <= 0:
+                    exploding_projectiles.remove(ep)
+                continue
+ 
+            ep.move()
+ 
+            hit = False
+            for e in enemies[:]:
+                if ep.collides_with(e):
+                    killed_by_explosion = ep.explode(enemies)
+                    for ke in killed_by_explosion:
+                        if ke in enemies:
+                            enemies.remove(ke)
+                            score += 150   # Výbušná střela dává více skóre
+                    if total_spawned >= MAX_ENEMIES and len(enemies) == 0:
+                        room_cleared = True
+                    hit = True
+                    break
+ 
+            if not hit and not (0 <= ep.x <= WIDTH and 0 <= ep.y <= HEIGHT):
+                ep.explode(enemies)  # exploduj u okraje
+                exploding_projectiles.remove(ep) if ep in exploding_projectiles else None
+ for ep in exploding_projectiles: ep.draw()   # NOVÉ
