@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Všechny tréninky — AMP</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .back-link { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .back-link:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="site">
+    <div class="header-row">
+      <a href="/" class="back-link">← Zpět na přehled</a>
+      <h2>Všechny tréninky</h2>
+    </div>
+
+    <div id="loading">Načítám...</div>
+    <div id="workouts-list" class="workouts-list"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const list = document.getElementById('workouts-list');
+      const token = localStorage.getItem('amp_token');
+
+      if (!token) {
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const res = await fetch('/get_workouts', {
+          headers: { 'Authorization': token }
+        });
+        const data = await res.json();
+        
+        document.getElementById('loading').style.display = 'none';
+        renderWorkouts(data.workouts);
+      } catch (e) {
+        document.getElementById('loading').textContent = 'Chyba při načítání.';
+      }
+
+      function renderWorkouts(workouts) {
+        if (!workouts || workouts.length === 0) {
+          list.innerHTML = '<div style="color:var(--muted)">Žádné záznamy.</div>';
+          return;
+        }
+        
+        workouts.forEach(w => {
+           const item = document.createElement('div');
+           item.className = 'workout-item';
+           
+           const head = document.createElement('div');
+           head.className = 'workout-head';
+           
+           const infoDiv = document.createElement('div');
+           const dateEl = document.createElement('div');
+           dateEl.className = 'workout-date';
+           dateEl.textContent = w.date ? new Date(w.date).toLocaleString() : 'Neznámé datum';
+           
+           const summaryEl = document.createElement('div');
+           summaryEl.className = 'workout-ex';
+           summaryEl.textContent = w.summary_text || 'Trénink';
+     
+           infoDiv.appendChild(summaryEl);
+           infoDiv.appendChild(dateEl);
+           
+           if (w.note) {
+             const noteEl = document.createElement('div');
+             noteEl.className = 'workout-meta';
+             noteEl.textContent = `Poznámka: ${w.note}`;
+             infoDiv.appendChild(noteEl);
+           }
+           
+           const btnDiv = document.createElement('div');
+           const btn = document.createElement('button');
+           btn.className = 'btn ghost small';
+           btn.textContent = 'Detail';
+           btn.onclick = () => {
+             window.location.href = `/workout_detail?id=${w.id}`;
+           };
+           btnDiv.appendChild(btn);
+     
+           head.appendChild(infoDiv);
+           head.appendChild(btnDiv);
+           item.appendChild(head);
+           
+           list.appendChild(item);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

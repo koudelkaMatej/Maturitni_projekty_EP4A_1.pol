@@ -1,0 +1,7 @@
+timestamp,actor,action,target,details
+2026-02-24 19:57:02,admin,add_exercise,triceps pushdown,{}
+2026-02-24 20:43:14,admin,ban_user,alex,{}
+2026-02-24 20:43:19,admin,unban_user,admin,{}
+2026-02-24 20:43:19,admin,unban_user,alex,{}
+2026-02-24 20:43:32,admin,ban_user,alex,{}
+2026-02-24 20:44:07,admin,unban_user,alex,{}
