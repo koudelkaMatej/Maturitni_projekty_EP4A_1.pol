@@ -1031,7 +1031,7 @@ while running:
         txt = title_font.render(msg, True, color)
         SCREEN.blit(txt, (WIDTH//2 - txt.get_width()//2, HEIGHT//2 - 100))
         
-        final_time_str = f"Konečný čas: {elapsed_ms // 1000}:{elapsed_ms % 1000:03d}s"
+        final_time_str = f"Konečný čas: {total_elapsed_ms // 1000}:{total_elapsed_ms % 1000:03d}s"
         time_txt = font.render(final_time_str, True, WHITE)
         SCREEN.blit(time_txt, (WIDTH//2 - time_txt.get_width()//2, HEIGHT//2))
 
