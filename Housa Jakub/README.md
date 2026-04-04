@@ -9,10 +9,31 @@ Tento repozitář obsahuje zdrojové kódy pro maturitní projekt. Jedná se o p
 
 ## Požadavky pro spuštění
 K bezproblémovému spuštění projektu potřebujete mít na svém počítači nainstalované:
-- **Node.js** (doporučená verze: `22.16.0`, případně jiná aktuální LTS)
+- **Node.js v20 LTS** (doporučená verze: `20.x.x` — aktuální LTS)
 - Příkazový řádek / Terminál (např. v aplikaci VS Code)
 
-> Projekt je připraven pro **offline spuštění**. V repozitáři jsou zahrnuty i frontend knihovny v `node_modules` (Font Awesome, Quill, QRCode), takže po stažení z GitHubu není nutné nic dalšího stahovat z internetu.
+## Instalace Node.js
+
+1. Přejděte na [https://nodejs.org](https://nodejs.org) a stáhněte verzi **20 LTS**
+2. Spusťte instalátor a projděte průvodcem (vše ponechte výchozí)
+3. Po instalaci restartujte terminál
+4. Ověřte instalaci:
+   ```bash
+   node --version
+   npm --version
+   ```
+
+## Povolení spouštění skriptů v PowerShell
+
+Pokud se při spuštění `npm` zobrazí chyba `running scripts is disabled on this system`, je nutné povolit spouštění skriptů. Otevřete PowerShell **jako správce** a zadejte:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Potvrďte volbou `A` (Ano). Poté zavřete a znovu otevřete terminál.
+
+> Alternativně lze místo PowerShell použít klasický **příkazový řádek (cmd)**, kde toto omezení neplatí.
 
 ## Jak projekt spustit
 
@@ -20,9 +41,7 @@ K bezproblémovému spuštění projektu potřebujete mít na svém počítači 
    Otevřete si hlavní složku projektu v terminálu.
 
 2. **Instalace závislostí**
-   Pro učitelský testovací počítač **není nutné spouštět** `npm install`, pokud je repozitář stažený kompletně včetně složky `node_modules`.
-
-   Pokud by někdo měl repozitář bez `node_modules`, pak je možné závislosti doinstalovat příkazem:
+   Nainstalujte potřebné balíčky příkazem:
    ```bash
    npm install
    ```
